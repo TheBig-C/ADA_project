@@ -41,7 +41,7 @@ function linkInit() {
         weight = (weight !== null && !isNaN(parseInt(weight))) ? parseInt(weight) : 1;
 
         // Add the line and save
-        EdgeArr.push([parseInt(startVertex.name.substring(6)), parseInt(endVertex.name.substring(6)), weight]);
+        EdgeArr.push([startVertex.name.substring(6), endVertex.name.substring(6), weight]);
         canvas.AddWeightedLine(startVertex, endVertex, weight);
         canvas.refresh();
         storeEdge(parseInt(startVertex.name.substring(6)), parseInt(endVertex.name.substring(6)), $('#colorPicker').val(), isDirect, weight);

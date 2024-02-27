@@ -175,7 +175,7 @@ function tranInputToDrawer(needLoad) {
 
         // Check if there are more than three strings in one line
         if (tmp.length > 3) {
-            alert("请检查数据 一行不能超过三个");
+            alert("Se debe introducir la conexion entre nodos de la siguiente forma A B 2");
             return;
         }
         if (tmp.length >= 2) {
