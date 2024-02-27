@@ -33,11 +33,18 @@ function linkInit() {
         // remove lineFocus when the second vertex is chosen
         canvas.remove(canvas.getObjectByName('lineFocus'));
 
-        // add the line and save
-        EdgeArr.push([parseInt(startVertex.name.substring(6)), parseInt(e.target.name.substring(6))])
-        canvas.AddLine(startVertex, e.target);
+        // Obtain the target (second) vertex and weight
+        var endVertex = e.target;
+        var weight = prompt("Enter the weight for the edge:", "1"); // You can replace this with your own method of obtaining the weight
+
+        // Ensure weight is not null and convert to integer
+        weight = (weight !== null && !isNaN(parseInt(weight))) ? parseInt(weight) : 1;
+
+        // Add the line and save
+        EdgeArr.push([parseInt(startVertex.name.substring(6)), parseInt(endVertex.name.substring(6)), weight]);
+        canvas.AddWeightedLine(startVertex, endVertex, weight);
         canvas.refresh();
-        storeEdge(parseInt(startVertex.name.substring(6)), parseInt(e.target.name.substring(6)), $('#colorPicker').val(), isDirect);
+        storeEdge(parseInt(startVertex.name.substring(6)), parseInt(endVertex.name.substring(6)), $('#colorPicker').val(), isDirect, weight);
         storeInput();
 
         // reset the startVertex

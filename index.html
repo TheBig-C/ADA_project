@@ -261,21 +261,16 @@
         canvas.setWidth($("#graph-drawer").outerWidth() / 1.1);
         canvas.setHeight($("#graph-drawer").outerHeight() / 1.3);
     });
-    function showAdjacencyMatrix() {
-        // Assuming VertexArr contains the vertices in the graph
-        var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
 
-        // Display the adjacency matrix in the modal
-        displayMatrixAsTable(adjacencyMatrix);
-
-        // Show the modal
-        $("#adjacencyMatrixModal").addClass("is-active");
-    }
-
-    // Example adjacency matrix generation function (you can replace it with your own logic)
     function generateAdjacencyMatrix(vertices, edges) {
         var matrix = [];
         var n = vertices.length;
+
+        // Create a mapping from vertex names to indices
+        var vertexIndexMap = {};
+        for (var i = 0; i < n; i++) {
+            vertexIndexMap[vertices[i]] = i;
+        }
 
         // Initialize the matrix with zeros
         for (var i = 0; i < n; i++) {
@@ -286,31 +281,32 @@
         for (var i = 0; i < edges.length; i++) {
             var fromVertex = edges[i][0];
             var toVertex = edges[i][1];
+            var weight = edges[i][2];
 
-            // Set the corresponding cell to 1 for directed edges
-            matrix[fromVertex][toVertex] = 1;  //value of the vertex
+            // Set the corresponding cell to the weight value for directed edges
+            matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = weight;
 
             // Uncomment the next line if you also want to represent reverse edges for directed graphs
-            // matrix[toVertex][fromVertex] = 1;
+            // matrix[vertexIndexMap[toVertex]][vertexIndexMap[fromVertex]] = weight;
         }
 
         return matrix;
     }
 
     // Display the adjacency matrix as a table
-    function displayMatrixAsTable(matrix) {
+    function displayMatrixAsTable(matrix, nodeNames) {
         var tableContent = "<thead><tr><th></th>";
 
-        // Create table headers
-        for (var i = 0; i < matrix.length; i++) {
-            tableContent += "<th>" + i + "</th>";
+        // Create table headers using node names
+        for (var i = 0; i < nodeNames.length; i++) {
+            tableContent += "<th>" + nodeNames[i] + "</th>";
         }
 
         tableContent += "</tr></thead><tbody>";
 
         // Create table rows
         for (var i = 0; i < matrix.length; i++) {
-            tableContent += "<tr><th>" + i + "</th>";
+            tableContent += "<tr><th>" + nodeNames[i] + "</th>";
 
             for (var j = 0; j < matrix[i].length; j++) {
                 tableContent += "<td>" + matrix[i][j] + "</td>";
@@ -326,11 +322,20 @@
     }
 
     // Attach the function to the button click event
-    $("#showAdjacencyMatrixBtn").on("click", showAdjacencyMatrix);
+    $("#showAdjacencyMatrixBtn").on("click", function () {
+        // Assuming VertexArr contains the vertices in the graph
+        var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
 
-    // Close the modal when the close button or background is clicked
-    $(".modal-close, .modal-background").on("click", function () {
-        $("#adjacencyMatrixModal").removeClass("is-active");
+        // Display the adjacency matrix in the modal, pass VertexArr as nodeNames
+        displayMatrixAsTable(adjacencyMatrix, VertexArr);
+
+        // Show the modal
+        $("#adjacencyMatrixModal").addClass("is-active");
+
+        // Close the modal when the close button or background is clicked
+        $(".modal-close, .modal-background").on("click", function () {
+            $("#adjacencyMatrixModal").removeClass("is-active");
+        });
     });
 </script>
 

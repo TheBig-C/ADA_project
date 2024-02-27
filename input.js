@@ -160,7 +160,7 @@ function tranInputToDrawer(needLoad) {
         // ingore useless space
         var t = arrStr[i].split(' ');
         var tmp = [];
-        var num = [];
+        var name = [];
         for (var j = 0; j < t.length; j++) {
             if (t[j] === "") {
                 continue;
@@ -168,16 +168,12 @@ function tranInputToDrawer(needLoad) {
             tmp.push(t[j]);
         }
 
-        // to check if any chars are not between '0' and '9'
+        // Use string names for vertices
         for (var j = 0; j < tmp.length; j++) {
-            if (isNaN(parseInt(tmp[j]))) {
-                alert("请检查数据 只支持数字字符");
-                return;
-            }
-            num.push(parseInt(tmp[j]));
+            name.push(tmp[j]);
         }
 
-        // to check if there are more than three integers in one line
+        // Check if there are more than three strings in one line
         if (tmp.length > 3) {
             alert("请检查数据 一行不能超过三个");
             return;
@@ -190,7 +186,7 @@ function tranInputToDrawer(needLoad) {
                 return;
             }
         }
-        arr.push(num);
+        arr.push(name);
     }
 
     // the new vertexs and edges in the input
@@ -205,23 +201,7 @@ function tranInputToDrawer(needLoad) {
     }
 
     // make the array in increasing order
-    newVertex.sort(function (a, b) {
-        if (a.length == b.length) {
-            return a - b;
-        }
-        return a.length - b.length;
-    });
-    newEdge.sort(function (a, b) {
-        if (a[0] != b[0]) {
-            return a[0] - b[0];
-        } else if (a[1] != b[1]) {
-            return a[1] - b[1];
-        } else if (b.length != a.length) {
-            return a.length - b.length;
-        } else {
-            return 0;
-        }
-    })
+    newVertex.sort();
 
     // if some vertexs are not declared, auto-fix it  
     for (var i = 0; i < newEdge.length; i++) {
