@@ -16,12 +16,14 @@
     <script type="text/javascript" src="./create.js"></script>
     <script type="text/javascript" src="./draw.js"></script>
     <script type="text/javascript" src="./move.js"></script>
+    <script  src="./steganography.min.js"></script>
     <script type="text/javascript" src="./link.js"></script>
     <script type="text/javascript" src="./delete.js"></script>
     <script type="text/javascript" src="./download.js"></script>
     <script type="text/javascript" src="./edge.js"></script>
     <script type="text/javascript" src="./input.js"></script>
     <script type="text/javascript" src="./save.js"></script>
+    <script type="text/javascript" src="./uploadImage.js"></script>
 
     <style>
         canvas {
@@ -66,6 +68,8 @@
                                     </div>
                                     <footer class="card-footer">
                                         <a id="download" class="card-footer-item">download as a png</a>
+                                        <input type="file" id="inputImage" accept="image/*" name="pic"  onchange="decode(this);" />
+
                                     </footer>
                                 </div>
 
@@ -336,6 +340,26 @@
             $("#adjacencyMatrixModal").removeClass("is-active");
         });
     });
+    
+
+    function subirImagen() {
+    var input = document.getElementById('inputImage');
+    var preview = document.getElementById('imagenPreview');
+
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+           // preview.src = e.target.result;
+            //preview.style.display = 'block';
+
+            // Llamar a la función para extraer texto de la imagen
+            extraerTextoDeImagen(e.target.result);
+        };
+
+        reader.readAsDataURL(input.files[0]);
+    }
+}
 </script>
 
 </html>
