@@ -25,4 +25,23 @@ function deleteInit() {
         canvas.refresh();
         storeInput();
     });
+
+    // Modify the removeAll function to clear only the drawn elements, not the canvas background
+    canvas.removeAll = function() {
+        // Clear the input field
+        $("#GraphData").val('');
+
+        // Remove only the drawn elements from the canvas
+        canvas.removeDrawnElements(); // You need to implement this method to remove only the drawn elements
+    };
+
+    // Now, integrate the removeAll function with the button click event
+    $(document).ready(function() {
+        $("#removeAll").click(function() {
+            canvas.removeAll(); // Call the modified removeAll function
+            location.reload(); // Reload the page
+        });
+    });
+
+    
 }

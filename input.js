@@ -188,7 +188,7 @@ function tranInputToDrawer(needLoad) {
             flag = true;
         } else {
             if (flag) {
-                alert("请检查数据 点边数据颠倒");
+                alert("Por favor, compruebe los datos. Los datos del borde punteado están al revés.");
                 return;
             }
         }
