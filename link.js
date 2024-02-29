@@ -40,11 +40,19 @@ function linkInit() {
         // Ensure weight is not null and convert to integer
         weight = (weight !== null && !isNaN(parseInt(weight))) ? parseInt(weight) : 1;
 
-        // Add the line and save
-        EdgeArr.push([startVertex.name.substring(6), endVertex.name.substring(6), weight]);
-        canvas.AddWeightedLine(startVertex, endVertex, weight);
+        // Check if it's a loop (startVertex is the same as endVertex)
+        if (startVertex === endVertex) {
+            EdgeArr.push([startVertex.name.substring(6), endVertex.name.substring(6), weight]);
+            canvas.AddLoop(startVertex, parseInt(weight));
+            storeEdge(startVertex.name.substring(6), endVertex.name.substring(6), $('#colorPicker').val(), isDirect, weight);
+        } else {
+            // Add the line and save
+            EdgeArr.push([startVertex.name.substring(6), endVertex.name.substring(6), weight]);
+            canvas.AddWeightedLine(startVertex, endVertex, weight);
+            storeEdge(startVertex.name.substring(6), endVertex.name.substring(6), $('#colorPicker').val(), isDirect, weight);
+        }
+
         canvas.refresh();
-        storeEdge(parseInt(startVertex.name.substring(6)), parseInt(endVertex.name.substring(6)), $('#colorPicker').val(), isDirect, weight);
         storeInput();
 
         // reset the startVertex

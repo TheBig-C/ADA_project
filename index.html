@@ -21,6 +21,7 @@
     <script type="text/javascript" src="./delete.js"></script>
     <script type="text/javascript" src="./download.js"></script>
     <script type="text/javascript" src="./edge.js"></script>
+    <script type="text/javascript" src="./loop.js"></script>
     <script type="text/javascript" src="./input.js"></script>
     <script type="text/javascript" src="./save.js"></script>
     <script type="text/javascript" src="./uploadImage.js"></script>
@@ -125,6 +126,7 @@
                                         <input id="colorPicker"
                                             class="input is-warning jscolor {onFineChange:'updateColor()'}">
                                         </input>
+                                        <button id="removeAll" onclick="canvas.removeAll()">Remove All</button>
                                     </div>
                                 </div>
 
@@ -235,6 +237,7 @@
 
     fabricInit();
     edgeInit();
+    loopInit();
     createInit();
     moveInit();
     linkInit();

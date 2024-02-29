@@ -108,7 +108,7 @@ function moveInit() {
                 }
             })
         canvas.renderAll();
-        storeVertex(parseInt(object.name.substring(6)), objectCenter.x - VertexRadius, objectCenter.y - VertexRadius, null);
+        storeVertex(object.name.substring(6), objectCenter.x - VertexRadius, objectCenter.y - VertexRadius, null);
     });
 }
 

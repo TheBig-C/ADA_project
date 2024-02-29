@@ -131,6 +131,27 @@ function fabricInit() {
         canvas.discardActiveObject();
     }
 
+    // add the loop arrow fromObject to itself
+    fabric.Canvas.prototype.AddLoop = function (vertex, weight) {
+        var center = vertex.getCenterPoint();
+        defaultLine.weight = "" + weight;
+        defaultLine.directed = isDirect;
+
+        // Ajustar los puntos de control para la curva
+        var controlX1 = center.x - 10; //mueve el empiezo de la curva en x
+        var controlY1 = center.y - 15; //mueve el empiezo de la curva en y
+        var controlX2 = center.x;
+        var controlY2 = center.y;
+
+        var loop = new fabric.Loop([center.x - 15, center.y - 15, controlX1, controlY1, controlX2, controlY2, center.x, center.y], defaultLine);
+        loop.name = "loop" + vertex.name + "weight" + weight;
+        canvas.add(loop);
+        vertex.from.push(loop);
+        vertex.to.push(loop);
+
+        canvas.discardActiveObject();
+    };
+
     // refresh the data saved in graph (the VertexArr and the EdgeArr) into the input
     fabric.Canvas.prototype.refresh = function () {
         var str = '';
@@ -145,5 +166,23 @@ function fabricInit() {
         }
         $("#GraphData").val(str);
     }
+
+    // function to remove all objects from the canvas
+    fabric.Canvas.prototype.removeAll = function () {
+        var objects = this.getObjects();
+        objects.forEach(function (object) {
+            if (object.isVertex) {
+                // remove vertex-related references
+                object.to.forEach(function (item) {
+                    canvas.removeLine(item);
+                });
+                object.from.forEach(function (item) {
+                    canvas.removeLine(item);
+                });
+            }
+            canvas.remove(object);
+        });
+        canvas.renderAll();
+    };
 
 }

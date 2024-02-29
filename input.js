@@ -53,6 +53,13 @@ function addNewEdge(edgeAdd, needLoad) {
     for (var i = 0; i < edgeAdd.length; i++) {
         var obj1 = canvas.getObjectByName('vertex' + edgeAdd[i][0]);
         var obj2 = canvas.getObjectByName('vertex' + edgeAdd[i][1]);
+
+        // Check if the source and destination nodes are the same
+        if (edgeAdd[i][0] === edgeAdd[i][1]) {
+            canvas.AddLoop(obj1, edgeAdd[i][2]);
+            continue;  // Skip to the next iteration
+        }
+
         if (needLoad) {
             var args = loadEdge(edgeAdd[i][0], edgeAdd[i][1]);
             if (args[0] !== null) {
@@ -67,8 +74,7 @@ function addNewEdge(edgeAdd, needLoad) {
 
         if (edgeAdd[i].length == 2) {
             canvas.AddLine(obj1, obj2);
-        }
-        else {
+        } else {
             canvas.AddWeightedLine(obj1, obj2, edgeAdd[i][2]);
         }
     }

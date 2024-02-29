@@ -28,7 +28,7 @@ function insertArr(arr, val) {
 
 // remove the new index number into VertexArr
 function removeVertexArrByName(str) {
-    var val = parseInt(str.substring(6));
+    var val = str.substring(6);
     for (var i = 0; i < VertexArr.length; i++) {
         if (VertexArr[i] == val) {
             VertexArr.splice(i, 1);
