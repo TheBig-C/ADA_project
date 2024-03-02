@@ -1,31 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graph-Theory-Drawer</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.2.1/css/all.css">
-    <link rel="stylesheet" type="text/css" href="./radio.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/3.4.0/fabric.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.5.1/jscolor.min.js"></script>
-    <script type="text/javascript" src="./vertex.js"></script>
-    <script type="text/javascript" src="./create.js"></script>
-    <script type="text/javascript" src="./draw.js"></script>
-    <script type="text/javascript" src="./move.js"></script>
-    <script src="./steganography.min.js"></script>
-    <script type="text/javascript" src="./link.js"></script>
-    <script type="text/javascript" src="./delete.js"></script>
-    <script type="text/javascript" src="./download.js"></script>
-    <script type="text/javascript" src="./edge.js"></script>
-    <script type="text/javascript" src="./loop.js"></script>
-    <script type="text/javascript" src="./input.js"></script>
-    <script type="text/javascript" src="./save.js"></script>
-    <script type="text/javascript" src="./uploadImage.js"></script>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style type="text/css">
+    /* Estilos previos */
+    body {
+      margin: 0;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;    
+      background-color: bisque;      
+    }
+    .div1 {
+      background-color: rgb(96, 96, 96);
+      height: auto;
+      position: fixed;
+      width: 100%;
+    }
+    h1 {
+      color: hsl(207, 100%, 52%);   
+      font-family: Brush Script MT;
+      text-align: center;
+      font-size: 80px;
+      margin-top: 100px;
+    }
+    .button-container {
+      position: fixed;
+      
+    }
+    
+    .button {
+      background-color: #007bff;
+      color: #ffd6d6;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 30px;
+      font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    }
 
+<<<<<<< HEAD
     <style>
         canvas {
             border: 2px solid #ccc;
@@ -52,355 +67,50 @@
         }
         
     </style>
+=======
+    .button-topright {
+      top: 10px;
+      right: 10px;
+    
+    }
+    .button-bottomright {
+      bottom: 80px;
+      right: 10px;
+    }
+    footer{
+      bottom: 0px;
+      position: absolute;
+      color: rgb(255, 255, 255);
+      width: 100%;
+      padding-bottom: 15px;
+      background-color: #737373;
+      }
+  </style>
+  <title>Nodo.Js</title>
+>>>>>>> dbbc0f29d48b7fd8be541f4dc67d7eb9ba558e23
 </head>
-
 <body>
-    <section class="section">
-        <div class="container">
-            <div class="tile is-ancestor">
-                <div class="tile is-vertical is-7">
-                    <div class="tile">
-                        <div class="tile is-parent">
-                            <article class="tile is-child notification is-info" id="graph-drawer">
-                                <p class="title">Graph Drawer</p>
-                                <div> <canvas id="c" width=400 height=300></canvas></div>
-                            </article>
-                        </div>
-                    </div>
-                    <div class="tile is-parent  is-vertical">
-                        <article class="tile is-child notification is-danger">
-                            <div class="content">
-                                <p class="title">PNG</p>
-                                <div class="card">
-                                    <div class="card-content">
-                                        <div class="content">
-                                            Upload or Download PNG
-                                        </div>
-                                    </div>
-                                    <footer class="card-footer">
-                                        <a id="download" class="card-footer-item">download as a png</a>
-                                        <input type="file" id="inputImage" accept="image/*" name="pic"
-                                            onchange="decode(this);" />
-
-                                    </footer>
-                                </div>
-
-                            </div>
-                        </article>
-                    </div>
-                </div>
-                <div class="tile is-parent is-vertical is-5">
-                    <article class="tile is-child notification is-success">
-                        <div class="content">
-                            <p class="title">Input</p>
-                            <div class="control">
-                                <textarea class="textarea"
-                                    placeholder="Input graph data here... For example:&#10 1 &#10 2 &#10 3 &#10 1 2 &#10 1 3"
-                                    rows="10" id="GraphData">
-                                </textarea>
-                            </div>
-                        </div>
-                    </article>
-
-                    <article class="tile is-child notification is-warning">
-                        <div class="content">
-                            <p class="title">Settings</p>
-                            <div class="card">
-                                <div class="card-content">
-                                    <div class="content">
-                                        <p class="subtitle">Mode</p>
-                                        <div class="radio">
-                                            <input id="create" name="radio" type="radio" checked="">
-                                            <label for="create" class="radio-label">create</label>
-                                        </div>
-                                        <div class="radio">
-                                            <input id="link" name="radio" type="radio">
-                                            <label for="link" class="radio-label">link</label>
-                                        </div>
-                                        <div class="radio">
-                                            <input id="delete" name="radio" type="radio">
-                                            <label for="delete" class="radio-label">delete</label>
-                                        </div>
-                                        <p class="subtitle"></p>
-                                        <p class="subtitle">Arrow</p>
-                                        <div class="radio">
-                                            <input id="direct" name="radio2" type="radio">
-                                            <label for="direct" class="radio-label">directed</label>
-                                        </div>
-                                        <div class="radio">
-                                            <input id="undirect" name="radio2" type="radio">
-                                            <label for="undirect" class="radio-label">undirected</label>
-                                        </div>
-
-                                        <p class="subtitle"></p>
-                                        <p class="subtitle">Color</p>
-                                        <input id="colorPicker"
-                                            class="input is-warning jscolor {onFineChange:'updateColor()'}">
-                                        </input>
-                                        <!--<button id="removeAll" onclick="canvas.removeAll()">Remove All</button>-->
-                                        <button id="removeAll">Remove All</button>
-                                        <button id="showAdjacencyMatrixBtn">Show Adjacency Matrix</button>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </article>
-                </div>
-            </div>
-            <footer class="footer">
-            </footer>
-        </div>
-    </section>
-
-   <!-- <button id="showAdjacencyMatrixBtn">Show Adjacency Matrix</button>-->
-
-    <!-- Help Button -->
-    <button id="helpButton" class="button is-info is-rounded" style="position: fixed; bottom: 20px; right: 20px;">
-        <span class="icon is-small">
-            <i class="fas fa-question"></i>
-        </span>
-        <span>Help</span>
-    </button>
-
-    <!-- Help Modal -->
-    <div id="helpModal" class="modal">
-        <div class="modal-background"></div>
-        <div class="modal-content">
-            <div class="box">
-                <h4 class="title is-4">Hint</h4>
-                <p>
-                    Puedes escribir tus vértices y aristas en <b>Input</b>, y el grafo correspondiente será generado.
-                    También, puedes crear tu propio grafo directamente. En modo <b>create</b>, si haces clic en un espacio
-                    en blanco, se creará un nuevo vértice. En modo <b>link</b>, selecciona dos vértices para crear una
-                    arista, y con las opciones en <b>arrow</b>, puedes seleccionar si es dirigida o no. En modo
-                    <b>delete</b>, selecciona un vértice para eliminarlo. Además, puedes elegir tu color favorito en
-                    <b>color</b>. Finalmente, si deseas guardar tu grafo creado, haz clic en el descargar, y
-                    guarda el grafo como un <b>png</b>.
-                </p>
-                <button id="closeHelp" class="button is-link is-light">Close</button>
-            </div>
-        </div>
-        <button class="modal-close is-large" aria-label="close"></button>
+  <center>
+    <div class="div1">
+      <h1>Nodo.Js</h1>
+      <hr style="width: 800px;">
+      <H4 >by</H4>
+      <h3 style="color: blanchedalmond;">Abel Ignacio García Aguirre</h3>
+      <h3 style="color: blanchedalmond;">Christian Mijael Mendoza Huanca</h3>
+      <h3 style="color: blanchedalmond;">César Mateo Vera Andrade</h3>
+      <h3 style="color: blanchedalmond;">Manuel Fernando Delgadillo Calderón</h3>
+    </div>
+    <div class="button-container button-topright">
+      <button class="button" onclick="location.href='contactos.html'">Contactos</button>
+    </div>
+    <footer>
+      <p>© 2024 Nodo.js. Todos los derechos reservados.</p>
+  </footer>
+    <div class="button-container button-bottomright">
+      <button class="button" onclick="location.href='Base.html'">Iniciar</button>
     </div>
 
-    <!-- Modal -->
-    <div class="modal" id="adjacencyMatrixModal">
-        <div class="modal-background"></div>
-        <div class="modal-content">
-            <div class="box">
-                <h4 class="title is-4">Adjacency Matrix</h4>
-                <table id="adjacencyMatrixTable" class="table">
-                    <!-- Table content will be dynamically generated here -->
-                </table>
-            </div>
-        </div>
-        <button class="modal-close is-large" aria-label="close"></button>
-    </div>
-
-    <script>
-        // Help Button Click Event
-        document.getElementById('helpButton').addEventListener('click', function () {
-            document.getElementById('helpModal').classList.add('is-active');
-        });
-
-        // Help Modal Close Event
-        document.getElementById('closeHelp').addEventListener('click', function () {
-            document.getElementById('helpModal').classList.remove('is-active');
-        });
-    </script>
-
-    <script>
-        var VertexColor = '#ffffff';            // the color of vertexs
-        var VertexRadius = 16;                  // the radius of vertexs
-        var padding = 10;                       // the padding to prevent objects to reach the edge of the canvas
-        var weightPadding = 16;                 // the padding from edge to weight label
-        var startVertex = null;                 // when linking two vertexs, record the first one
-        var VertexArr = [];                     // the vertex array, recording what indexs are used
-        var EdgeArr = [];                       // the edges array, recording pairs of [fromVertex, toVertex]
-        var isDirect = true;                    // if true, edges have arrows, representing direct edges
-
-        var canvasWidth = $("#graph-drawer").outerWidth() / 1.1;                  // the width of canvas
-        var canvasHeight = $("#graph-drawer").outerHeight() / 1.3;                // the height of canvas
-        var canvas = new fabric.Canvas('c', {                                     // the object of canvas
-            backgroundColor: "#fff",
-            selection: false,
-            width: canvasWidth,
-            height: canvasHeight,
-        });
-
-        // the default format of a vertex
-        var defaultVertex = {
-            radius: VertexRadius,
-            originX: 'center',
-            originY: 'center',
-            stroke: 'black',
-            hasControls: false,
-        };
-
-        // the default format of related context on the vertex
-        var defaultContext = {
-            fontSize: 15,
-            originX: 'center',
-            originY: 'center',
-            textAlign: 'center',
-            fontWeight: 'bold',
-        }
-
-        // the default format of an edge
-        var defaultLine = {
-            strokeWidth: 2,
-            fill: '#000000',
-            stroke: '#000000',
-            originX: 'center',
-            originY: 'center',
-            weight: "",
-            directed: 0,
-            selectable: false,
-            hasControls: false,
-            hasBorders: false,
-            evented: false,
-            targetFindTolerance: true,
-        };
-
-        // init css elements
-        document.getElementById("create").checked = true;
-        document.getElementById("direct").checked = true;
-        $('#colorPicker').val("#ffffff");
-        jscolor.install();
-        $("#directChange").css({ "text-decoration": "none" })
-        $("#download").css({ "text-decoration": "none" })
-
-        fabricInit();
-        edgeInit();
-        loopInit();
-        createInit();
-        moveInit();
-        linkInit();
-        deleteInit();
-        downloadInit();
-        inputInit();
-        saveInit();
-
-        // set color for vertexs or edges
-        function updateColor() {
-            if (document.getElementById("create").checked) {
-                VertexColor = $('#colorPicker').val();
-            }
-
-            if (document.getElementById("link").checked) {
-                defaultLine.stroke = $('#colorPicker').val();
-            }
-        }
-
-        // change whether edges have arrows
-        $("#directChange").click(function () {
-            isDirect = 1 - isDirect;
-            canvas.renderAll();
-        });
-
-        // auto resize
-        $(window).resize(function () {
-            canvas.setWidth($("#graph-drawer").outerWidth() / 1.1);
-            canvas.setHeight($("#graph-drawer").outerHeight() / 1.3);
-        });
-
-        function generateAdjacencyMatrix(vertices, edges) {
-            var matrix = [];
-            var n = vertices.length;
-
-            // Create a mapping from vertex names to indices
-            var vertexIndexMap = {};
-            for (var i = 0; i < n; i++) {
-                vertexIndexMap[vertices[i]] = i;
-            }
-
-            // Initialize the matrix with zeros
-            for (var i = 0; i < n; i++) {
-                matrix[i] = Array(n).fill(0);
-            }
-
-            // Fill in the matrix based on the edges
-            for (var i = 0; i < edges.length; i++) {
-                var fromVertex = edges[i][0];
-                var toVertex = edges[i][1];
-                var weight = edges[i][2];
-
-                // Set the corresponding cell to the weight value for directed edges
-                matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = weight;
-
-                // matrix[vertexIndexMap[toVertex]][vertexIndexMap[fromVertex]] = weight;
-            }
-
-            return matrix;
-        }
-
-        // Display the adjacency matrix as a table
-        function displayMatrixAsTable(matrix, nodeNames) {
-            var tableContent = "<thead><tr><th></th>";
-
-            // Create table headers using node names
-            for (var i = 0; i < nodeNames.length; i++) {
-                tableContent += "<th>" + nodeNames[i] + "</th>";
-            }
-
-            tableContent += "</tr></thead><tbody>";
-
-            // Create table rows
-            for (var i = 0; i < matrix.length; i++) {
-                tableContent += "<tr><th>" + nodeNames[i] + "</th>";
-
-                for (var j = 0; j < matrix[i].length; j++) {
-                    tableContent += "<td>" + matrix[i][j] + "</td>";
-                }
-
-                tableContent += "</tr>";
-            }
-
-            tableContent += "</tbody>";
-
-            // Set the content of the table
-            $("#adjacencyMatrixTable").html(tableContent);
-        }
-
-        // Attach the function to the button click event
-        $("#showAdjacencyMatrixBtn").on("click", function () {
-            // Assuming VertexArr contains the vertices in the graph
-            var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
-
-            // Display the adjacency matrix in the modal, pass VertexArr as nodeNames
-            displayMatrixAsTable(adjacencyMatrix, VertexArr);
-
-            // Show the modal
-            $("#adjacencyMatrixModal").addClass("is-active");
-
-            // Close the modal when the close button or background is clicked
-            $(".modal-close, .modal-background").on("click", function () {
-                $("#adjacencyMatrixModal").removeClass("is-active");
-            });
-        });
-
-
-        function subirImagen() {
-            var input = document.getElementById('inputImage');
-            var preview = document.getElementById('imagenPreview');
-
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    // preview.src = e.target.result;
-                    //preview.style.display = 'block';
-
-                    // Llamar a la función para extraer texto de la imagen
-                    extraerTextoDeImagen(e.target.result);
-                };
-
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-    </script>
-
+  </center>
+  
 </body>
-
 </html>
