@@ -64,52 +64,60 @@ if(comp2.some(item => item.includes(comp))){
 
 }
 if (isBothWays) {
-var weight = prompt("Enter the weight for the edge:", "1"); // You can replace this with your own method of obtaining the weight
-        // Ensure weight is not null and convert to integer
-        weight = (weight !== null && !isNaN(parseInt(weight))) ? parseInt(weight) : 1;
+    // Prompt for the weight of the first connection
+    var weight1 = prompt("Enter the weight for " + startVertex.name.substring(6) + " to " + endVertex.name.substring(6) +":", "1");
 
-            // Add bidirectional lines with respective weights and save
-            EdgeArr.push([startVertex.name.substring(6), endVertex.name.substring(6), weight1]);
-            EdgeArr.push([endVertex.name.substring(6), startVertex.name.substring(6), weight2]);
-            canvas.AddWeightedLine(startVertex, endVertex, weight1);
-            canvas.AddWeightedLine(endVertex, startVertex, weight2);
-            storeEdge(startVertex.name.substring(6), endVertex.name.substring(6), $('#colorPicker').val(), isDirect, weight1);
-            storeEdge(endVertex.name.substring(6), startVertex.name.substring(6), $('#colorPicker').val(), isDirect, weight2);
+    // Ensure weight1 is not null and convert to integer
+    weight1 = (weight1 !== null && !isNaN(parseInt(weight1))) ? parseInt(weight1) : 1;
 
-            isDirect = false;
+    // Prompt for the weight of the second connection
+    var weight2 = prompt("Enter the weight for " + endVertex.name.substring(6) + " to " + startVertex.name.substring(6) +":", "1");
+
+    // Ensure weight2 is not null and convert to integer
+    weight2 = (weight2 !== null && !isNaN(parseInt(weight2))) ? parseInt(weight2) : 1;
+
+    // Add bidirectional lines with respective weights and save
+    EdgeArr.push([startVertex.name.substring(6), endVertex.name.substring(6), weight1]);
+    EdgeArr.push([endVertex.name.substring(6), startVertex.name.substring(6), weight2]);
+    canvas.AddWeightedLine(startVertex, endVertex, weight1);
+    canvas.AddWeightedLine(endVertex, startVertex, weight2);
+    storeEdge(startVertex.name.substring(6), endVertex.name.substring(6), $('#colorPicker').val(), isDirect, weight1);
+    storeEdge(endVertex.name.substring(6), startVertex.name.substring(6), $('#colorPicker').val(), isDirect, weight2);
+
+    isDirect = false;
+} else {
+    // Check if it's a loop (startVertex is the same as endVertex)
+    if (startVertex === endVertex) {
+        if (isDirect) {
+            var weight = prompt("Enter the weight for the loop connection:", "1");
+            // Ensure weight1 is not null and convert to integer
+            weight = (weight !== null && !isNaN(parseInt(weight))) ? parseInt(weight) : 1;
+            EdgeArr.push([startVertex.name.substring(6), endVertex.name.substring(6), weight]);
+            canvas.AddLoop(startVertex, parseInt(weight));
+            storeEdge(startVertex.name.substring(6), endVertex.name.substring(6), $('#colorPicker').val(), isDirect, weight);
         } else {
-            // Check if it's a loop (startVertex is the same as endVertex)
-            if (startVertex === endVertex) {
-                if (isDirect) {
-                    var weight = prompt("Enter the weight for the loop connection:", "1");
-                    // Ensure weight1 is not null and convert to integer
-                    weight = (weight !== null && !isNaN(parseInt(weight))) ? parseInt(weight) : 1;
-                    EdgeArr.push([startVertex.name.substring(6), endVertex.name.substring(6), weight]);
-                    canvas.AddLoop(startVertex, parseInt(weight));
-                    storeEdge(startVertex.name.substring(6), endVertex.name.substring(6), $('#colorPicker').val(), isDirect, weight);
-                } else {
-                    EdgeArr.push([startVertex.name.substring(6), endVertex.name.substring(6)]);
-                    canvas.AddUndirectedLoop(startVertex);
-                    storeEdge(startVertex.name.substring(6), endVertex.name.substring(6), $('#colorPicker').val(), isDirect);
-                }
-            } else {
-                // Add the line and save
-                if (isDirect) {
-                    // Prompt for the weight
-                    var weight = prompt("Enter the weight for the edge:", "1");
-
-                    // Ensure weight is not null and convert to integer
-                    weight = (weight !== null && !isNaN(parseInt(weight))) ? parseInt(weight) : 1;
-                    EdgeArr.push([startVertex.name.substring(6), endVertex.name.substring(6), weight]);
-                    canvas.AddWeightedLine(startVertex, endVertex, weight);
-                    storeEdge(startVertex.name.substring(6), endVertex.name.substring(6), $('#colorPicker').val(), isDirect, weight);
-                } else {
-                    EdgeArr.push([startVertex.name.substring(6), e.target.name.substring(6)])
-                    canvas.AddLine(startVertex, e.target);
-                    storeEdge(startVertex.name.substring(6), e.target.name.substring(6), $('#colorPicker').val(), isDirect);
-                }
-            }
+            EdgeArr.push([startVertex.name.substring(6), endVertex.name.substring(6)]);
+            canvas.AddUndirectedLoop(startVertex);
+            storeEdge(startVertex.name.substring(6), endVertex.name.substring(6), $('#colorPicker').val(), isDirect);
         }
+    } else {
+        // Add the line and save
+        if (isDirect) {
+            // Prompt for the weight
+            var weight = prompt("Enter the weight for the edge:", "1");
+
+            // Ensure weight is not null and convert to integer
+            weight = (weight !== null && !isNaN(parseInt(weight))) ? parseInt(weight) : 1;
+            EdgeArr.push([startVertex.name.substring(6), endVertex.name.substring(6), weight]);
+            canvas.AddWeightedLine(startVertex, endVertex, weight);
+            storeEdge(startVertex.name.substring(6), endVertex.name.substring(6), $('#colorPicker').val(), isDirect, weight);
+        } else {
+            EdgeArr.push([startVertex.name.substring(6), e.target.name.substring(6)])
+            canvas.AddLine(startVertex, e.target);
+            storeEdge(startVertex.name.substring(6), e.target.name.substring(6), $('#colorPicker').val(), isDirect);
+        }
+    }
+}
 
         canvas.refresh();
         storeInput();

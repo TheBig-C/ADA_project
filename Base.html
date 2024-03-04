@@ -117,6 +117,10 @@
                                             <input id="undirect" name="radio2" type="radio">
                                             <label for="undirect" class="radio-label">undirected</label>
                                         </div>
+                                        <div class="radio">
+                                            <input id="bothWays" name="radio2" type="radio">
+                                            <label for="bothWays" class="radio-label">Both Ways</label>
+                                        </div>
                                         <p class="subtitle"></p>
                                         <p class="subtitle">Color</p>
                                         <input id="colorPicker" class="input is-warning jscolor {onFineChange:'updateColor()'}" style="width: 50%;">
@@ -349,7 +353,7 @@
 
 // the default format of an edge
 var defaultLine = {
-    strokeWidth: 4, // Ajustado a 4 para hacer la línea más gruesa
+    strokeWidth: 2, // Ajustado a 4 para hacer la línea más gruesa
     fill: '#000000',
     stroke: '#000000',
     originX: 'center',
