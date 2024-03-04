@@ -34,9 +34,30 @@ function linkInit() {
         canvas.remove(canvas.getObjectByName('lineFocus'));
 
         // Obtain the target (second) vertex and weight
-        var endVertex = e.target;
-        var weight = prompt("Enter the weight for the edge:", "1"); // You can replace this with your own method of obtaining the weight
+        
 
+        var endVertex = e.target;
+        // Convertir el objeto a JSON
+var jsonString = JSON.stringify(startVertex);
+
+// Buscar el texto "df" con una expresión regular
+var t1 = jsonString.match(/"text":\s*"(.*?)"/);
+var jsonString2 = JSON.stringify(endVertex);
+
+// Buscar el texto "df" con una expresión regular
+var t2 = jsonString2.match(/"text":\s*"(.*?)"/);
+  
+var comp=t1[1]+" "+t2[1];
+
+var comp2=$('#GraphData').val().split("\n");
+console.log("comp: "+comp);
+console.log("comp2: "+comp2);
+if(comp2.some(item => item.includes(comp))){
+   alert("Conexion invalida");
+    return 
+
+}
+var weight = prompt("Enter the weight for the edge:", "1"); // You can replace this with your own method of obtaining the weight
         // Ensure weight is not null and convert to integer
         weight = (weight !== null && !isNaN(parseInt(weight))) ? parseInt(weight) : 1;
 

@@ -56,4 +56,8 @@ function loopInit() {
                 this._render(ctx);
             }
         });
+
+
+
+        
 }

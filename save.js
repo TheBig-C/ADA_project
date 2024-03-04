@@ -34,7 +34,22 @@ function storeVertex(index, x, y, color) {
         localStorage.setItem('vertex' + index + 'color', color);
     }
 }
-
+function storeVertexColor(color,index) {
+   
+    if (color !== null) {
+        localStorage.setItem('vertex' + index + 'color', color);
+    }
+}
+function storeEdgeColor(x, y,color) {
+    if (x > y) {
+        var z = y;
+        y = x;
+        x = z;
+    }
+    if (color !== null) {
+        localStorage.setItem('edgeColor' + x + 'to' + y, color);
+    }
+}
 // to store the vertexs' positions
 // when load, remember the type of the data need to be transformed
 function loadVertex(index) {
@@ -42,7 +57,6 @@ function loadVertex(index) {
     x = parseFloat(localStorage.getItem('vertex' + index + 'x'));
     y = parseFloat(localStorage.getItem('vertex' + index + 'y'));
     color = localStorage.getItem('vertex' + index + 'color');
-
     if (x === null || y === null || color === null) {
         return;
     }
