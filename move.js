@@ -53,63 +53,136 @@ function moveInit() {
     });
 
     // when moving a vertex, update the connected edges' position
-    canvas.on('object:moving', function (e) {
+    canvas.on('object:moving', function (e) { //moved, provitional solution
         var object = e.target;
         var objectCenter = object.getCenterPoint();
 
         if (object.from)
             object.from.forEach(function (e) {
-                // when edge has weight
-                if (e.type === "group") {
-                    tmpEdge = e.getObjects("Edge")[0];
-                    tmpContent = e.getObjects("text")[0];
-                    e.remove(tmpEdge);
-                    e.remove(tmpContent);
-                    tmpEdge.set({
-                        'x1': objectCenter.x,
-                        'y1': objectCenter.y
-                    })
-                    tmpContent.set({
-                        left: (tmpEdge.x1 + tmpEdge.x2) / 2 - weightPadding * (tmpEdge.y1 - tmpEdge.y2) / Math.sqrt((tmpEdge.x1 - tmpEdge.x2) * (tmpEdge.x1 - tmpEdge.x2) + (tmpEdge.y1 - tmpEdge.y2) * (tmpEdge.y1 - tmpEdge.y2)),
-                        top: (tmpEdge.y1 + tmpEdge.y2) / 2 + weightPadding * (tmpEdge.x1 - tmpEdge.x2) / Math.sqrt((tmpEdge.x1 - tmpEdge.x2) * (tmpEdge.x1 - tmpEdge.x2) + (tmpEdge.y1 - tmpEdge.y2) * (tmpEdge.y1 - tmpEdge.y2))
-                    })
-                    e.addWithUpdate(tmpEdge);
-                    e.addWithUpdate(tmpContent);
+                if (e.type === "Loop") {
+
+                    if (objectCenter.x <= canvas.width / 2) {
+                        // El vértice está en el lado izquierdo
+                        var controlX2 = object.width - 300 / 2 + 80;
+                        var controlY2 = object.height / 2 - 10;
+                        var endX = object.width - 35 / 2;
+                        var endY = object.height - 10 / 2;
+                        e.set({
+                            'left': objectCenter.x - 10 - e.width / 2,
+                            'top': objectCenter.y - 15 - e.height / 2,
+                            'path': [
+                                'M', e.width + 15, e.height - 15,
+                                'Q', controlX2, controlY2, endX, endY + 15
+                            ]
+                        });
+                    } else {
+                        // El vértice está en el lado derecho
+                        var controlX2 = object.width + 300 / 2 - 80;
+                        var controlY2 = object.height / 2 + 10;
+                        var endX = object.width + 35 / 2;
+                        var endY = object.height - 10 / 2;
+                        e.set({
+                            'left': objectCenter.x + 15 - e.width / 2,
+                            'top': objectCenter.y - 15 - e.height / 2,
+                            'path': [
+                                'M', e.width + 15, e.height - 15,
+                                'Q', controlX2, controlY2, endX, endY + 15
+                            ]
+                        });
+                    }
                 } else {
-                    e.set({
-                        'x1': objectCenter.x,
-                        'y1': objectCenter.y
-                    });
+                    // Cuando la línea no es un bucle
+                    if (e.type === "group") {
+                        tmpEdge = e.getObjects("Edge")[0];
+                        tmpContent = e.getObjects("text")[0];
+                        e.remove(tmpEdge);
+                        e.remove(tmpContent);
+                        tmpEdge.set({
+                            'x1': objectCenter.x,
+                            'y1': objectCenter.y
+                        });
+                        tmpContent.set({
+                            left: (tmpEdge.x1 + tmpEdge.x2) / 2 - weightPadding * (tmpEdge.y1 - tmpEdge.y2) / Math.sqrt((tmpEdge.x1 - tmpEdge.x2) * (tmpEdge.x1 - tmpEdge.x2) + (tmpEdge.y1 - tmpEdge.y2) * (tmpEdge.y1 - tmpEdge.y2)),
+                            top: (tmpEdge.y1 + tmpEdge.y2) / 2 + weightPadding * (tmpEdge.x1 - tmpEdge.x2) / Math.sqrt((tmpEdge.x1 - tmpEdge.x2) * (tmpEdge.x1 - tmpEdge.x2) + (tmpEdge.y1 - tmpEdge.y2) * (tmpEdge.y1 - tmpEdge.y2))
+                        });
+                        e.addWithUpdate(tmpEdge);
+                        e.addWithUpdate(tmpContent);
+                    } else {
+                        e.set({
+                            'x1': objectCenter.x,
+                            'y1': objectCenter.y + 5
+                        });
+                    }
                 }
-            })
+            });
+
         if (object.to)
             object.to.forEach(function (e) {
-                // when edge has weight
-                if (e.type === "group") {
-                    tmpEdge = e.getObjects("Edge")[0];
-                    tmpContent = e.getObjects("text")[0];
-                    e.remove(tmpEdge);
-                    e.remove(tmpContent);
-                    tmpEdge.set({
-                        'x2': objectCenter.x,
-                        'y2': objectCenter.y
-                    })
-                    tmpContent.set({
-                        left: (tmpEdge.x1 + tmpEdge.x2) / 2 - weightPadding * (tmpEdge.y1 - tmpEdge.y2) / Math.sqrt((tmpEdge.x1 - tmpEdge.x2) * (tmpEdge.x1 - tmpEdge.x2) + (tmpEdge.y1 - tmpEdge.y2) * (tmpEdge.y1 - tmpEdge.y2)),
-                        top: (tmpEdge.y1 + tmpEdge.y2) / 2 + weightPadding * (tmpEdge.x1 - tmpEdge.x2) / Math.sqrt((tmpEdge.x1 - tmpEdge.x2) * (tmpEdge.x1 - tmpEdge.x2) + (tmpEdge.y1 - tmpEdge.y2) * (tmpEdge.y1 - tmpEdge.y2))
-                    })
-                    e.addWithUpdate(tmpEdge);
-                    e.addWithUpdate(tmpContent);
+                if (e.type === "Loop") {
+                    // Mover el bucle con el nodo
+                    if (objectCenter.x <= canvas.width / 2) {
+                        // El vértice está en el lado izquierdo
+                        var controlX2 = object.width - 300 / 2 + 80;
+                        var controlY2 = object.height / 2 - 10;
+                        var endX = object.width - 35 / 2;
+                        var endY = object.height - 10 / 2;
+                        e.set({
+                            'left': objectCenter.x - 10 - e.width / 2,
+                            'top': objectCenter.y - 15 - e.height / 2,
+                            'path': [
+                                'M', e.width + 15, e.height - 15,
+                                'Q', controlX2, controlY2, endX, endY + 15
+                            ]
+                        });
+                    } else {
+                        // El vértice está en el lado derecho
+                        var controlX2 = object.width + 300 / 2 - 80;
+                        var controlY2 = object.height / 2 + 10;
+                        var endX = object.width + 35 / 2;
+                        var endY = object.height - 10 / 2;
+                        e.set({
+                            'left': objectCenter.x + 15 - e.width / 2,
+                            'top': objectCenter.y - 15 - e.height / 2,
+                            'path': [
+                                'M', e.width + 15, e.height - 15,
+                                'Q', controlX2, controlY2, endX, endY + 15
+                            ]
+                        });
+                    }
                 } else {
-                    e.set({
-                        'x2': objectCenter.x,
-                        'y2': objectCenter.y
-                    });
+                    // Cuando la línea no es un bucle
+                    if (e.type === "group") {
+                        tmpEdge = e.getObjects("Edge")[0];
+                        tmpContent = e.getObjects("text")[0];
+                        e.remove(tmpEdge);
+                        e.remove(tmpContent);
+                        tmpEdge.set({
+                            'x2': objectCenter.x,
+                            'y2': objectCenter.y
+                        });
+                        tmpContent.set({
+                            left: (tmpEdge.x1 + tmpEdge.x2) / 2 - weightPadding * (tmpEdge.y1 - tmpEdge.y2) / Math.sqrt((tmpEdge.x1 - tmpEdge.x2) * (tmpEdge.x1 - tmpEdge.x2) + (tmpEdge.y1 - tmpEdge.y2) * (tmpEdge.y1 - tmpEdge.y2)),
+                            top: (tmpEdge.y1 + tmpEdge.y2) / 2 + weightPadding * (tmpEdge.x1 - tmpEdge.x2) / Math.sqrt((tmpEdge.x1 - tmpEdge.x2) * (tmpEdge.x1 - tmpEdge.x2) + (tmpEdge.y1 - tmpEdge.y2) * (tmpEdge.y1 - tmpEdge.y2))
+                        });
+                        e.addWithUpdate(tmpEdge);
+                        e.addWithUpdate(tmpContent);
+                    } else {
+                        e.set({
+                            'x2': objectCenter.x,
+                            'y2': objectCenter.y
+                        });
+                    }
                 }
-            })
+            });
+        /*if (!canvas._isCurrentlyDrawing) {
+            // Add your additional logic or actions here
+            location.reload(); // Reload the page
+        }*/
+        //updateLoop(object, canvas);
         canvas.renderAll();
         storeVertex(object.name.substring(6), objectCenter.x - VertexRadius, objectCenter.y - VertexRadius, null);
     });
+
 }
 
 // when linking two vertexs, draw a line, called lineFocus, 

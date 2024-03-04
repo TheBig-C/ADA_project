@@ -98,7 +98,7 @@ function fabricInit() {
 
         if (from.x != to.x || from.y != to.y) {
             defaultLine.weight = "";
-            defaultLine.directed = isDirect;
+            //defaultLine.directed = isDirect;
             var line = new fabric.Edge([from.x, from.y, to.x, to.y], defaultLine);
             line.name = "edge" + fromObject.name + toObject.name;
             canvas.add(line);
@@ -115,19 +115,104 @@ function fabricInit() {
     fabric.Canvas.prototype.AddWeightedLine = function (fromObject, toObject, weight) {
         var from = fromObject.getCenterPoint();
         var to = toObject.getCenterPoint();
-
-        if (from.x != to.x || from.y != to.y) {
+    
+        // Create unique identifiers for both directions
+        var connectionIdAB = fromObject.name + "_" + toObject.name;
+        var connectionIdBA = toObject.name + "_" + fromObject.name;
+    
+        // Check if there is already a connection in either direction
+        var existingConnectionAB = connections.find(conn => conn === connectionIdAB);
+        var existingConnectionBA = connections.find(conn => conn === connectionIdBA);
+    
+        if (existingConnectionAB || existingConnectionBA) {
+            // Draw the new connection parallel to the existing one
             defaultLine.weight = "" + weight;
             defaultLine.directed = isDirect;
-            var line = new fabric.Edge([from.x, from.y, to.x, to.y], defaultLine);
-            line.name = "edge" + fromObject.name + toObject.name + "weight" + weight;
+            var angle = Math.atan2(to.y - from.y, to.x - from.x);
+            var perpendicularAngle = angle + Math.PI / 2;
+            var separationDistance = 5;
+    
+            var line = new fabric.Edge([
+                from.x + separationDistance * Math.cos(perpendicularAngle),
+                from.y + separationDistance * Math.sin(perpendicularAngle),
+                to.x + separationDistance * Math.cos(perpendicularAngle),
+                to.y + separationDistance * Math.sin(perpendicularAngle)
+            ], defaultLine);
+    
+            line.name = "edge" + fromObject.name + toObject.name + "weight" + weight; // Use one of the connection IDs
             canvas.add(line);
             fromObject.from.push(line);
             toObject.to.push(line);
-
+    
+            // sendToBack() is used to get an object to the bottom
+            line.sendToBack();
+        } else {
+            // Draw the new connection as usual
+            defaultLine.weight = "" + weight;
+            defaultLine.directed = isDirect;
+            var line = new fabric.Edge([from.x, from.y, to.x, to.y], defaultLine);
+            line.name = "edge" + fromObject.name + toObject.name + "weight" + weight; // Use one of the connection IDs
+            canvas.add(line);
+            fromObject.from.push(line);
+            toObject.to.push(line);
+    
+            // Add both connection IDs to the array
+            connections.push(connectionIdAB, connectionIdBA);
+    
             // sendToBack() is used to get an object to the bottom
             line.sendToBack();
         }
+    
+        canvas.discardActiveObject();
+    }
+
+    // add two lines, bidirected from fromObject to toObject with weight
+    fabric.Canvas.prototype.AddWeightedBidireccionalLines = function (fromObject, toObject, weight1, weight2) {
+        var from = fromObject.getCenterPoint();
+        var to = toObject.getCenterPoint();
+
+        if (from.x != to.x || from.y != to.y) {
+            defaultLine.directed = isDirect;
+
+            // Distancia entre las dos líneas paralelas
+            //var separationDistance = 10;
+
+            var angle = Math.atan2(to.y - from.y, to.x - from.x);
+
+            // Ángulo perpendicular
+            var perpendicularAngle = angle + Math.PI / 2;
+
+            // Bidireccional
+            var line1 = new fabric.Edge([
+                from.x, from.y,
+                to.x, to.y
+            ], defaultLine);
+
+            var line2 = new fabric.Edge([
+                //to.x + separationDistance * Math.cos(perpendicularAngle), to.y + separationDistance * Math.sin(perpendicularAngle),
+                //from.x + separationDistance * Math.cos(perpendicularAngle), from.y + separationDistance * Math.sin(perpendicularAngle)
+                to.x, to.y,
+                from.x, from.y,
+            ], defaultLine);
+
+            // Asignar pesos a las líneas
+            line1.set('weight', weight1);
+            line2.set('weight', weight2);
+
+            line1.name = "edge" + fromObject.name + toObject.name + "weight" + weight1;
+            line2.name = "edge" + toObject.name + fromObject.name + "weight" + weight2 + "second";
+
+            canvas.add(line1, line2);
+            fromObject.from.push(line1);
+            toObject.to.push(line1);
+            toObject.from.push(line2);
+            fromObject.to.push(line2);
+
+            // sendToBack() is used to get an object to the bottom
+            line1.sendToBack();
+            line2.sendToBack();
+        }
+
         canvas.discardActiveObject();
     }
 
@@ -136,18 +221,67 @@ function fabricInit() {
         var center = vertex.getCenterPoint();
         defaultLine.weight = "" + weight;
         defaultLine.directed = isDirect;
+        // Verificar la posición del vértice y realizar acciones específicas
+        if (vertex.left <= canvas.width / 2) {
+            // El vértice está en el lado izquierdo
+            var controlX1 = center.x - 10; // Mueve el inicio de la curva en x
+            var controlY1 = center.y - 15; // Mueve el inicio de la curva en y
+            var controlX2 = center.x;
+            var controlY2 = center.y;
 
-        // Ajustar los puntos de control para la curva
-        var controlX1 = center.x - 10; //mueve el empiezo de la curva en x
-        var controlY1 = center.y - 15; //mueve el empiezo de la curva en y
-        var controlX2 = center.x;
-        var controlY2 = center.y;
+            var loop = new fabric.Loop([center.x - 15, center.y - 15, controlX1, controlY1, controlX2, controlY2, center.x, center.y], defaultLine);
+            loop.name = "loop" + vertex.name + "weight" + weight;
+            canvas.add(loop);
+            vertex.from.push(loop);
+            vertex.to.push(loop);
+        } else {
+            // El vértice está en el lado derecho
+            // Ajustar los puntos de control para la curva
+            var controlX1 = center.x + 10; //mueve el empiezo de la curva en x
+            var controlY1 = center.y - 15; //mueve el empiezo de la curva en y
+            var controlX2 = center.x;
+            var controlY2 = center.y;
 
-        var loop = new fabric.Loop([center.x - 15, center.y - 15, controlX1, controlY1, controlX2, controlY2, center.x, center.y], defaultLine);
-        loop.name = "loop" + vertex.name + "weight" + weight;
-        canvas.add(loop);
-        vertex.from.push(loop);
-        vertex.to.push(loop);
+            var loop = new fabric.LoopR([center.x + 15, center.y - 15, controlX1, controlY1, controlX2, controlY2, center.x, center.y], defaultLine);
+            loop.name = "loopR" + vertex.name + "weight" + weight;
+            canvas.add(loop);
+            vertex.from.push(loop);
+            vertex.to.push(loop);
+        }
+
+        canvas.discardActiveObject();
+    };
+
+    fabric.Canvas.prototype.AddUndirectedLoop = function (vertex) {
+        var center = vertex.getCenterPoint();
+        //defaultLine.directed = isDirect;
+        // Verificar la posición del vértice y realizar acciones específicas
+        if (vertex.left <= canvas.width / 2) {
+            // El vértice está en el lado izquierdo
+            var controlX1 = center.x - 10; // Mueve el inicio de la curva en x
+            var controlY1 = center.y - 15; // Mueve el inicio de la curva en y
+            var controlX2 = center.x;
+            var controlY2 = center.y;
+
+            var loop = new fabric.unDirectedLoop([center.x - 15, center.y - 15, controlX1, controlY1, controlX2, controlY2, center.x, center.y], defaultLine);
+            loop.name = "unDirectedLoop" + vertex.name;
+            canvas.add(loop);
+            vertex.from.push(loop);
+            vertex.to.push(loop);
+        } else {
+            // El vértice está en el lado derecho
+            // Ajustar los puntos de control para la curva
+            var controlX1 = center.x + 10; //mueve el empiezo de la curva en x
+            var controlY1 = center.y - 15; //mueve el empiezo de la curva en y
+            var controlX2 = center.x;
+            var controlY2 = center.y;
+
+            var loop = new fabric.unDirectedLoopR([center.x + 15, center.y - 15, controlX1, controlY1, controlX2, controlY2, center.x, center.y], defaultLine);
+            loop.name = "unDirectedLoopR" + vertex.name;
+            canvas.add(loop);
+            vertex.from.push(loop);
+            vertex.to.push(loop);
+        }
 
         canvas.discardActiveObject();
     };
@@ -182,7 +316,9 @@ function fabricInit() {
             }
             canvas.remove(object);
         });
+        $("#GraphData").val('');
         canvas.renderAll();
+        tranInputToDrawer(true);
     };
 
 }

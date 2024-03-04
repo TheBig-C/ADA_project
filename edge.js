@@ -32,7 +32,7 @@ function edgeInit() {
                 ctx.fillText(
                     this.weight,
                     (- this.x2 + this.x1) / 2 + weightPadding * Math.sin(angle),
-                    (- this.y2 + this.y1) / 2 - weightPadding * Math.cos(angle),
+                    (- this.y2 + this.y1) / 2 - weightPadding * Math.cos(angle) + 6,
                 )
 
                 // draw the triangle of the arrow

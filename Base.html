@@ -36,19 +36,23 @@
         }
 
         .notification.is-danger {
-            background-color: rgb(111, 82, 168); /*PNG */
+            background-color: rgb(111, 82, 168);
+            /*PNG */
         }
 
         .notification.is-warning {
-            background-color: rgb(111, 82, 168); /*Settings*/
+            background-color: rgb(111, 82, 168);
+            /*Settings*/
         }
 
         .notification.is-info {
-            background-color: rgb(111, 82, 168); /*Graph Drawer*/
+            background-color: rgb(111, 82, 168);
+            /*Graph Drawer*/
         }
 
         .notification.is-success {
-            background-color: rgb(111, 82, 168); /*Input*/
+            background-color: rgb(111, 82, 168);
+            /*Input*/
         }
     </style>
 </head>
@@ -130,14 +134,16 @@
                                             <input id="undirect" name="radio2" type="radio">
                                             <label for="undirect" class="radio-label">undirected</label>
                                         </div>
-
+                                        <div class="radio">
+                                            <input id="bothWays" name="radio2" type="radio">
+                                            <label for="bothWays" class="radio-label">Both Ways</label>
+                                        </div>
                                         <p class="subtitle"></p>
                                         <p class="subtitle">Color</p>
                                         <input id="colorPicker"
                                             class="input is-warning jscolor {onFineChange:'updateColor()'}">
                                         </input>
-                                        <!--<button id="removeAll" onclick="canvas.removeAll()">Remove All</button>-->
-                                        <button id="removeAll">Remove All</button>
+                                        <button id="removeAll" onclick="canvas.removeAll()">Remove All</button>
                                         <button id="showAdjacencyMatrixBtn">Show Adjacency Matrix</button>
                                     </div>
                                 </div>
@@ -152,7 +158,7 @@
         </div>
     </section>
 
-   <!-- <button id="showAdjacencyMatrixBtn">Show Adjacency Matrix</button>-->
+    <!-- <button id="showAdjacencyMatrixBtn">Show Adjacency Matrix</button>-->
 
     <!-- Help Button -->
     <button id="helpButton" class="button is-info is-rounded" style="position: fixed; bottom: 20px; right: 20px;">
@@ -170,7 +176,8 @@
                 <h4 class="title is-4">Hint</h4>
                 <p>
                     Puedes escribir tus vértices y aristas en <b>Input</b>, y el grafo correspondiente será generado.
-                    También, puedes crear tu propio grafo directamente. En modo <b>create</b>, si haces clic en un espacio
+                    También, puedes crear tu propio grafo directamente. En modo <b>create</b>, si haces clic en un
+                    espacio
                     en blanco, se creará un nuevo vértice. En modo <b>link</b>, selecciona dos vértices para crear una
                     arista, y con las opciones en <b>arrow</b>, puedes seleccionar si es dirigida o no. En modo
                     <b>delete</b>, selecciona un vértice para eliminarlo. Además, puedes elegir tu color favorito en
@@ -217,7 +224,9 @@
         var startVertex = null;                 // when linking two vertexs, record the first one
         var VertexArr = [];                     // the vertex array, recording what indexs are used
         var EdgeArr = [];                       // the edges array, recording pairs of [fromVertex, toVertex]
-        var isDirect = true;                    // if true, edges have arrows, representing direct edges
+        var isDirect = true;                    // Add this line to initialize the connections array
+        var isBothWays = false;                 // if true, edges have arrows, representing direct edges
+        var connections = [];                   //global array to save all conection without weights (it doesn't saves loops)
 
         var canvasWidth = $("#graph-drawer").outerWidth() / 1.1;                  // the width of canvas
         var canvasHeight = $("#graph-drawer").outerHeight() / 1.3;                // the height of canvas
@@ -325,12 +334,17 @@
                 var toVertex = edges[i][1];
                 var weight = edges[i][2];
 
-                // Set the corresponding cell to the weight value for directed edges
-                matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = weight;
+                if (edges[i].length === 3) {
+                    // Set the corresponding cell to the weight value for directed edges
+                    matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = weight || 1;
+                } else {
 
-                // matrix[vertexIndexMap[toVertex]][vertexIndexMap[fromVertex]] = weight;
+                    // For undirected edges, set the reverse direction as well
+                    matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = 1;
+                    matrix[vertexIndexMap[toVertex]][vertexIndexMap[fromVertex]] = 1;
+                }
             }
-
+            console.log(matrix);
             return matrix;
         }
 

@@ -35,14 +35,70 @@ function addNewVertex(vertexAdd, needLoad) {
 function delOldEdge(edgeDel) {
     for (var i = 0; i < edgeDel.length; i++) {
         var line;
-        if (edgeDel[i].length == 2)
+        var loop;
+        var loopR;
+        var unDirectedLoop;
+        var unDirectedLoopR;
+
+        // Check if it's a loop or a regular edge
+        if (edgeDel[i].length === 2) {
+            // For lines
             line = canvas.getObjectByName('edge' + 'vertex' + edgeDel[i][0] + 'vertex' + edgeDel[i][1]);
-        else
-            line = canvas.getObjectByName('edge' + 'vertex' + edgeDel[i][0] + 'vertex' + edgeDel[i][1] + 'weight' + edgeDel[i][2]);
+            if (edgeDel[i][0] === edgeDel[i][1]) {
+                unDirectedLoop = canvas.getObjectByName('unDirectedLoop' + 'vertex' + edgeDel[i][0]);
+                unDirectedLoopR = canvas.getObjectByName('unDirectedLoopR' + 'vertex' + edgeDel[i][0]);
+            }
+        } else {
+            // For loops
+            if (edgeDel[i][0] === edgeDel[i][1]) {
+                // It's a loop when the source and destination nodes are the same
+                loop = canvas.getObjectByName('loop' + 'vertex' + edgeDel[i][0] + 'weight' + edgeDel[i][2]);
+                loopR = canvas.getObjectByName('loopR' + 'vertex' + edgeDel[i][0] + 'weight' + edgeDel[i][2]);
+            } else {
+                // It's a regular edge
+                line = canvas.getObjectByName('edge' + 'vertex' + edgeDel[i][0] + 'vertex' + edgeDel[i][1] + 'weight' + edgeDel[i][2]);
+            }
+        }
+
+        console.log(unDirectedLoop);
+        console.log(unDirectedLoopR);
+        console.log(loop);
+        console.log(loopR);
+
 
         if (line !== null) {
             canvas.removeLine(line);
             canvas.remove(line);
+        }
+
+        if (loop !== null) {
+            // Check if it's a loop and not a regular edge
+            if (edgeDel[i].length === 3) {
+                canvas.removeLine(loop);
+                canvas.remove(loop);
+            }
+        }
+
+        if (loopR !== null) {
+            // Check if it's a loopR and not a regular edge
+            if (edgeDel[i].length === 3) {
+                canvas.removeLine(loopR);
+                canvas.remove(loopR);
+            }
+        }
+        if (unDirectedLoop !== null) {
+            // Check if it's a loopR and not a regular edge
+            if (edgeDel[i].length === 2) {
+                canvas.removeLine(unDirectedLoop);
+                canvas.remove(unDirectedLoop);
+            }
+        }
+        if (unDirectedLoopR !== null) {
+            // Check if it's a loopR and not a regular edge
+            if (edgeDel[i].length === 2) {
+                canvas.removeLine(unDirectedLoopR);
+                canvas.remove(unDirectedLoopR);
+            }
         }
     }
 }
@@ -56,7 +112,10 @@ function addNewEdge(edgeAdd, needLoad) {
 
         // Check if the source and destination nodes are the same
         if (edgeAdd[i][0] === edgeAdd[i][1]) {
-            canvas.AddLoop(obj1, edgeAdd[i][2]);
+            if (edgeAdd[i].length == 2)
+                canvas.AddUndirectedLoop(obj1);
+            else
+                canvas.AddLoop(obj1, edgeAdd[i][2]);
             continue;  // Skip to the next iteration
         }
 
