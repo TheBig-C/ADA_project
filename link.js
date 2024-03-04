@@ -35,7 +35,7 @@ function linkInit() {
 
         // Obtain the target (second) vertex and weight
         var endVertex = e.target;
-        var weight = prompt("Enter the weight for the edge:", "1"); // You can replace this with your own method of obtaining the weight
+        var weight = prompt("Ingrese el valor de la arista:", "1"); // You can replace this with your own method of obtaining the weight
 
         // Ensure weight is not null and convert to integer
         weight = (weight !== null && !isNaN(parseInt(weight))) ? parseInt(weight) : 1;
