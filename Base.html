@@ -35,24 +35,25 @@
             border: 2px solid black;
         }
 
-        .notification.is-danger {
-            background-color: rgb(111, 82, 168);
-            /*PNG */
-        }
-
         .notification.is-warning {
-            background-color: rgb(111, 82, 168);
-            /*Settings*/
+            background-color: rgb(60, 57, 66); /*Settings*/
         }
 
         .notification.is-info {
-            background-color: rgb(111, 82, 168);
-            /*Graph Drawer*/
+            background-color: rgb(60, 57, 66); /*Graph Drawer*/
         }
 
         .notification.is-success {
-            background-color: rgb(111, 82, 168);
-            /*Input*/
+            background-color: rgb(60, 57, 66); /*Input*/
+        }
+
+        .tile.is-parent.png-section {
+            height: min-content;
+            width: min-content; /* Adjust the width as needed */
+        }
+
+        .tile.is-parent.png-section .tile.is-child {
+            margin-bottom: 1rem;
         }
     </style>
 </head>
@@ -70,27 +71,6 @@
                             </article>
                         </div>
                     </div>
-                    <div class="tile is-parent  is-vertical">
-                        <article class="tile is-child notification is-danger">
-                            <div class="content">
-                                <p class="title">PNG</p>
-                                <div class="card">
-                                    <div class="card-content">
-                                        <div class="content">
-                                            Subir o Descargar PNG
-                                        </div>
-                                    </div>
-                                    <footer class="card-footer">
-                                        <a id="download" class="card-footer-item">Descargar como png</a>
-                                        <input type="file" id="inputImage" accept="image/*" name="pic"
-                                            onchange="decode(this);" />
-
-                                    </footer>
-                                </div>
-
-                            </div>
-                        </article>
-                    </div>
                 </div>
                 <div class="tile is-parent is-vertical is-5">
                     <article class="tile is-child notification is-success">
@@ -104,8 +84,7 @@
                             </div>
                         </div>
                     </article>
-
-                    <article class="tile is-child notification is-warning">
+                    <article class="tile is-child notification is-success">
                         <div class="content">
                             <p class="title" style="color: #ffffff;">Ajustes</p>
                             <div class="card">
@@ -134,10 +113,6 @@
                                             <input id="undirect" name="radio2" type="radio">
                                             <label for="undirect" class="radio-label">undirected</label>
                                         </div>
-                                        <div class="radio">
-                                            <input id="bothWays" name="radio2" type="radio">
-                                            <label for="bothWays" class="radio-label">Both Ways</label>
-                                        </div>
                                         <p class="subtitle"></p>
                                         <p class="subtitle">Color</p>
                                         <input id="colorPicker"
@@ -147,18 +122,123 @@
                                         <button id="showAdjacencyMatrixBtn">Show Adjacency Matrix</button>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                     </article>
+                    
                 </div>
             </div>
-            <footer class="footer">
-            </footer>
         </div>
     </section>
+   <!-- Upload PNG Button -->
+<button id="uploadPNGButton" class="button is-danger is-rounded" style="position: fixed; bottom: 80px; right: 20px;">
+    <span class="icon is-small">
+        <i class="fas fa-upload"></i>
+    </span>
+    <span>Upload</span>
+</button>
 
-    <!-- <button id="showAdjacencyMatrixBtn">Show Adjacency Matrix</button>-->
+<!-- Input for File Upload -->
+<input type="file" id="inputImage" style="display: none;">
+
+<!-- Download PNG Button -->
+<button id="downloadPNGButton" class="button is-success is-rounded" style="position: fixed; bottom: 140px; right: 20px;">
+    <span class="icon is-small">
+        <i class="fas fa-download"></i>
+    </span>
+    <span>Download</span>
+</button>
+
+
+
+<!-- Script for File Upload -->
+<script>
+    // Function to handle file selection and decode
+    function handleFileSelect(event) {
+        var input = event.target;
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                const img = new Image();
+
+                img.onload = function () {
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = img.width;
+                    tempCanvas.height = img.height;
+
+                    const tempContext = tempCanvas.getContext('2d');
+                    tempContext.drawImage(img, 0, 0);
+
+                    const dataURL = tempCanvas.toDataURL('image/png');
+                    const decodedText = steg.decode(dataURL);
+
+                    $('#GraphData').val(decodedText);
+                };
+
+                img.src = e.target.result;
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Function to trigger file input click
+    document.getElementById('uploadPNGButton').addEventListener('click', function () {
+        document.getElementById('inputImage').click();
+    });
+
+    // Event listener for file input change
+    document.getElementById('inputImage').addEventListener('change', handleFileSelect);
+</script>
+
+
+<!-- Script for Download PNG Button -->
+<script>
+    // Download PNG Button Click Event
+    document.getElementById('downloadPNGButton').addEventListener('click', function () {
+        // Verificar si el canvas tiene un tamaño válido
+        if (canvas.width === 0 || canvas.height === 0) {
+            console.error("Canvas size is invalid");
+            return;
+        }
+
+        // Crear una nueva imagen para asegurar que esté completamente cargada
+        const img = new Image();
+        img.onload = function () {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = img.width;
+            tempCanvas.height = img.height;
+
+            const tempContext = tempCanvas.getContext('2d');
+            tempContext.drawImage(img, 0, 0);
+
+            const dataURL = tempCanvas.toDataURL('image/png');
+
+            const link = document.createElement('a');
+            link.download = 'canvas.png';
+
+            // Verificar si el canvas tiene contenido antes de aplicar la esteganografía
+            if ($('#GraphData').val() && dataURL) {
+                const encodedDataURL = steg.encode($('#GraphData').val(), dataURL);
+                link.href = encodedDataURL;
+            } else {
+                console.error("Text or canvas content is empty");
+                return;
+            }
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Luego de descargar, ocultar texto en la imagen
+        };
+
+        img.src = 'data:image/png;base64,' + canvas.toDataURL().split(',')[1];
+    });
+</script>
+
+
 
     <!-- Help Button -->
     <button id="helpButton" class="button is-info is-rounded" style="position: fixed; bottom: 20px; right: 20px;">
