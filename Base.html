@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graph-Theory-Drawer</title>
+    <title>Nodo.JS</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.2.1/css/all.css">
     <link rel="stylesheet" type="text/css" href="./radio.css">
@@ -65,7 +65,7 @@
                     <div class="tile">
                         <div class="tile is-parent">
                             <article class="tile is-child notification is-info" id="graph-drawer">
-                                <p class="title">Graph Drawer</p>
+                                <p class="title">Creador de grafos</p>
                                 <div> <canvas id="c" width=400 height=300></canvas></div>
                             </article>
                         </div>
@@ -77,11 +77,11 @@
                                 <div class="card">
                                     <div class="card-content">
                                         <div class="content">
-                                            Upload or Download PNG
+                                            Subir o Descargar PNG
                                         </div>
                                     </div>
                                     <footer class="card-footer">
-                                        <a id="download" class="card-footer-item">download as a png</a>
+                                        <a id="download" class="card-footer-item">Descargar como png</a>
                                         <input type="file" id="inputImage" accept="image/*" name="pic"
                                             onchange="decode(this);" />
 
@@ -95,10 +95,10 @@
                 <div class="tile is-parent is-vertical is-5">
                     <article class="tile is-child notification is-success">
                         <div class="content">
-                            <p class="title">Input</p>
+                            <p class="title">Entradas</p>
                             <div class="control">
                                 <textarea class="textarea"
-                                    placeholder="Input graph data here... For example:&#10 1 &#10 2 &#10 3 &#10 1 2 &#10 1 3"
+                                    placeholder="Introduzca los datos del grafo aquí... Ejemplo:&#10 1 &#10 2 &#10 3 &#10 1 2 &#10 1 3"
                                     rows="10" id="GraphData">
                                 </textarea>
                             </div>
@@ -107,28 +107,28 @@
 
                     <article class="tile is-child notification is-warning">
                         <div class="content">
-                            <p class="title">Settings</p>
+                            <p class="title" style="color: #ffffff;">Ajustes</p>
                             <div class="card">
                                 <div class="card-content">
                                     <div class="content">
-                                        <p class="subtitle">Mode</p>
+                                        <p class="subtitle">Modo</p>
                                         <div class="radio">
                                             <input id="create" name="radio" type="radio" checked="">
-                                            <label for="create" class="radio-label">create</label>
+                                            <label for="create" class="radio-label">Crear nodo</label>
                                         </div>
                                         <div class="radio">
                                             <input id="link" name="radio" type="radio">
-                                            <label for="link" class="radio-label">link</label>
+                                            <label for="link" class="radio-label">Enlazar nodo</label>
                                         </div>
                                         <div class="radio">
                                             <input id="delete" name="radio" type="radio">
-                                            <label for="delete" class="radio-label">delete</label>
+                                            <label for="delete" class="radio-label">Borrar nodo</label>
                                         </div>
                                         <p class="subtitle"></p>
-                                        <p class="subtitle">Arrow</p>
+                                        <p class="subtitle">Tipo de enlace</p>
                                         <div class="radio">
                                             <input id="direct" name="radio2" type="radio">
-                                            <label for="direct" class="radio-label">directed</label>
+                                            <label for="direct" class="radio-label">dirigido</label>
                                         </div>
                                         <div class="radio">
                                             <input id="undirect" name="radio2" type="radio">
@@ -165,7 +165,7 @@
         <span class="icon is-small">
             <i class="fas fa-question"></i>
         </span>
-        <span>Help</span>
+        <span>Ayuda</span>
     </button>
 
     <!-- Help Modal -->
@@ -173,7 +173,7 @@
         <div class="modal-background"></div>
         <div class="modal-content">
             <div class="box">
-                <h4 class="title is-4">Hint</h4>
+                <h4 class="title is-4">Consejo.</h4>
                 <p>
                     Puedes escribir tus vértices y aristas en <b>Input</b>, y el grafo correspondiente será generado.
                     También, puedes crear tu propio grafo directamente. En modo <b>create</b>, si haces clic en un
@@ -184,7 +184,7 @@
                     <b>color</b>. Finalmente, si deseas guardar tu grafo creado, haz clic en el descargar, y
                     guarda el grafo como un <b>png</b>.
                 </p>
-                <button id="closeHelp" class="button is-link is-light">Close</button>
+                <button id="closeHelp" class="button is-link is-light">Cerrar</button>
             </div>
         </div>
         <button class="modal-close is-large" aria-label="close"></button>
@@ -195,7 +195,7 @@
         <div class="modal-background"></div>
         <div class="modal-content">
             <div class="box">
-                <h4 class="title is-4">Adjacency Matrix</h4>
+                <h4 class="title is-4">Matriz de adyacencia</h4>
                 <table id="adjacencyMatrixTable" class="table">
                     <!-- Table content will be dynamically generated here -->
                 </table>
