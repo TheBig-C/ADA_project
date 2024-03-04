@@ -61,6 +61,143 @@ function fabricInit() {
             }
         });
     }
+// Variable para almacenar el estado del botón de selección
+var isSelectMode = false;
+
+// Evento que se dispara cuando cambia el estado del botón de selección
+document.getElementById('select').addEventListener('change', function () {
+    isSelectMode = this.checked;
+
+    // Deselecciona todos los objetos si se desactiva el modo de selección
+    if (!isSelectMode) {
+        canvas.discardActiveObject();
+        canvas.renderAll();
+    }
+});
+
+// Agrega un evento de selección a los objetos circulares (vértices)
+canvas.on('selection:created', function (options) {
+    if (!isSelectMode) return; // No realiza acciones si el modo de selección no está activado
+
+    var selectedObject = options.target;
+
+    // Verifica si el objeto seleccionado es un vértice (grupo con la propiedad isVertex)
+    if (selectedObject.isVertex) {
+        // Cambia el color del borde del círculo al seleccionarlo
+        selectedObject.getObjects()[0].set({
+            stroke: 'red',  // Puedes cambiar el color al que desees
+            strokeWidth: 2  // Puedes ajustar el grosor del borde
+        });
+
+        // Redibuja el lienzo para aplicar los cambios visuales
+        canvas.renderAll();
+    }
+});
+
+// Agrega un evento para restablecer el color del borde cuando se deselecciona el objeto
+canvas.on('mouse:up', function (options) {
+    if (!isSelectMode) return; // No realiza acciones si el modo de selección no está activado
+
+    var target = options.target;
+
+    // Verifica si el objeto seleccionado es un vértice (grupo con la propiedad isVertex)
+    if (target && target.isVertex) {
+        // Verifica si el vértice ya estaba seleccionado
+        if (target.isSelected) {
+            // Deselecciona el vértice (restaura el color del borde)
+            target.getObjects()[0].set({
+                stroke: defaultVertex.stroke,
+                strokeWidth: defaultVertex.strokeWidth
+            });
+
+            // Actualiza el estado de selección en el vértice
+            target.isSelected = false;
+        } else {
+            // Cambia el color del borde del círculo al seleccionarlo
+            target.getObjects()[0].set({
+                stroke: 'red',  // Puedes cambiar el color al que desees
+                strokeWidth: 2  // Puedes ajustar el grosor del borde
+            });
+
+            // Actualiza el estado de selección en el vértice
+            target.isSelected = true;
+        }
+
+        // Redibuja el lienzo para aplicar los cambios visuales
+        canvas.renderAll();
+    }
+});
+
+
+// Agrega un evento de selección a los objetos circulares (vértices)
+
+
+
+
+
+
+canvas.on('selection:created', function (options) {
+    if (!isSelectMode) return; // No realiza acciones si el modo de selección no está activado
+    var selectedObject = options.target;
+    // Verifica si el objeto seleccionado es un vértice (grupo con la propiedad isVertex)
+    if (selectedObject.isVertex) {
+
+        // Actualiza los valores de los inputs con los datos del vértice seleccionado
+        document.getElementById('colorPicker').value = selectedObject.getObjects()[0].get('fill');
+        document.getElementById('valuePicker').value = selectedObject.name.substring(6);
+        // Agrega un evento al botón para aplicar los cambios
+        document.getElementById('applyChangesBtn').addEventListener('click', function () {
+
+            var newValue = document.getElementById('valuePicker').value;
+            if(!VertexArr.includes(newValue)||newValue==selectedObject.name.substring(6)){
+                applyChanges(selectedObject);
+
+            }else{
+                alert("Ingrese otro valor para el nodo");
+            }
+            
+
+        });
+    }
+});
+
+// Agrega un evento de deselección para quitar el evento del botón
+
+
+// Función para aplicar los cambios al vértice
+function applyChanges(selectedObject) {
+    // No realiza acciones si el modo de selección no está activado
+    var str=$('#GraphData').val();
+    var newColor = document.getElementById('colorPicker').value;
+    var newValue = document.getElementById('valuePicker').value;
+    var x= selectedObject.getObjects()[0].get('x');
+    var y= selectedObject.getObjects()[0].get('y');
+VertexArr.forEach(function(v) {
+  if(v==selectedObject.name.substring(6)){
+    v=newValue;
+  }
+});
+    //selectedObject.getObjects()[0].set({ fill: newColor });
+    //selectedObject.name="vertex"+newValue;
+    var nuevoTexto = str.replace(new RegExp(selectedObject.name.substring(6), 'gi'), newValue);
+    canvas.remove(selectedObject);
+        $('#GraphData').val(nuevoTexto);
+       // console.log(newColor);
+       canvas.addVertex(x, y, newColor, newValue);
+       tranInputToDrawer(false,true);
+       storeVertexColor(newColor, newValue);
+
+}
+
+
+
+
+
+
+
+
+
+// Función para actualizar el vértice al cambiar los valores en los inputs
 
     // create a new vertex
     fabric.Canvas.prototype.addVertex = function (x, y, color, idx) {
@@ -89,6 +226,7 @@ function fabricInit() {
 
         canvas.add(group);
         canvas.renderAll();
+        
     }
 
     // add the line, directed from fromObject to toObject
@@ -98,7 +236,11 @@ function fabricInit() {
 
         if (from.x != to.x || from.y != to.y) {
             defaultLine.weight = "";
-            //defaultLine.directed = isDirect;
+            defaultLine.directed = isDirect;
+            // Agrega la propiedad 'selectable' al objeto defaultLine
+defaultLine.selectable = true;
+defaultLine.objectCaching = false;
+
             var line = new fabric.Edge([from.x, from.y, to.x, to.y], defaultLine);
             line.name = "edge" + fromObject.name + toObject.name;
             canvas.add(line);
@@ -128,18 +270,12 @@ function fabricInit() {
             // Draw the new connection parallel to the existing one
             defaultLine.weight = "" + weight;
             defaultLine.directed = isDirect;
-            var angle = Math.atan2(to.y - from.y, to.x - from.x);
-            var perpendicularAngle = angle + Math.PI / 2;
-            var separationDistance = 5;
-    
-            var line = new fabric.Edge([
-                from.x + separationDistance * Math.cos(perpendicularAngle),
-                from.y + separationDistance * Math.sin(perpendicularAngle),
-                to.x + separationDistance * Math.cos(perpendicularAngle),
-                to.y + separationDistance * Math.sin(perpendicularAngle)
-            ], defaultLine);
-    
-            line.name = "edge" + fromObject.name + toObject.name + "weight" + weight; // Use one of the connection IDs
+            // Agrega la propiedad 'selectable' al objeto defaultLine
+            defaultLine.objectCaching = false;
+
+defaultLine.selectable = true;
+            var line = new fabric.Edge([from.x, from.y, to.x, to.y], defaultLine);
+            line.name = "edge" + fromObject.name + toObject.name + "weight" + weight;
             canvas.add(line);
             fromObject.from.push(line);
             toObject.to.push(line);
@@ -221,13 +357,15 @@ function fabricInit() {
         var center = vertex.getCenterPoint();
         defaultLine.weight = "" + weight;
         defaultLine.directed = isDirect;
-        // Verificar la posición del vértice y realizar acciones específicas
-        if (vertex.left <= canvas.width / 2) {
-            // El vértice está en el lado izquierdo
-            var controlX1 = center.x - 10; // Mueve el inicio de la curva en x
-            var controlY1 = center.y - 15; // Mueve el inicio de la curva en y
-            var controlX2 = center.x;
-            var controlY2 = center.y;
+// Agrega la propiedad 'selectable' al objeto defaultLine
+defaultLine.selectable = true;
+defaultLine.objectCaching = false;
+if (vertex.left <= canvas.width / 2) {
+        // Ajustar los puntos de control para la curva
+        var controlX1 = center.x - 10; //mueve el empiezo de la curva en x
+        var controlY1 = center.y - 15; //mueve el empiezo de la curva en y
+        var controlX2 = center.x;
+        var controlY2 = center.y;
 
             var loop = new fabric.Loop([center.x - 15, center.y - 15, controlX1, controlY1, controlX2, controlY2, center.x, center.y], defaultLine);
             loop.name = "loop" + vertex.name + "weight" + weight;

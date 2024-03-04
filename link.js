@@ -40,21 +40,33 @@ function linkInit() {
         canvas.remove(canvas.getObjectByName('lineFocus'));
 
         // Obtain the target (second) vertex
+        
+
         var endVertex = e.target;
+        // Convertir el objeto a JSON
+var jsonString = JSON.stringify(startVertex);
 
-        // Check if it's bidirectional
-        if (isBothWays) {
-            // Prompt for the weight of the first connection
-            var weight1 = prompt("Enter the weight for " + startVertex.name.substring(6) + " to " + endVertex.name.substring(6) +":", "1");
+// Buscar el texto "df" con una expresión regular
+var t1 = jsonString.match(/"text":\s*"(.*?)"/);
+var jsonString2 = JSON.stringify(endVertex);
 
-            // Ensure weight1 is not null and convert to integer
-            weight1 = (weight1 !== null && !isNaN(parseInt(weight1))) ? parseInt(weight1) : 1;
+// Buscar el texto "df" con una expresión regular
+var t2 = jsonString2.match(/"text":\s*"(.*?)"/);
+  
+var comp=t1[1]+" "+t2[1];
 
-            // Prompt for the weight of the second connection
-            var weight2 = prompt("Enter the weight for " + endVertex.name.substring(6) + " to " + startVertex.name.substring(6) +":", "1");
+var comp2=$('#GraphData').val().split("\n");
+console.log("comp: "+comp);
+console.log("comp2: "+comp2);
+if(comp2.some(item => item.includes(comp))){
+   alert("Conexion invalida");
+    return 
 
-            // Ensure weight2 is not null and convert to integer
-            weight2 = (weight2 !== null && !isNaN(parseInt(weight2))) ? parseInt(weight2) : 1;
+}
+if (isBothWays) {
+var weight = prompt("Enter the weight for the edge:", "1"); // You can replace this with your own method of obtaining the weight
+        // Ensure weight is not null and convert to integer
+        weight = (weight !== null && !isNaN(parseInt(weight))) ? parseInt(weight) : 1;
 
             // Add bidirectional lines with respective weights and save
             EdgeArr.push([startVertex.name.substring(6), endVertex.name.substring(6), weight1]);

@@ -43,8 +43,7 @@ function createInit() {
         }
         var x = e.e.x + document.documentElement.scrollLeft - $("#graph-drawer").offset().left - 30;
         var y = e.e.y + document.documentElement.scrollTop - $("#graph-drawer").offset().top - 90;
-        var idx = getVertexArrUnusedIndex();
-        insertArr(VertexArr, idx);
+        var idx = insertArr(VertexArr, idx);
 
         // draw and save
         canvas.addVertex(x, y, VertexColor, idx);

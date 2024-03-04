@@ -12,20 +12,39 @@ function getVertexArrUnusedIndex() {
     return x;
 }
 
-// insert the new index number into arr, to keep it increasing
-function insertArr(arr, val) {
-    var index = 0;
-    for (; index < arr.length; index++) {
-        if (val < arr[index]) {
-            arr.splice(index, 0, val);
-            break;
+// Inserta el nuevo valor en el arreglo para mantenerlo en orden
+function insertArr(arr,idx) {
+    // Solicita al usuario que ingrese el valor mediante un prompt
+    var val=null;
+    while(true){
+        val = prompt("Ingrese el valor del Nodo", getVertexArrUnusedIndex())||getVertexArrUnusedIndex();
+
+        if(!arr.includes(val)){
+           break;
         }
     }
+
+    // Inicializa la variable 'index' en 0
+    var index = 0;
+
+    // Recorre el arreglo 'arr' en busca del lugar adecuado para insertar 'val'
+    for (; index < arr.length; index++) {
+        // Compara 'val' con el elemento actual en el índice 'index'
+        
+            arr.splice(index, 0, val);
+            break;  // Sale del bucle, ya que se ha insertado 'val' correctamente
+        
+        
+          
+    }
+
+    // Si 'index' es igual a la longitud del arreglo, 'val' es mayor que todos los elementos existentes
     if (index === arr.length) {
+        // En este caso, simplemente agrega 'val' al final del arreglo
         arr.push(val);
     }
+    return val;
 }
-
 // remove the new index number into VertexArr
 function removeVertexArrByName(str) {
     var val = str.substring(6);
