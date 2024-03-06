@@ -61,11 +61,7 @@ function delOldEdge(edgeDel) {
             }
         }
 
-        console.log(unDirectedLoop);
-        console.log(unDirectedLoopR);
-        console.log(loop);
-        console.log(loopR);
-
+  
 
         if (line !== null) {
             canvas.removeLine(line);
