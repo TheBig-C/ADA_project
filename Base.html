@@ -496,10 +496,8 @@
                 tableContent += "</tr>";
             }
 
-            // Add a row for column sums
             tableContent += "<tr><th>Suma Columna</th>";
 
-            // Calculate column sums and add them to the table
             for (var j = 0; j < matrix[0].length; j++) {
                 var colSum = 0;
                 for (var i = 0; i < matrix.length; i++) {
@@ -510,7 +508,6 @@
 
             tableContent += "<td></td></tr></tbody>";
 
-            // Set the content of the table
             $("#adjacencyMatrixTable").html(tableContent);
         }
 
