@@ -331,12 +331,18 @@
 
 
     <!-- Help Button -->
-    <button id="helpButton" class="button is-info is-rounded" style="position: fixed; bottom: 20px; right: 20px;">
+    <button onclick="abrirAyuda()" class="button is-info is-rounded" style="position: fixed; bottom: 20px; right: 20px; ">
         <span class="icon is-small">
             <i class="fas fa-question"></i>
         </span>
         <span>Ayuda</span>
     </button>
+
+    <script>
+        function abrirAyuda(){
+         window.open('instrucciones.pdf', '_blank');
+        } 
+     </script>
 
     <!-- Help Modal -->
     <div id="helpModal" class="modal">
@@ -375,11 +381,7 @@
     </div>
 
     <script>
-        // Help Button Click Event
-        document.getElementById('helpButton').addEventListener('click', function () {
-            document.getElementById('helpModal').classList.add('is-active');
-        });
-
+       
         // Help Modal Close Event
         document.getElementById('closeHelp').addEventListener('click', function () {
             document.getElementById('helpModal').classList.remove('is-active');
