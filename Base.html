@@ -36,20 +36,24 @@
         }
 
         .notification.is-warning {
-            background-color: rgb(60, 57, 66); /*Settings*/
+            background-color: rgb(60, 57, 66);
+            /*Settings*/
         }
 
         .notification.is-info {
-            background-color: rgb(60, 57, 66); /*Graph Drawer*/
+            background-color: rgb(60, 57, 66);
+            /*Graph Drawer*/
         }
 
         .notification.is-success {
-            background-color: rgb(60, 57, 66); /*Input*/
+            background-color: rgb(60, 57, 66);
+            /*Input*/
         }
 
         .tile.is-parent.png-section {
             height: min-content;
-            width: min-content; /* Adjust the width as needed */
+            width: min-content;
+            /* Adjust the width as needed */
         }
 
         .tile.is-parent.png-section .tile.is-child {
@@ -92,7 +96,8 @@
                                     <div class="content">
                                         <p class="subtitle">Modo</p>
                                         <div class="radio">
-                                            <input id="create" name="radio" type="radio" checked="" onchange="toggleCodeBlock()">
+                                            <input id="create" name="radio" type="radio" checked=""
+                                                onchange="toggleCodeBlock()">
                                             <label for="create" class="radio-label">Crear</label>
                                         </div>
                                         <div class="radio">
@@ -123,16 +128,20 @@
                                         </div>
                                         <p class="subtitle"></p>
                                         <p class="subtitle">Color</p>
-                                        <input id="colorPicker" class="input is-warning jscolor {onFineChange:'updateColor()'}" style="width: 50%;">
+                                        <input id="colorPicker"
+                                            class="input is-warning jscolor {onFineChange:'updateColor()'}"
+                                            style="width: 50%;">
 
                                         <div id="codeBlock" style="display: none;">
-                                            
+
                                             <p class="subtitle"></p>
                                             <p class="subtitle">Value</p>
-                                            <input id="valuePicker" class="input is-warning {onFineChange:'updateColor()'}" style="width: 50%;">
+                                            <input id="valuePicker"
+                                                class="input is-warning {onFineChange:'updateColor()'}"
+                                                style="width: 50%;">
                                             <button id="applyChangesBtn" class="button is-info">Aplicar cambios</button>
                                         </div>
-<br>
+                                        <br>
                                         <!--<button id="removeAll" onclick="canvas.removeAll()">Remove All</button>-->
                                         <button id="removeAll" onclick="canvas.removeAll()">Eliminar Todo</button>
                                         <button id="showAdjacencyMatrixBtn">Mostrar matriz de adyacencia</button>
@@ -141,118 +150,183 @@
                             </div>
                         </div>
                     </article>
-                    
+
                 </div>
             </div>
         </div>
     </section>
-   <!-- Upload PNG Button -->
-<button id="uploadPNGButton" class="button is-danger is-rounded" style="position: fixed; bottom: 80px; right: 20px;">
-    <span class="icon is-small">
-        <i class="fas fa-upload"></i>
-    </span>
-    <span>Subir</span>
-</button>
+    <!-- Upload PNG Button -->
+    <button id="uploadPNGButton" class="button is-danger is-rounded"
+        style="position: fixed; bottom: 80px; right: 20px;">
+        <span class="icon is-small">
+            <i class="fas fa-upload"></i>
+        </span>
+        <span>Subir</span>
+    </button>
 
-<!-- Input for File Upload -->
-<input type="file" id="inputImage" style="display: none;">
+    <!-- Input for File Upload -->
+    <input type="file" id="inputImage" style="display: none;">
 
-<!-- Download PNG Button -->
-<button id="downloadPNGButton" class="button is-success is-rounded" style="position: fixed; bottom: 140px; right: 20px;">
-    <span class="icon is-small">
-        <i class="fas fa-download"></i>
-    </span>
-    <span>Descargar</span>
-</button>
-
-
-
-<!-- Script for File Upload -->
-<script>
-    // Function to handle file selection and decode
-    function handleFileSelect(event) {
-        var input = event.target;
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-                const img = new Image();
-
-                img.onload = function () {
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = img.width;
-                    tempCanvas.height = img.height;
-
-                    const tempContext = tempCanvas.getContext('2d');
-                    tempContext.drawImage(img, 0, 0);
-
-                    const dataURL = tempCanvas.toDataURL('image/png');
-                    const decodedText = steg.decode(dataURL);
-
-                    $('#GraphData').val(decodedText);
-                };
-
-                img.src = e.target.result;
-            };
-
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    // Function to trigger file input click
-    document.getElementById('uploadPNGButton').addEventListener('click', function () {
-        document.getElementById('inputImage').click();
-    });
-
-    // Event listener for file input change
-    document.getElementById('inputImage').addEventListener('change', handleFileSelect);
-</script>
+    <!-- Download PNG Button -->
+    <button id="downloadPNGButton" class="button is-success is-rounded"
+        style="position: fixed; bottom: 140px; right: 20px;">
+        <span class="icon is-small">
+            <i class="fas fa-download"></i>
+        </span>
+        <span>Descargar como imagen</span>
+    </button>
+    <button id="downloadTextButton" class="button is-success is-rounded"
+        style="position: fixed; bottom: 200px; right: 20px;">
+        <span class="icon is-small">
+            <i class="fas fa-download"></i>
+        </span>
+        <span>Descargar como archivo</span>
+    </button>
 
 
-<!-- Script for Download PNG Button -->
-<script>
-    // Download PNG Button Click Event
-    document.getElementById('downloadPNGButton').addEventListener('click', function () {
-        // Verificar si el canvas tiene un tamaño válido
-        if (canvas.width === 0 || canvas.height === 0) {
-            console.error("Canvas size is invalid");
-            return;
-        }
 
-        // Crear una nueva imagen para asegurar que esté completamente cargada
-        const img = new Image();
-        img.onload = function () {
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = img.width;
-            tempCanvas.height = img.height;
-
-            const tempContext = tempCanvas.getContext('2d');
-            tempContext.drawImage(img, 0, 0);
-
-            const dataURL = tempCanvas.toDataURL('image/png');
-
-            const link = document.createElement('a');
-            link.download = 'canvas.png';
-
-            // Verificar si el canvas tiene contenido antes de aplicar la esteganografía
-            if ($('#GraphData').val() && dataURL) {
-                const encodedDataURL = steg.encode($('#GraphData').val(), dataURL);
-                link.href = encodedDataURL;
-            } else {
-                console.error("Text or canvas content is empty");
+    <!-- Script for File Upload -->
+    <script>
+        // Download PNG Button Click Event
+        document.getElementById('downloadPNGButton').addEventListener('click', function () {
+            // Verificar si el canvas tiene un tamaño válido
+            if (canvas.width === 0 || canvas.height === 0) {
+                console.error("Canvas size is invalid");
                 return;
             }
 
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Crear una nueva imagen para asegurar que esté completamente cargada
+            const img = new Image();
+            img.onload = function () {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = img.width;
+                tempCanvas.height = img.height;
 
-            // Luego de descargar, ocultar texto en la imagen
-        };
+                const tempContext = tempCanvas.getContext('2d');
+                tempContext.drawImage(img, 0, 0);
 
-        img.src = 'data:image/png;base64,' + canvas.toDataURL().split(',')[1];
-    });
-</script>
+                const dataURL = tempCanvas.toDataURL('image/png');
+
+                const link = document.createElement('a');
+                var nombre = prompt("Ingrese un nombre para guardar la imagen: ", "image");
+                link.download = nombre + '.png';
+
+                // Verificar si el canvas tiene contenido antes de aplicar la esteganografía
+                if ($('#GraphData').val() && dataURL) {
+                    const encodedDataURL = steg.encode($('#GraphData').val(), dataURL);
+                    link.href = encodedDataURL;
+                } else {
+                    console.error("Text or canvas content is empty");
+                    return;
+                }
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Luego de descargar, ocultar texto en la imagen
+            };
+
+            img.src = 'data:image/png;base64,' + canvas.toDataURL().split(',')[1];
+        });
+
+
+
+
+        document.getElementById('downloadTextButton').addEventListener('click', function () {
+            var nombreArchivo = prompt("Ingrese un nombre para guardar el texto:", "Graph");
+
+            if (nombreArchivo) {
+                const contenido = $('#GraphData').val();
+                const blob = new Blob([contenido], { type: 'text/plain' });
+
+                const enlaceDescarga = document.createElement('a');
+                enlaceDescarga.href = window.URL.createObjectURL(blob);
+                enlaceDescarga.download = nombreArchivo + '.txt';
+
+                // Simular clic en el enlace de descarga
+                document.body.appendChild(enlaceDescarga);
+                enlaceDescarga.click();
+                document.body.removeChild(enlaceDescarga);
+            }
+        });
+
+
+
+
+        // Function to handle file selection and decode
+        function handleFileSelect(event) {
+            var input = event.target;
+            var fil=input.files;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    if (fil[0].type.startsWith('image/')) {
+                        // If it's an image file
+                        const img = new Image();
+
+                        img.onload = function () {
+                            const tempCanvas = document.createElement('canvas');
+                            tempCanvas.width = img.width;
+                            tempCanvas.height = img.height;
+
+                            const tempContext = tempCanvas.getContext('2d');
+                            tempContext.drawImage(img, 0, 0);
+
+                            const dataURL = tempCanvas.toDataURL('image/png');
+                            const decodedText = steg.decode(dataURL);
+
+                            $('#GraphData').val(decodedText);
+                            tranInputToDrawer(false,true);
+                        };
+
+                        img.src = e.target.result;
+                    } else if (isTextFile(fil[0])) {
+                        var input = event.target;
+
+                        if (input.files && input.files[0]) {
+                            var reader = new FileReader();
+
+                            reader.onload = function (e) {
+                                var contenido = e.target.result;
+                                // Hacer algo con el contenido, por ejemplo, mostrarlo en la consola
+                                $('#GraphData').val(contenido);
+
+                            };
+
+                            reader.readAsText(input.files[0]);
+                            tranInputToDrawer(false);
+
+                        }
+                    } else {
+                        console.error('Tipo de archivo no compatible.');
+                    }
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Function to check if the file is an image
+        function isImageFile(file) {
+            return file.type.startsWith('image/');
+        }
+
+        // Function to check if the file is a text file
+        function isTextFile(file) {
+            return file.type.startsWith('text/');
+        }
+        // Function to trigger file input click
+        document.getElementById('uploadPNGButton').addEventListener('click', function () {
+            document.getElementById('inputImage').click();
+        });
+
+        // Event listener for file input change
+        document.getElementById('inputImage').addEventListener('change', handleFileSelect);
+    </script>
+
+
 
 
 
@@ -351,23 +425,23 @@
             fontWeight: 'bold',
         }
 
-// the default format of an edge
-var defaultLine = {
-    strokeWidth: 2, // Ajustado a 4 para hacer la línea más gruesa
-    fill: '#000000',
-    stroke: '#000000',
-    originX: 'center',
-    originY: 'center',
-    weight: "",
-    directed: 0,
-    selectable: true,
-    hasControls: false,
-    hasBorders: false,
-    evented: true,
-    targetFindTolerance: 5,
-    lockMovementX: true,
-    lockMovementY: true,
-};
+        // the default format of an edge
+        var defaultLine = {
+            strokeWidth: 2, // Ajustado a 4 para hacer la línea más gruesa
+            fill: '#000000',
+            stroke: '#000000',
+            originX: 'center',
+            originY: 'center',
+            weight: "",
+            directed: 0,
+            selectable: true,
+            hasControls: false,
+            hasBorders: false,
+            evented: true,
+            targetFindTolerance: 5,
+            lockMovementX: true,
+            lockMovementY: true,
+        };
 
 
 
@@ -386,7 +460,6 @@ var defaultLine = {
         moveInit();
         linkInit();
         deleteInit();
-        downloadInit();
         inputInit();
         saveInit();
 
@@ -413,16 +486,16 @@ var defaultLine = {
             canvas.setHeight($("#graph-drawer").outerHeight() / 1.3);
         });
         function toggleCodeBlock() {
-        var codeBlock = document.getElementById('codeBlock');
-        var selectCheckbox = document.getElementById('select');
+            var codeBlock = document.getElementById('codeBlock');
+            var selectCheckbox = document.getElementById('select');
 
-        if (selectCheckbox.checked) {
-            
-            codeBlock.style.display = 'block';
-        } else {
-            codeBlock.style.display = 'none';
+            if (selectCheckbox.checked) {
+
+                codeBlock.style.display = 'block';
+            } else {
+                codeBlock.style.display = 'none';
+            }
         }
-    }
         function generateAdjacencyMatrix(vertices, edges) {
             var matrix = [];
             var n = vertices.length;
