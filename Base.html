@@ -167,33 +167,67 @@
     <!-- Input for File Upload -->
     <input type="file" id="inputImage" style="display: none;">
 
-    <!-- Download PNG Button -->
-    <button id="downloadPNGButton" class="button is-success is-rounded"
-        style="position: fixed; bottom: 140px; right: 20px;">
-        <span class="icon is-small">
-            <i class="fas fa-download"></i>
-        </span>
-        <span>Descargar como imagen</span>
-    </button>
-    <button id="downloadTextButton" class="button is-success is-rounded"
-        style="position: fixed; bottom: 200px; right: 20px;">
-        <span class="icon is-small">
-            <i class="fas fa-download"></i>
-        </span>
-        <span>Descargar como archivo</span>
-    </button>
+<!-- Download PNG Button -->
+<button id="downloadPNGButton" class="button is-success is-rounded" style="position: fixed; bottom: 140px; right: 20px;">
+    <span class="icon is-small">
+        <i class="fas fa-download"></i>
+    </span>
+    <span>Descargar</span>
+</button>
 
 
 
-    <!-- Script for File Upload -->
-    <script>
-        // Download PNG Button Click Event
-        document.getElementById('downloadPNGButton').addEventListener('click', function () {
-            // Verificar si el canvas tiene un tamaño válido
-            if (canvas.width === 0 || canvas.height === 0) {
-                console.error("Canvas size is invalid");
-                return;
-            }
+<!-- Script for File Upload -->
+<script>
+    // Function to handle file selection and decode
+    function handleFileSelect(event) {
+        var input = event.target;
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                const img = new Image();
+
+                img.onload = function () {
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = img.width;
+                    tempCanvas.height = img.height;
+
+                    const tempContext = tempCanvas.getContext('2d');
+                    tempContext.drawImage(img, 0, 0);
+
+                    const dataURL = tempCanvas.toDataURL('image/png');
+                    const decodedText = steg.decode(dataURL);
+
+                    $('#GraphData').val(decodedText);
+                };
+
+                img.src = e.target.result;
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Function to trigger file input click
+    document.getElementById('uploadPNGButton').addEventListener('click', function () {
+        document.getElementById('inputImage').click();
+    });
+
+    // Event listener for file input change
+    document.getElementById('inputImage').addEventListener('change', handleFileSelect);
+</script>
+
+
+<!-- Script for Download PNG Button -->
+<script>
+    // Download PNG Button Click Event
+    document.getElementById('downloadPNGButton').addEventListener('click', function () {
+        // Verificar si el canvas tiene un tamaño válido
+        if (canvas.width === 0 || canvas.height === 0) {
+            console.error("Canvas size is invalid");
+            return;
+        }
 
             // Crear una nueva imagen para asegurar que esté completamente cargada
             const img = new Image();
@@ -207,9 +241,8 @@
 
                 const dataURL = tempCanvas.toDataURL('image/png');
 
-                const link = document.createElement('a');
-                var nombre = prompt("Ingrese un nombre para guardar la imagen: ", "image");
-                link.download = nombre + '.png';
+            const link = document.createElement('a');
+            link.download = 'canvas.png';
 
                 // Verificar si el canvas tiene contenido antes de aplicar la esteganografía
                 if ($('#GraphData').val() && dataURL) {
@@ -227,104 +260,9 @@
                 // Luego de descargar, ocultar texto en la imagen
             };
 
-            img.src = 'data:image/png;base64,' + canvas.toDataURL().split(',')[1];
-        });
-
-
-
-
-        document.getElementById('downloadTextButton').addEventListener('click', function () {
-            var nombreArchivo = prompt("Ingrese un nombre para guardar el texto:", "Graph");
-
-            if (nombreArchivo) {
-                const contenido = $('#GraphData').val();
-                const blob = new Blob([contenido], { type: 'text/plain' });
-
-                const enlaceDescarga = document.createElement('a');
-                enlaceDescarga.href = window.URL.createObjectURL(blob);
-                enlaceDescarga.download = nombreArchivo + '.txt';
-
-                // Simular clic en el enlace de descarga
-                document.body.appendChild(enlaceDescarga);
-                enlaceDescarga.click();
-                document.body.removeChild(enlaceDescarga);
-            }
-        });
-
-
-
-
-        // Function to handle file selection and decode
-        function handleFileSelect(event) {
-            var input = event.target;
-            var fil=input.files;
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    if (fil[0].type.startsWith('image/')) {
-                        // If it's an image file
-                        const img = new Image();
-
-                        img.onload = function () {
-                            const tempCanvas = document.createElement('canvas');
-                            tempCanvas.width = img.width;
-                            tempCanvas.height = img.height;
-
-                            const tempContext = tempCanvas.getContext('2d');
-                            tempContext.drawImage(img, 0, 0);
-
-                            const dataURL = tempCanvas.toDataURL('image/png');
-                            const decodedText = steg.decode(dataURL);
-
-                            $('#GraphData').val(decodedText);
-                            tranInputToDrawer(false,true);
-                        };
-
-                        img.src = e.target.result;
-                    } else if (isTextFile(fil[0])) {
-                        var input = event.target;
-
-                        if (input.files && input.files[0]) {
-                            var reader = new FileReader();
-
-                            reader.onload = function (e) {
-                                var contenido = e.target.result;
-                                // Hacer algo con el contenido, por ejemplo, mostrarlo en la consola
-                                $('#GraphData').val(contenido);
-
-                            };
-
-                            reader.readAsText(input.files[0]);
-                            tranInputToDrawer(false);
-
-                        }
-                    } else {
-                        console.error('Tipo de archivo no compatible.');
-                    }
-                };
-
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        // Function to check if the file is an image
-        function isImageFile(file) {
-            return file.type.startsWith('image/');
-        }
-
-        // Function to check if the file is a text file
-        function isTextFile(file) {
-            return file.type.startsWith('text/');
-        }
-        // Function to trigger file input click
-        document.getElementById('uploadPNGButton').addEventListener('click', function () {
-            document.getElementById('inputImage').click();
-        });
-
-        // Event listener for file input change
-        document.getElementById('inputImage').addEventListener('change', handleFileSelect);
-    </script>
+        img.src = 'data:image/png;base64,' + canvas.toDataURL().split(',')[1];
+    });
+</script>
 
 
 
@@ -521,15 +459,13 @@
 
                 if (edges[i].length === 3) {
                     // Set the corresponding cell to the weight value for directed edges
-                    matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = weight || 1;
+                    matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = parseInt(weight) || 1;
                 } else {
-
                     // For undirected edges, set the reverse direction as well
                     matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = 1;
                     matrix[vertexIndexMap[toVertex]][vertexIndexMap[fromVertex]] = 1;
                 }
             }
-            console.log(matrix);
             return matrix;
         }
 
@@ -542,22 +478,38 @@
                 tableContent += "<th>" + nodeNames[i] + "</th>";
             }
 
-            tableContent += "</tr></thead><tbody>";
+            // Add a column for row sums
+            tableContent += "<th>Suma Fila</th></tr></thead><tbody>";
 
             // Create table rows
             for (var i = 0; i < matrix.length; i++) {
                 tableContent += "<tr><th>" + nodeNames[i] + "</th>";
 
+                var rowSum = 0;
+
                 for (var j = 0; j < matrix[i].length; j++) {
                     tableContent += "<td>" + matrix[i][j] + "</td>";
+                    rowSum += matrix[i][j];
                 }
+
+                // Add the row sum to the table
+                tableContent += "<td>" + rowSum + "</td>";
 
                 tableContent += "</tr>";
             }
 
-            tableContent += "</tbody>";
+            tableContent += "<tr><th>Suma Columna</th>";
 
-            // Set the content of the table
+            for (var j = 0; j < matrix[0].length; j++) {
+                var colSum = 0;
+                for (var i = 0; i < matrix.length; i++) {
+                    colSum += matrix[i][j];
+                }
+                tableContent += "<td>" + colSum + "</td>";
+            }
+
+            tableContent += "<td></td></tr></tbody>";
+
             $("#adjacencyMatrixTable").html(tableContent);
         }
 
