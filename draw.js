@@ -272,7 +272,7 @@ function fabricInit() {
             defaultLine.directed = isDirect;
             var angle = Math.atan2(to.y - from.y, to.x - from.x);
             var perpendicularAngle = angle + Math.PI / 2;
-            var separationDistance = 5;
+            var separationDistance = -5;
             // Agrega la propiedad 'selectable' al objeto defaultLine
             defaultLine.objectCaching = false;
 
