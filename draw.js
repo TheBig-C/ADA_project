@@ -267,19 +267,28 @@ defaultLine.objectCaching = false;
         var existingConnectionBA = connections.find(conn => conn === connectionIdBA);
     
         if (existingConnectionAB || existingConnectionBA) {
-            // Draw the new connection parallel to the existing one
             defaultLine.weight = "" + weight;
             defaultLine.directed = isDirect;
+            var angle = Math.atan2(to.y - from.y, to.x - from.x);
+            var perpendicularAngle = angle + Math.PI / 2;
+            var separationDistance = -5;
             // Agrega la propiedad 'selectable' al objeto defaultLine
             defaultLine.objectCaching = false;
 
-defaultLine.selectable = true;
-            var line = new fabric.Edge([from.x, from.y, to.x, to.y], defaultLine);
-            line.name = "edge" + fromObject.name + toObject.name + "weight" + weight;
+            defaultLine.selectable = true;
+
+            var line = new fabric.Edge([
+                from.x + separationDistance * Math.cos(perpendicularAngle),
+                from.y + separationDistance * Math.sin(perpendicularAngle),
+                to.x + separationDistance * Math.cos(perpendicularAngle),
+                to.y + separationDistance * Math.sin(perpendicularAngle)
+            ], defaultLine);
+
+            line.name = "edge" + fromObject.name + toObject.name + "weight" + weight; // Use one of the connection IDs
             canvas.add(line);
             fromObject.from.push(line);
             toObject.to.push(line);
-    
+
             // sendToBack() is used to get an object to the bottom
             line.sendToBack();
         } else {

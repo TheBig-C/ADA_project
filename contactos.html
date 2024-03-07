@@ -5,13 +5,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style type="text/css">
-    td{
-        padding-left: 15px;
-    }
+    /* Estilos previos */
     body {
       margin: 0;
-      font-family: Verdana, Geneva, Tahoma, sans-serif;    
-      background-color: rgb(32, 111, 33);      
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      background-color: rgb(32, 111, 33);
     }
     .div1 {
       background-color: rgb(32, 111, 33);
@@ -19,38 +17,37 @@
       position: fixed;
       width: 100%;
     }
-
     h1 {
-      color: hsl(296, 40%, 20%);   
+      color: hsl(296, 40%, 20%);
       font-family: 'Times New Roman', Times, serif;
-      text-align: center;
+      text-align: left;
       font-size: 80px;
-      margin-top: 10px;
+      margin-top: 20px;
+      margin-left: 20px;
     }
     .button-container {
       position: fixed;
-      
     }
     
     .button {
       background-color: hsl(296, 40%, 20%);
-      color: #ffd6d6;
-      padding: 10px 20px;
+      color: #ffffff;
+      padding: 5px 10px; /* Adjusted padding */
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 30px;
+      font-size: 20px; /* Adjusted font size */
       font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+      margin: 5px; /* Added margin */
     }
 
     .button-topright {
       top: 10px;
-      right: 10px;    
+      right: 10px;
     }
-
-    .button-bottomleft {
+    .button-bottomright {
       bottom: 80px;
-      left: 10px;
+      right: 10px;
     }
     footer{
       bottom: 0px;
@@ -59,50 +56,75 @@
       width: 100%;
       padding-bottom: 15px;
       background-color: rgb(32, 111, 33);
-      }
+    }
+    .info-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: justify;
+      color: black; /* Change to black */
+      max-width: 80%; /* Adjusted max-width */
+      max-height: 80%;
+      overflow: auto;
+      border: 2px solid hsl(296, 40%, 20%); /* Added border */
+    }
+    .info {
+      font-size: 18px; /* Adjusted font size */
+      font-weight: bold;
+    }
+    
+    /* Customizing scrollbar */
+    .info-container::-webkit-scrollbar {
+      width: 10px; /* Width of the scrollbar */
+    }
+    .info-container::-webkit-scrollbar-thumb {
+      background-color: hsl(296, 40%, 20%); /* Color of the thumb */
+      border-radius: 5px; /* Rounded corners */
+    }
+    .info-container::-webkit-scrollbar-track {
+      background-color: rgb(32, 111, 33); /* Color of the track */
+    }
   </style>
   <title>Contactos</title>
 </head>
-<body>
-  <center>
-    <div class="div1">
-      <h1>Nodo.Js</h1>
-    </div>
-    
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <div>
-        <p>INTEGRANTES DEL GRUPO:</p>
-        <table border="1">
-            <tr>
-                <td style="height: 300px; width: 300px;"><img src="integrante1.jpg" alt="FOTO1" style="width: 150px; height: 150px;"></td>
-                <td style="height: 300px; width: 300px;"><img src="integrante2.jpg" alt="FOTO2" style="width: 150px; height: 150px;"></td>
-                <td style="height: 300px; width: 300px;"><img src="integrante3.jpg" alt="FOTO3" style="width: 150px; height: 150px;"></td>
-                <td style="height: 300px; width: 300px;"><img src="integrante4.jpg" alt="FOTO4" style="width: 150px; height: 150px;"></td>
-            </tr>
-            <tr>
-                <td>Abel Ignacio García Aguirre<br>abel.garcia@ucb.edu.bo</td>
-                <td>Christian Mijael Mendoza Huanca<br>christian.mendoza.h@ucb.edu.bo</td>
-                <td>César Mateo Vera Andrade<br>cesar.vera@ucb.edu.bo</td>
-                <td>Manuel Fernando Delgadillo Calderón<br>manuel.delgadillo@ucb.edu.bo</td>
-            </tr>
-        </table>
-    </div>
+<body onscroll="moveTitle()">
+  <div class="div1">
+    <h1 id="title">Contactos</h1>
+    <hr style="width: calc(100% - 40px); margin-left: 20px;">
+  </div>
+  <div class="info-container">
 
-    <footer>
-        <p>© 2024 Nodo.js Todos los derechos reservados.</p>
-        </footer>
-    <div class="button-container button-bottomleft">
-      <button class="button" onclick="location.href='index.html'">volver</button>
-    </div>
-  </center>
-  
+    <table border="1">
+        <tr>
+            <td style="height: 300px; width: 300px;"><img src="integrante1.jpg" alt="FOTO1" style="width: 150px; height: 150px;"></td>
+            <td style="height: 300px; width: 300px;"><img src="integrante2.jpg" alt="FOTO2" style="width: 150px; height: 150px;"></td>
+            <td style="height: 300px; width: 300px;"><img src="integrante3.jpg" alt="FOTO3" style="width: 150px; height: 150px;"></td>
+            <td style="height: 300px; width: 300px;"><img src="integrante4.jpg" alt="FOTO4" style="width: 150px; height: 150px;"></td>
+        </tr>
+        <tr>
+            <td>Abel Ignacio García Aguirre<br>abel.garcia@ucb.edu.bo</td>
+            <td>Christian Mijael Mendoza Huanca<br>crhistian.mendoza@ucb.edu.bo</td>
+            <td>César Mateo Vera Andrade<br>cesar.vera@ucb.edu.bo</td>
+            <td>Manuel Fernando Delgadillo Calderón<br>manuel.delgadillo@ucb.edu.bo</td>
+        </tr>
+    </table>
+  </div>
+  <div class="button-container button-topright">
+    <button class="button" onclick="location.href='grafos.html'">Historia</button>
+    <button class="button" onclick="location.href='algoritmos.html'">Algoritmos</button>
+    <button class="button" onclick="location.href='index.html'">Home</button>
+  </div>
+  <footer>
+    <p>© 2024 Nodo.js. Todos los derechos reservados.</p>
+  </footer>
+
+  <script>
+    function moveTitle() {
+      var title = document.getElementById("title");
+      var scrollPosition = window.pageYOffset;
+      title.style.top = (scrollPosition + 20) + "px"; /* Adjust top position as needed */
+    }
+  </script>
 </body>
 </html>

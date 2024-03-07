@@ -26,24 +26,23 @@
     }
     .button-container {
       position: fixed;
-      
     }
     
     .button {
       background-color: hsl(296, 40%, 20%);
       color: #ffffff;
-      padding: 10px 20px;
+      padding: 5px 10px; /* Adjusted padding */
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 30px;
+      font-size: 20px; /* Adjusted font size */
       font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+      margin: 5px; /* Added margin */
     }
 
     .button-topright {
       top: 10px;
       right: 10px;
-    
     }
     .button-bottomright {
       bottom: 80px;
@@ -57,31 +56,41 @@
       padding-bottom: 15px;
       background-color: rgb(32, 111, 33);
       }
+    .info-container {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: justify;
+      color: black; /* Change to black */
+      max-width: 80%; /* Adjusted max-width */
+    }
+    .info {
+      font-size: 18px; /* Adjusted font size */
+      font-weight: bold;
+    }
   </style>
   <title>Nodo.Js</title>
 </head>
 <body>
-  <center>
-    <div class="div1">
-      <h1>Nodo.Js</h1>
-      <hr style="width: 800px;">
-      <H4 >by</H4>
-      <h3 style="color: blanchedalmond;">Abel Ignacio Garcia Aguirre</h3>
-      <h3 style="color: blanchedalmond;">Christian Mijael Mendoza Huanca</h3>
-      <h3 style="color: blanchedalmond;">Cesar Mateo Vera Andrade</h3>
-      <h3 style="color: blanchedalmond;">Manuel Fernando Delgadillo Calderón</h3>
-    </div>
-    <div class="button-container button-topright">
-      <button class="button" onclick="location.href='contactos.html'">Contactos</button>
-    </div>
-    <footer>
-      <p>© 2024 Nodo.js. Todos los derechos reservados.</p>
-  </footer>
-    <div class="button-container button-bottomright">
-      <button class="button" onclick="location.href='Base.html'">Iniciar</button>
-    </div>
-
-  </center>
-  
+  <div class="div1">
+    <h1>Nodo.Js</h1>
+    <hr style="width: 800px;">
+  </div>
+  <div class="info-container"><br><br><br><br><br><br><br>
+    <p class="info">Los grafos son estructuras matemáticas que consisten en conjuntos de nodos (vértices) conectados entre sí por enlaces (aristas). Estos elementos pueden representar una amplia gama de situaciones del mundo real, desde redes sociales hasta sistemas de transporte y relaciones entre elementos en química y biología.</p>
+    <p class="info">En el mundo real, los grafos se utilizan ampliamente en diversas aplicaciones. Por ejemplo, en redes sociales, los nodos pueden representar usuarios y las aristas las conexiones entre ellos, lo que permite analizar la estructura de la red y comprender mejor cómo se relacionan las personas en línea. En sistemas de transporte, los nodos pueden ser estaciones o intersecciones, y las aristas representan las rutas o conexiones entre ellas, lo que permite optimizar el diseño de redes de transporte y planificar rutas eficientes.</p>
+  </div>
+  <div class="button-container button-topright">
+    <button class="button" onclick="location.href='grafos.html'">Historia</button>
+    <button class="button" onclick="location.href='algoritmos.html'">Algoritmos</button>
+    <button class="button" onclick="location.href='contactos.html'">Contactos</button>
+  </div>
+  <footer>
+    <p>© 2024 Nodo.js Todos los derechos reservados.</p>
+    </footer>
+  <div class="button-container button-bottomright">
+    <button class="button" onclick="location.href='Base.html'">Grafos</button>
+  </div>
 </body>
 </html>
