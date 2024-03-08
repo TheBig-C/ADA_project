@@ -267,7 +267,6 @@ function fabricInit() {
         var existingConnectionBA = connections.find(conn => conn === connectionIdBA);
 
         if (existingConnectionAB || existingConnectionBA) {
-            // Draw the new connection parallel to the existing one
             defaultLine.weight = "" + weight;
             defaultLine.directed = isDirect;
             var angle = Math.atan2(to.y - from.y, to.x - from.x);
