@@ -118,8 +118,6 @@ var t2 = jsonString2.match(/"text":\s*"(.*?)"/);
   
 var comp=t1[1]+" "+t2[1];
 var comp2=$('#GraphData').val().split("\n");
-console.log("comp: "+comp);
-console.log("comp2: "+comp2);
 var c=0;
 comp2.forEach(item => {
     if (item.includes(comp)) {

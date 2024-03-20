@@ -61,7 +61,6 @@ var isSelectArrowMode = false;
 // Evento que se dispara cuando cambia el estado del botón de selección para las flechas
 document.getElementById('select').addEventListener('change', function () {
     isSelectArrowMode = this.checked;
-console.log("seleccionado");
     // Deselecciona todas las flechas si se desactiva el modo de selección
     if (!isSelectArrowMode) {
         canvas.discardActiveObject();
@@ -136,12 +135,10 @@ canvas.on('selection:created', function (options) {
 function applyArrowChanges(selectedObject) {
 
     let restoTexto = selectedObject.name.substring(10);
-    console.log(restoTexto);
                 // Convertir el resto del texto en un array de caracteres
                 let resultado = restoTexto.split("vertex");
             var val1=resultado[0];
             var val2=resultado[1].split("weight");
-                console.log("val1: "+val1+" val2: "+val2[0]);
         var buscar = val1+" "+val2[0];
 
 
@@ -150,8 +147,6 @@ function applyArrowChanges(selectedObject) {
     var newColor = document.getElementById('colorPicker').value;
             var newWeight = document.getElementById('valuePicker').value;
             
-            console.log("new color: "+newColor);
-            console.log("new value: "+newWeight);
 for(i=0;i<EdgeArr.length;i++){
     if(EdgeArr[i][0]==val1 && EdgeArr[i][1]==val2[0]){
             EdgeArr[i][2]=newWeight;

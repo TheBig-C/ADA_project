@@ -56,8 +56,7 @@ var t2 = jsonString2.match(/"text":\s*"(.*?)"/);
 var comp=t1[1]+" "+t2[1];
 
 var comp2=$('#GraphData').val().split("\n");
-console.log("comp: "+comp);
-console.log("comp2: "+comp2);
+
 if(comp2.some(item => item.includes(comp))){
    alert("Conexion invalida");
     return 

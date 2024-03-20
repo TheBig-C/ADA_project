@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nodo.JS</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.2.1/css/all.css">
+    <link rel="stylesheet" type="text/css" href="./radio.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/3.4.0/fabric.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.5.1/jscolor.min.js"></script>
+    <script type="text/javascript" src="./vertex.js"></script>
+    <script type="text/javascript" src="./create.js"></script>
+    <script type="text/javascript" src="./draw.js"></script>
+    <script type="text/javascript" src="./move.js"></script>
+    <script src="./steganography.min.js"></script>
+    <script type="text/javascript" src="./link.js"></script>
+    <script type="text/javascript" src="./delete.js"></script>
+    <script type="text/javascript" src="./download.js"></script>
+    <script type="text/javascript" src="./edge.js"></script>
+    <script type="text/javascript" src="./loop.js"></script>
+    <script type="text/javascript" src="./input.js"></script>
+    <script type="text/javascript" src="./save.js"></script>
+    <script type="text/javascript" src="./uploadImage.js"></script>
+
+    <style>
+        canvas {
+            border: 2px solid #ccc;
+        }
+
+        .tile.is-parent>.tile.is-child {
+            border: 2px solid black;
+        }
+
+        .notification.is-warning {
+            background-color: rgb(60, 57, 66);
+            /*Settings*/
+        }
+
+        .notification.is-info {
+            background-color: rgb(60, 57, 66);
+            /*Graph Drawer*/
+        }
+
+        .notification.is-success {
+            background-color: rgb(60, 57, 66);
+            /*Input*/
+        }
+
+        .tile.is-parent.png-section {
+            height: min-content;
+            width: min-content;
+            /* Adjust the width as needed */
+        }
+
+        .tile.is-parent.png-section .tile.is-child {
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="section">
+        <div class="container">
+            <div class="tile is-ancestor">
+                <div class="tile is-vertical is-7">
+                    <div class="tile">
+                        <div class="tile is-parent">
+                            <article class="tile is-child notification is-info" id="graph-drawer">
+                                <p class="title">Creador de grafos</p>
+                                <div> <canvas id="c" width=400 height=300></canvas></div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+                <div class="tile is-parent is-vertical is-5">
+                    <article class="tile is-child notification is-success">
+                        <div class="content">
+                            <p class="title">Entradas</p>
+                            <div class="control">
+                                <textarea class="textarea"
+                                    placeholder="Introduzca los datos del grafo aquí... Ejemplo:&#10 1 &#10 2 &#10 3 &#10 1 2 &#10 1 3"
+                                    rows="10" id="GraphData">
+                                </textarea>
+                            </div>
+                        </div>
+                    </article>
+                    <article class="tile is-child notification is-success">
+                        <div class="content">
+                            <p class="title" style="color: #ffffff;">Ajustes</p>
+                            <div class="card">
+                                <div class="card-content">
+                                    <div class="content">
+                                        <p class="subtitle">Modo</p>
+                                        <div class="radio">
+                                            <input id="create" name="radio" type="radio" checked=""
+                                                onchange="toggleCodeBlock()">
+                                            <label for="create" class="radio-label">Crear</label>
+                                        </div>
+                                        <div class="radio">
+                                            <input id="link" name="radio" type="radio" onchange="toggleCodeBlock()">
+                                            <label for="link" class="radio-label">Enlazar</label>
+                                        </div>
+                                        <div class="radio">
+                                            <input id="delete" name="radio" type="radio" onchange="toggleCodeBlock()">
+                                            <label for="delete" class="radio-label">Borrar</label>
+                                        </div>
+                                        <div class="radio">
+                                            <input id="select" name="radio" type="radio" onchange="toggleCodeBlock()">
+                                            <label for="select" class="radio-label">Seleccionar</label>
+                                        </div>
+                                        <p class="subtitle"></p>
+                                        <p class="subtitle">Tipo de enlace</p>
+                                        <div class="radio">
+                                            <input id="direct" name="radio2" type="radio">
+                                            <label for="direct" class="radio-label">dirigido</label>
+                                        </div>
+                                        <div class="radio">
+                                            <input id="undirect" name="radio2" type="radio">
+                                            <label for="undirect" class="radio-label">No dirigido</label>
+                                        </div>
+                                        <div class="radio">
+                                            <input id="bothWays" name="radio2" type="radio">
+                                            <label for="bothWays" class="radio-label">Bidireccional</label>
+                                        </div>
+                                        <p class="subtitle"></p>
+                                        <p class="subtitle">Color</p>
+                                        <input id="colorPicker"
+                                            class="input is-warning jscolor {onFineChange:'updateColor()'}"
+                                            style="width: 50%;">
+
+                                        <div id="codeBlock" style="display: none;">
+
+                                            <p class="subtitle"></p>
+                                            <p class="subtitle">Value</p>
+                                            <input id="valuePicker"
+                                                class="input is-warning {onFineChange:'updateColor()'}"
+                                                style="width: 50%;">
+                                            <button id="applyChangesBtn" class="button is-info">Aplicar cambios</button>
+                                        </div>
+                                        <br>
+                                        <!--<button id="removeAll" onclick="canvas.removeAll()">Remove All</button>-->
+                                        <button id="removeAll" onclick="canvas.removeAll()">Eliminar Todo</button>
+                                        <button id="showAdjacencyMatrixBtn">Mostrar matriz de adyacencia</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+    
+    <!-- Upload PNG Button -->
+    <button id="uploadPNGButton" class="button is-danger is-rounded"
+        style="position: fixed; bottom: 80px; right: 20px;">
+        <span class="icon is-small">
+            <i class="fas fa-upload"></i>
+        </span>
+        <span>Subir</span>
+    </button>
+
+    <!-- Input for File Upload -->
+    <input type="file" id="inputImage" style="display: none;">
+
+    <!-- Download PNG Button -->
+    <button id="downloadPNGButton" class="button is-success is-rounded"
+        style="position: fixed; bottom: 140px; right: 20px;">
+        <span class="icon is-small">
+            <i class="fas fa-download"></i>
+        </span>
+        <span>Descargar como imagen</span>
+    </button>
+    <button id="downloadTextButton" class="button is-success is-rounded"
+        style="position: fixed; bottom: 200px; right: 20px;">
+        <span class="icon is-small">
+            <i class="fas fa-download"></i>
+        </span>
+        <span>Descargar como archivo</span>
+    </button>
+
+
+
+
+
+
+
+    <!-- Help Button -->
+    <button onclick="abrirAyuda()" class="button is-info is-rounded" style="position: fixed; bottom: 20px; right: 20px; ">
+        <span class="icon is-small">
+            <i class="fas fa-question"></i>
+        </span>
+        <span>Ayuda</span>
+    </button>
+
+  
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <h4 class="title is-4">Consejo.</h4>
+                <p>
+                    Puedes escribir tus vértices y aristas en <b>Input</b>, y el grafo correspondiente será generado.
+                    También, puedes crear tu propio grafo directamente. En modo <b>create</b>, si haces clic en un
+                    espacio
+                    en blanco, se creará un nuevo vértice. En modo <b>link</b>, selecciona dos vértices para crear una
+                    arista, y con las opciones en <b>arrow</b>, puedes seleccionar si es dirigida o no. En modo
+                    <b>delete</b>, selecciona un vértice para eliminarlo. Además, puedes elegir tu color favorito en
+                    <b>color</b>. Finalmente, si deseas guardar tu grafo creado, haz clic en el descargar, y
+                    guarda el grafo como un <b>png</b>.
+                </p>
+                <button id="closeHelp" class="button is-link is-light">Cerrar</button>
+            </div>
+        </div>
+        <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="adjacencyMatrixModal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <h4 class="title is-4">Matriz de adyacencia</h4>
+                <table id="adjacencyMatrixTable" class="table">
+                    <!-- Table content will be dynamically generated here -->
+                </table>
+            </div>
+        </div>
+        <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+
+    
+    <script>
+
+        var VertexColor = '#ffffff';            // the color of vertexs
+        var VertexRadius = 16;                  // the radius of vertexs
+        var padding = 10;                       // the padding to prevent objects to reach the edge of the canvas
+        var weightPadding = 16;                 // the padding from edge to weight label
+        var startVertex = null;                 // when linking two vertexs, record the first one
+        var VertexArr = [];                     // the vertex array, recording what indexs are used
+        var EdgeArr = [];                       // the edges array, recording pairs of [fromVertex, toVertex]
+        var isDirect = true;                    // Add this line to initialize the connections array
+        var isBothWays = false;                 // if true, edges have arrows, representing direct edges
+        var connections = [];                   //global array to save all conection without weights (it doesn't saves loops)
+
+        var canvasWidth = $("#graph-drawer").outerWidth() / 1.1;                  // the width of canvas
+        var canvasHeight = $("#graph-drawer").outerHeight() / 1.3;                // the height of canvas
+        var canvas = new fabric.Canvas('c', {                                     // the object of canvas
+            backgroundColor: "#fff",
+            selection: false,
+            width: canvasWidth,
+            height: canvasHeight,
+        });
+
+        // the default format of a vertex
+        var defaultVertex = {
+            radius: VertexRadius,
+            originX: 'center',
+            originY: 'center',
+            stroke: 'black',
+            hasControls: false,
+        };
+
+        // the default format of related context on the vertex
+        var defaultContext = {
+            fontSize: 15,
+            originX: 'center',
+            originY: 'center',
+            textAlign: 'center',
+            fontWeight: 'bold',
+        }
+
+        // the default format of an edge
+        var defaultLine = {
+            strokeWidth: 2, // Ajustado a 4 para hacer la línea más gruesa
+            fill: '#000000',
+            stroke: '#000000',
+            originX: 'center',
+            originY: 'center',
+            weight: "",
+            directed: 0,
+            selectable: true,
+            hasControls: false,
+            hasBorders: false,
+            evented: true,
+            targetFindTolerance: 5,
+            lockMovementX: true,
+            lockMovementY: true,
+        };
+
+  function abrirAyuda(){
+         window.open('instrucciones.pdf', '_blank');
+        } 
+       // Function to handle file selection and decode
+       function handleFileSelect(event) {
+            var input = event.target;
+            var fil=input.files;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    if (fil[0].type.startsWith('image/')) {
+                        // If it's an image file
+                        const img = new Image();
+
+                        img.onload = function () {
+                            const tempCanvas = document.createElement('canvas');
+                            tempCanvas.width = img.width;
+                            tempCanvas.height = img.height;
+
+                            const tempContext = tempCanvas.getContext('2d');
+                            tempContext.drawImage(img, 0, 0);
+
+                            const dataURL = tempCanvas.toDataURL('image/png');
+                            const decodedText = steg.decode(dataURL);
+
+                            $('#GraphData').val(decodedText);
+                            tranInputToDrawer(false,true);
+                        };
+
+                        img.src = e.target.result;
+                    } else if (isTextFile(fil[0])) {
+                        var input = event.target;
+
+                        if (input.files && input.files[0]) {
+                            var reader = new FileReader();
+
+                            reader.onload = function (e) {
+                                var contenido = e.target.result;
+                                // Hacer algo con el contenido, por ejemplo, mostrarlo en la consola
+                                $('#GraphData').val(contenido);
+
+                            };
+
+                            reader.readAsText(input.files[0]);
+                            tranInputToDrawer(false);
+
+                        }
+                    } else {
+                        console.error('Tipo de archivo no compatible.');
+                    }
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Function to check if the file is an image
+        function isImageFile(file) {
+            return file.type.startsWith('image/');
+        }
+
+        // Function to check if the file is a text file
+        function isTextFile(file) {
+            return file.type.startsWith('text/');
+        }
+        // Function to trigger file input click
+        document.getElementById('uploadPNGButton').addEventListener('click', function () {
+            document.getElementById('inputImage').click();
+        });
+        document.getElementById('inputImage').addEventListener('change', handleFileSelect);
+
+        document.getElementById('downloadTextButton').addEventListener('click', function () {
+    var nombreArchivo = prompt("Ingrese un nombre para guardar el texto:", "Graph");
+
+    if (nombreArchivo) {
+        const contenido = $('#GraphData').val();
+        const blob = new Blob([contenido], { type: 'text/plain' });
+
+        const enlaceDescarga = document.createElement('a');
+        enlaceDescarga.href = window.URL.createObjectURL(blob);
+        enlaceDescarga.download = nombreArchivo + '.txt';
+
+        // Simular clic en el enlace de descarga
+        document.body.appendChild(enlaceDescarga);
+        enlaceDescarga.click();
+        document.body.removeChild(enlaceDescarga);
+    }
+});
+
+        // Download PNG Button Click Event
+        document.getElementById('downloadPNGButton').addEventListener('click', function () {
+            // Verificar si el canvas tiene un tamaño válido
+            if (canvas.width === 0 || canvas.height === 0) {
+                console.error("Canvas size is invalid");
+                return;
+            }
+
+            // Crear una nueva imagen para asegurar que esté completamente cargada
+            const img = new Image();
+            img.onload = function () {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = img.width;
+                tempCanvas.height = img.height;
+
+                const tempContext = tempCanvas.getContext('2d');
+                tempContext.drawImage(img, 0, 0);
+
+                const dataURL = tempCanvas.toDataURL('image/png');
+
+                const link = document.createElement('a');
+                var nombre = prompt("Ingrese un nombre para guardar la imagen: ", "image");
+                link.download = nombre + '.png';
+
+                // Verificar si el canvas tiene contenido antes de aplicar la esteganografía
+                if ($('#GraphData').val() && dataURL) {
+                    const encodedDataURL = steg.encode($('#GraphData').val(), dataURL);
+                    link.href = encodedDataURL;
+                } else {
+                    console.error("Text or canvas content is empty");
+                    return;
+                }
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Luego de descargar, ocultar texto en la imagen
+            };
+
+        img.src = 'data:image/png;base64,' + canvas.toDataURL().split(',')[1];
+    });
+        // Help Modal Close Event
+        document.getElementById('closeHelp').addEventListener('click', function () {
+            document.getElementById('helpModal').classList.remove('is-active');
+        });
+
+        // init css elements
+        document.getElementById("create").checked = true;
+        document.getElementById("direct").checked = true;
+        $('#colorPicker').val("#ffffff");
+        jscolor.install();
+        $("#directChange").css({ "text-decoration": "none" })
+        $("#download").css({ "text-decoration": "none" })
+
+        fabricInit();
+        edgeInit();
+        loopInit();
+        createInit();
+        moveInit();
+        linkInit();
+        deleteInit();
+        inputInit();
+        saveInit();
+
+        // set color for vertexs or edges
+        function updateColor() {
+            if (document.getElementById("create").checked) {
+                VertexColor = $('#colorPicker').val();
+            }
+
+            if (document.getElementById("link").checked) {
+                defaultLine.stroke = $('#colorPicker').val();
+            }
+        }
+
+        // change whether edges have arrows
+        $("#directChange").click(function () {
+            isDirect = 1 - isDirect;
+            canvas.renderAll();
+        });
+
+        // auto resize
+        $(window).resize(function () {
+            canvas.setWidth($("#graph-drawer").outerWidth() / 1.1);
+            canvas.setHeight($("#graph-drawer").outerHeight() / 1.3);
+        });
+        function toggleCodeBlock() {
+            var codeBlock = document.getElementById('codeBlock');
+            var selectCheckbox = document.getElementById('select');
+
+            if (selectCheckbox.checked) {
+
+                codeBlock.style.display = 'block';
+            } else {
+                codeBlock.style.display = 'none';
+            }
+        }
+        function generateAdjacencyMatrix(vertices, edges) {
+            var matrix = [];
+            var n = vertices.length;
+
+            // Create a mapping from vertex names to indices
+            var vertexIndexMap = {};
+            for (var i = 0; i < n; i++) {
+                vertexIndexMap[vertices[i]] = i;
+            }
+
+            // Initialize the matrix with zeros
+            for (var i = 0; i < n; i++) {
+                matrix[i] = Array(n).fill(0);
+            }
+
+            // Fill in the matrix based on the edges
+            for (var i = 0; i < edges.length; i++) {
+                var fromVertex = edges[i][0];
+                var toVertex = edges[i][1];
+                var weight = edges[i][2];
+
+                if (edges[i].length === 3) {
+                    // Set the corresponding cell to the weight value for directed edges
+                    matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = parseInt(weight) || 1;
+                } else {
+                    // For undirected edges, set the reverse direction as well
+                    matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = 1;
+                    matrix[vertexIndexMap[toVertex]][vertexIndexMap[fromVertex]] = 1;
+                }
+            }
+            return matrix;
+        }
+
+        // Display the adjacency matrix as a table
+        function displayMatrixAsTable(matrix, nodeNames) {
+            var tableContent = "<thead><tr><th></th>";
+
+            // Create table headers using node names
+            for (var i = 0; i < nodeNames.length; i++) {
+                tableContent += "<th>" + nodeNames[i] + "</th>";
+            }
+
+            // Add a column for row sums
+            tableContent += "<th>Suma Fila</th></tr></thead><tbody>";
+
+            // Create table rows
+            for (var i = 0; i < matrix.length; i++) {
+                tableContent += "<tr><th>" + nodeNames[i] + "</th>";
+
+                var rowSum = 0;
+
+                for (var j = 0; j < matrix[i].length; j++) {
+                    tableContent += "<td>" + matrix[i][j] + "</td>";
+                    rowSum += matrix[i][j];
+                }
+
+                // Add the row sum to the table
+                tableContent += "<td>" + rowSum + "</td>";
+
+                tableContent += "</tr>";
+            }
+
+            tableContent += "<tr><th>Suma Columna</th>";
+
+            for (var j = 0; j < matrix[0].length; j++) {
+                var colSum = 0;
+                for (var i = 0; i < matrix.length; i++) {
+                    colSum += matrix[i][j];
+                }
+                tableContent += "<td>" + colSum + "</td>";
+            }
+
+            tableContent += "<td></td></tr></tbody>";
+
+            $("#adjacencyMatrixTable").html(tableContent);
+        }
+
+        // Attach the function to the button click event
+        $("#showAdjacencyMatrixBtn").on("click", function () {
+            // Assuming VertexArr contains the vertices in the graph
+            var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
+
+            // Display the adjacency matrix in the modal, pass VertexArr as nodeNames
+            displayMatrixAsTable(adjacencyMatrix, VertexArr);
+
+            // Show the modal
+            $("#adjacencyMatrixModal").addClass("is-active");
+
+            // Close the modal when the close button or background is clicked
+            $(".modal-close, .modal-background").on("click", function () {
+                $("#adjacencyMatrixModal").removeClass("is-active");
+            });
+        });
+
+
+        function subirImagen() {
+            var input = document.getElementById('inputImage');
+            var preview = document.getElementById('imagenPreview');
+
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    // preview.src = e.target.result;
+                    //preview.style.display = 'block';
+
+                    // Llamar a la función para extraer texto de la imagen
+                    extraerTextoDeImagen(e.target.result);
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+
+</body>
+
+</html>

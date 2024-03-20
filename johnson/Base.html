@@ -155,6 +155,11 @@
             </div>
         </div>
     </section>
+
+
+
+
+    
     <!-- Upload PNG Button -->
     <button id="uploadPNGButton" class="button is-danger is-rounded"
         style="position: fixed; bottom: 80px; right: 20px;">
@@ -185,11 +190,120 @@
 
 
 
-    <!-- Script for File Upload -->
+
+
+
+
+    <!-- Help Button -->
+    <button onclick="abrirAyuda()" class="button is-info is-rounded" style="position: fixed; bottom: 20px; right: 20px; ">
+        <span class="icon is-small">
+            <i class="fas fa-question"></i>
+        </span>
+        <span>Ayuda</span>
+    </button>
+
+  
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <h4 class="title is-4">Consejo.</h4>
+                <p>
+                    Puedes escribir tus vértices y aristas en <b>Input</b>, y el grafo correspondiente será generado.
+                    También, puedes crear tu propio grafo directamente. En modo <b>create</b>, si haces clic en un
+                    espacio
+                    en blanco, se creará un nuevo vértice. En modo <b>link</b>, selecciona dos vértices para crear una
+                    arista, y con las opciones en <b>arrow</b>, puedes seleccionar si es dirigida o no. En modo
+                    <b>delete</b>, selecciona un vértice para eliminarlo. Además, puedes elegir tu color favorito en
+                    <b>color</b>. Finalmente, si deseas guardar tu grafo creado, haz clic en el descargar, y
+                    guarda el grafo como un <b>png</b>.
+                </p>
+                <button id="closeHelp" class="button is-link is-light">Cerrar</button>
+            </div>
+        </div>
+        <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="adjacencyMatrixModal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <h4 class="title is-4">Matriz de adyacencia</h4>
+                <table id="adjacencyMatrixTable" class="table">
+                    <!-- Table content will be dynamically generated here -->
+                </table>
+            </div>
+        </div>
+        <button class="modal-close is-large" aria-label="close"></button>
+    </div>
+
+    
     <script>
 
-        // Function to handle file selection and decode
-        function handleFileSelect(event) {
+        var VertexColor = '#ffffff';            // the color of vertexs
+        var VertexRadius = 16;                  // the radius of vertexs
+        var padding = 10;                       // the padding to prevent objects to reach the edge of the canvas
+        var weightPadding = 16;                 // the padding from edge to weight label
+        var startVertex = null;                 // when linking two vertexs, record the first one
+        var VertexArr = [];                     // the vertex array, recording what indexs are used
+        var EdgeArr = [];                       // the edges array, recording pairs of [fromVertex, toVertex]
+        var isDirect = true;                    // Add this line to initialize the connections array
+        var isBothWays = false;                 // if true, edges have arrows, representing direct edges
+        var connections = [];                   //global array to save all conection without weights (it doesn't saves loops)
+
+        var canvasWidth = $("#graph-drawer").outerWidth() / 1.1;                  // the width of canvas
+        var canvasHeight = $("#graph-drawer").outerHeight() / 1.3;                // the height of canvas
+        var canvas = new fabric.Canvas('c', {                                     // the object of canvas
+            backgroundColor: "#fff",
+            selection: false,
+            width: canvasWidth,
+            height: canvasHeight,
+        });
+
+        // the default format of a vertex
+        var defaultVertex = {
+            radius: VertexRadius,
+            originX: 'center',
+            originY: 'center',
+            stroke: 'black',
+            hasControls: false,
+        };
+
+        // the default format of related context on the vertex
+        var defaultContext = {
+            fontSize: 15,
+            originX: 'center',
+            originY: 'center',
+            textAlign: 'center',
+            fontWeight: 'bold',
+        }
+
+        // the default format of an edge
+        var defaultLine = {
+            strokeWidth: 2, // Ajustado a 4 para hacer la línea más gruesa
+            fill: '#000000',
+            stroke: '#000000',
+            originX: 'center',
+            originY: 'center',
+            weight: "",
+            directed: 0,
+            selectable: true,
+            hasControls: false,
+            hasBorders: false,
+            evented: true,
+            targetFindTolerance: 5,
+            lockMovementX: true,
+            lockMovementY: true,
+        };
+
+  function abrirAyuda(){
+         window.open('instrucciones.pdf', '_blank');
+        } 
+       // Function to handle file selection and decode
+       function handleFileSelect(event) {
             var input = event.target;
             var fil=input.files;
             if (input.files && input.files[0]) {
@@ -317,128 +431,10 @@
 
         img.src = 'data:image/png;base64,' + canvas.toDataURL().split(',')[1];
     });
-</script>
-
-
-
-
-
-    <!-- Help Button -->
-    <button onclick="abrirAyuda()" class="button is-info is-rounded" style="position: fixed; bottom: 20px; right: 20px; ">
-        <span class="icon is-small">
-            <i class="fas fa-question"></i>
-        </span>
-        <span>Ayuda</span>
-    </button>
-
-    <script>
-        function abrirAyuda(){
-         window.open('instrucciones.pdf', '_blank');
-        } 
-     </script>
-
-    <!-- Help Modal -->
-    <div id="helpModal" class="modal">
-        <div class="modal-background"></div>
-        <div class="modal-content">
-            <div class="box">
-                <h4 class="title is-4">Consejo.</h4>
-                <p>
-                    Puedes escribir tus vértices y aristas en <b>Input</b>, y el grafo correspondiente será generado.
-                    También, puedes crear tu propio grafo directamente. En modo <b>create</b>, si haces clic en un
-                    espacio
-                    en blanco, se creará un nuevo vértice. En modo <b>link</b>, selecciona dos vértices para crear una
-                    arista, y con las opciones en <b>arrow</b>, puedes seleccionar si es dirigida o no. En modo
-                    <b>delete</b>, selecciona un vértice para eliminarlo. Además, puedes elegir tu color favorito en
-                    <b>color</b>. Finalmente, si deseas guardar tu grafo creado, haz clic en el descargar, y
-                    guarda el grafo como un <b>png</b>.
-                </p>
-                <button id="closeHelp" class="button is-link is-light">Cerrar</button>
-            </div>
-        </div>
-        <button class="modal-close is-large" aria-label="close"></button>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal" id="adjacencyMatrixModal">
-        <div class="modal-background"></div>
-        <div class="modal-content">
-            <div class="box">
-                <h4 class="title is-4">Matriz de adyacencia</h4>
-                <table id="adjacencyMatrixTable" class="table">
-                    <!-- Table content will be dynamically generated here -->
-                </table>
-            </div>
-        </div>
-        <button class="modal-close is-large" aria-label="close"></button>
-    </div>
-
-    <script>
-       
         // Help Modal Close Event
         document.getElementById('closeHelp').addEventListener('click', function () {
             document.getElementById('helpModal').classList.remove('is-active');
         });
-    </script>
-
-    <script>
-        var VertexColor = '#ffffff';            // the color of vertexs
-        var VertexRadius = 16;                  // the radius of vertexs
-        var padding = 10;                       // the padding to prevent objects to reach the edge of the canvas
-        var weightPadding = 16;                 // the padding from edge to weight label
-        var startVertex = null;                 // when linking two vertexs, record the first one
-        var VertexArr = [];                     // the vertex array, recording what indexs are used
-        var EdgeArr = [];                       // the edges array, recording pairs of [fromVertex, toVertex]
-        var isDirect = true;                    // Add this line to initialize the connections array
-        var isBothWays = false;                 // if true, edges have arrows, representing direct edges
-        var connections = [];                   //global array to save all conection without weights (it doesn't saves loops)
-
-        var canvasWidth = $("#graph-drawer").outerWidth() / 1.1;                  // the width of canvas
-        var canvasHeight = $("#graph-drawer").outerHeight() / 1.3;                // the height of canvas
-        var canvas = new fabric.Canvas('c', {                                     // the object of canvas
-            backgroundColor: "#fff",
-            selection: false,
-            width: canvasWidth,
-            height: canvasHeight,
-        });
-
-        // the default format of a vertex
-        var defaultVertex = {
-            radius: VertexRadius,
-            originX: 'center',
-            originY: 'center',
-            stroke: 'black',
-            hasControls: false,
-        };
-
-        // the default format of related context on the vertex
-        var defaultContext = {
-            fontSize: 15,
-            originX: 'center',
-            originY: 'center',
-            textAlign: 'center',
-            fontWeight: 'bold',
-        }
-
-        // the default format of an edge
-        var defaultLine = {
-            strokeWidth: 2, // Ajustado a 4 para hacer la línea más gruesa
-            fill: '#000000',
-            stroke: '#000000',
-            originX: 'center',
-            originY: 'center',
-            weight: "",
-            directed: 0,
-            selectable: true,
-            hasControls: false,
-            hasBorders: false,
-            evented: true,
-            targetFindTolerance: 5,
-            lockMovementX: true,
-            lockMovementY: true,
-        };
-
-
 
         // init css elements
         document.getElementById("create").checked = true;
@@ -499,6 +495,7 @@
             var vertexIndexMap = {};
             for (var i = 0; i < n; i++) {
                 vertexIndexMap[vertices[i]] = i;
+                console.log("vertice: "+vertices[i]+" i: "+i);
             }
 
             // Initialize the matrix with zeros
@@ -515,6 +512,7 @@
                 if (edges[i].length === 3) {
                     // Set the corresponding cell to the weight value for directed edges
                     matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = parseInt(weight) || 1;
+                    console.log("i: "+vertexIndexMap[fromVertex]+" id2: "+[vertexIndexMap[toVertex]] );
                 } else {
                     // For undirected edges, set the reverse direction as well
                     matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = 1;
@@ -572,8 +570,27 @@
         $("#showAdjacencyMatrixBtn").on("click", function () {
             // Assuming VertexArr contains the vertices in the graph
             var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
+            console.log(adjacencyMatrix);
+         orden=[],nuevoOrden=[];
+            var aux=0;
+            for(var i=0;i<VertexArr.length;i++){
+                aux=0;
+                for(var j=0;j<VertexArr.length;j++){
+                    if(adjacencyMatrix[j][i]>0){
+                        aux=j+1;
+                    }
+                }
+                orden[i]=aux;
+                
+            }
+            console.log("orden`: "+orden)
+            console.log("orden`: "+VertexArr);
 
+            VertexArr=selectionSort(orden,VertexArr);
+console.log("orden: "+VertexArr);
             // Display the adjacency matrix in the modal, pass VertexArr as nodeNames
+             adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
+
             displayMatrixAsTable(adjacencyMatrix, VertexArr);
 
             // Show the modal
@@ -584,8 +601,27 @@
                 $("#adjacencyMatrixModal").removeClass("is-active");
             });
         });
+               function selectionSort(arr, arrToSort) {
+    const n = arr.length;
+    for (let i = 0; i < n - 1; i++) {
+        let minIndex = i;
+        for (let j = i + 1; j < n; j++) {
+            if (arr[j] < arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+        if (minIndex !== i) {
+            // Intercambiar los elementos en el array a ordenar
+            [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
+            // Intercambiar los elementos correspondientes en el otro array
+            [arrToSort[i], arrToSort[minIndex]] = [arrToSort[minIndex], arrToSort[i]];
 
 
+        }
+    }
+    console.log("orden2: "+arr);
+    return arrToSort;
+}
         function subirImagen() {
             var input = document.getElementById('inputImage');
             var preview = document.getElementById('imagenPreview');
