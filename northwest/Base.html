@@ -159,7 +159,7 @@
 
 
 
-    
+
     <!-- Upload PNG Button -->
     <button id="uploadPNGButton" class="button is-danger is-rounded"
         style="position: fixed; bottom: 80px; right: 20px;">
@@ -195,14 +195,15 @@
 
 
     <!-- Help Button -->
-    <button onclick="abrirAyuda()" class="button is-info is-rounded" style="position: fixed; bottom: 20px; right: 20px; ">
+    <button onclick="abrirAyuda()" class="button is-info is-rounded"
+        style="position: fixed; bottom: 20px; right: 20px; ">
         <span class="icon is-small">
             <i class="fas fa-question"></i>
         </span>
         <span>Ayuda</span>
     </button>
 
-  
+
 
     <!-- Help Modal -->
     <div id="helpModal" class="modal">
@@ -240,7 +241,7 @@
         <button class="modal-close is-large" aria-label="close"></button>
     </div>
 
-    
+
     <script>
 
         var VertexColor = '#ffffff';            // the color of vertexs
@@ -299,13 +300,13 @@
             lockMovementY: true,
         };
 
-  function abrirAyuda(){
-         window.open('instrucciones.pdf', '_blank');
-        } 
-       // Function to handle file selection and decode
-       function handleFileSelect(event) {
+        function abrirAyuda() {
+            window.open('instrucciones.pdf', '_blank');
+        }
+        // Function to handle file selection and decode
+        function handleFileSelect(event) {
             var input = event.target;
-            var fil=input.files;
+            var fil = input.files;
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
 
@@ -326,7 +327,7 @@
                             const decodedText = steg.decode(dataURL);
 
                             $('#GraphData').val(decodedText);
-                            tranInputToDrawer(false,true);
+                            tranInputToDrawer(false, true);
                         };
 
                         img.src = e.target.result;
@@ -372,22 +373,22 @@
         document.getElementById('inputImage').addEventListener('change', handleFileSelect);
 
         document.getElementById('downloadTextButton').addEventListener('click', function () {
-    var nombreArchivo = prompt("Ingrese un nombre para guardar el texto:", "Graph");
+            var nombreArchivo = prompt("Ingrese un nombre para guardar el texto:", "Graph");
 
-    if (nombreArchivo) {
-        const contenido = $('#GraphData').val();
-        const blob = new Blob([contenido], { type: 'text/plain' });
+            if (nombreArchivo) {
+                const contenido = $('#GraphData').val();
+                const blob = new Blob([contenido], { type: 'text/plain' });
 
-        const enlaceDescarga = document.createElement('a');
-        enlaceDescarga.href = window.URL.createObjectURL(blob);
-        enlaceDescarga.download = nombreArchivo + '.txt';
+                const enlaceDescarga = document.createElement('a');
+                enlaceDescarga.href = window.URL.createObjectURL(blob);
+                enlaceDescarga.download = nombreArchivo + '.txt';
 
-        // Simular clic en el enlace de descarga
-        document.body.appendChild(enlaceDescarga);
-        enlaceDescarga.click();
-        document.body.removeChild(enlaceDescarga);
-    }
-});
+                // Simular clic en el enlace de descarga
+                document.body.appendChild(enlaceDescarga);
+                enlaceDescarga.click();
+                document.body.removeChild(enlaceDescarga);
+            }
+        });
 
         // Download PNG Button Click Event
         document.getElementById('downloadPNGButton').addEventListener('click', function () {
@@ -429,8 +430,8 @@
                 // Luego de descargar, ocultar texto en la imagen
             };
 
-        img.src = 'data:image/png;base64,' + canvas.toDataURL().split(',')[1];
-    });
+            img.src = 'data:image/png;base64,' + canvas.toDataURL().split(',')[1];
+        });
         // Help Modal Close Event
         document.getElementById('closeHelp').addEventListener('click', function () {
             document.getElementById('helpModal').classList.remove('is-active');
@@ -490,16 +491,31 @@
         function generateAdjacencyMatrix(vertices, edges) {
             var matrix = [];
             var n = vertices.length;
-
+            
             // Create a mapping from vertex names to indices
-            var vertexIndexMap = {};
+            var vertexIndexMapD = {};
+
+            var vertexIndexMapO = {};
             for (var i = 0; i < n; i++) {
-                vertexIndexMap[vertices[i]] = i;
+                // Obtiene la referencia al objeto klass con name 'vertexA'
+                var vertexAObject = canvas._objects.find(obj => obj.name === 'vertex' + vertices[i]);
+
+                // Ahora vertexAObject contiene el objeto klass con name 'vertexA'
+                var x = vertexAObject.translateX;
+                if (x >= 0 && x < (canvasWidth / 2)) {
+                    vertexIndexMapO[vertices[i]] = i;
+                } else {
+                    vertexIndexMapD[vertices[i]] = i-(n/2);
+
+                }
+
+
             }
 
+
             // Initialize the matrix with zeros
-            for (var i = 0; i < n; i++) {
-                matrix[i] = Array(n).fill(0);
+            for (var i = 0; i < (n/2); i++) {
+                matrix[i] = Array(n/2).fill(0);
             }
 
             // Fill in the matrix based on the edges
@@ -510,90 +526,67 @@
 
                 if (edges[i].length === 3) {
                     // Set the corresponding cell to the weight value for directed edges
-                    matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = parseInt(weight) || 1;
+                    matrix[vertexIndexMapO[fromVertex]][vertexIndexMapD[toVertex]] = parseInt(weight) || 1;
                 } else {
                     // For undirected edges, set the reverse direction as well
-                    matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = 1;
-                    matrix[vertexIndexMap[toVertex]][vertexIndexMap[fromVertex]] = 1;
+                    matrix[vertexIndexMapO[fromVertex]][vertexIndexMapD[toVertex]] = 1;
+                    matrix[vertexIndexMapO[toVertex]][vertexIndexMapD[fromVertex]] = 1;
                 }
             }
             return matrix;
         }
 
-        // Display the adjacency matrix as a table
-        function displayMatrixAsTable(matrix, nodeNames) {
-            var tableContent = "<thead><tr><th></th>";
+        function displayMatrixAsTable(matrix, vertices,vertexIndexMapD,vertexIndexMapO) {
+   
 
-            // Create table headers using node names
-            for (var i = 0; i < nodeNames.length; i++) {
-                tableContent += "<th>" + nodeNames[i] + "</th>";
-            }
+    var tableContent = "<thead><tr><th></th>";
 
-            // Add a column for row sums
-            tableContent += "<th>Suma Fila</th></tr></thead><tbody>";
+    // Create table headers using node names
+    for (var i = 0; i < vertexIndexMapD.length; i++) {
+        tableContent += "<th>" + vertexIndexMapD[i] + "</th>";
+    }
+    tableContent += "</tr></thead><tbody>";
 
-            // Create table rows
-            for (var i = 0; i < matrix.length; i++) {
-                tableContent += "<tr><th>" + nodeNames[i] + "</th>";
-
-                var rowSum = 0;
-
-                for (var j = 0; j < matrix[i].length; j++) {
-                    tableContent += "<td>" + matrix[i][j] + "</td>";
-                    rowSum += matrix[i][j];
-                }
-
-                // Add the row sum to the table
-                tableContent += "<td>" + rowSum + "</td>";
-
-                tableContent += "</tr>";
-            }
-
-            tableContent += "<tr><th>Suma Columna</th>";
-
-            for (var j = 0; j < matrix[0].length; j++) {
-                var colSum = 0;
-                for (var i = 0; i < matrix.length; i++) {
-                    colSum += matrix[i][j];
-                }
-                tableContent += "<td>" + colSum + "</td>";
-            }
-
-            tableContent += "<td></td></tr></tbody>";
-
-            $("#adjacencyMatrixTable").html(tableContent);
+    // Create table rows
+    for (var i = 0; i < vertexIndexMapO.length; i++) {
+        tableContent += "<tr><th>" + vertexIndexMapO[i] + "</th>";
+        for (var j = 0; j < vertexIndexMapD.length; j++) {
+            // Access matrix elements properly
+            var value = matrix[i][j] || 0;
+            tableContent += "<td>" + value + "</td>";
         }
+        tableContent += "</tr>";
+    }
+
+    tableContent += "</tbody></table>";
+
+    $("#adjacencyMatrixTable").html(tableContent);
+}
 
         // Attach the function to the button click event
         $("#showAdjacencyMatrixBtn").on("click", function () {
-            while(true){
-// Assuming VertexArr contains the vertices in the graph
-var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
-         orden=[],nuevoOrden=[];
-            var aux=0;
-            for(var i=0;i<VertexArr.length;i++){
-                aux=0;
-                for(var j=0;j<VertexArr.length;j++){
-                    if(adjacencyMatrix[j][i]>0){
-                        aux=j+1;
-                    }
-                }
-                orden[i]=aux;
-                
-            }
-      
-
-            VertexArr=selectionSort(orden,VertexArr);
+            var n = VertexArr.length;
+    var vertexIndexMapO = [];
+    var vertexIndexMapD = [];
+    for (var i = 0; i < VertexArr.length; i++) {
+        var vertexAObject = canvas._objects.find(obj => obj.name === 'vertex' + VertexArr[i]);
+        var x = vertexAObject.translateX;
+        if (x >= 0 && x < (canvasWidth / 2)) {
+            vertexIndexMapO.push(VertexArr[i]);
+        } else {
+            vertexIndexMapD.push(VertexArr[i]);
+        }
+    }
+    
+    if(vertexIndexMapO.length==vertexIndexMapD.length && ((EdgeArr.length/vertexIndexMapO.length)%vertexIndexMapO.length==0)){
+            // Assuming VertexArr contains the vertices in the graph
+            var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
             // Display the adjacency matrix in the modal, pass VertexArr as nodeNames
-      
-            adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
-            if(isDiagonalSuperior(adjacencyMatrix)){
-                break;
-            }    
-            }
-            
-            displayMatrixAsTable(adjacencyMatrix, VertexArr);
+            displayMatrixAsTable(adjacencyMatrix, VertexArr,vertexIndexMapD,vertexIndexMapO);
+    }else{
+        alert("Ingrese de forma correcta el grafo para poder generar la matriz correspondiente");
 
+    }
             // Show the modal
             $("#adjacencyMatrixModal").addClass("is-active");
 
@@ -602,40 +595,8 @@ var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
                 $("#adjacencyMatrixModal").removeClass("is-active");
             });
         });
-               function selectionSort(arr, arrToSort) {
-    const n = arr.length;
-    for (let i = 0; i < n - 1; i++) {
-        let minIndex = i;
-        for (let j = i + 1; j < n; j++) {
-            if (arr[j] < arr[minIndex]) {
-                minIndex = j;
-            }
-        }
-        if (minIndex !== i) {
-            // Intercambiar los elementos en el array a ordenar
-            [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
-            // Intercambiar los elementos correspondientes en el otro array
-            [arrToSort[i], arrToSort[minIndex]] = [arrToSort[minIndex], arrToSort[i]];
 
 
-        }
-    }
-    return arrToSort;
-}
-
-function isDiagonalSuperior(matriz) {
-    
-    // Iterar sobre cada elemento por debajo de la diagonal superior
-    for (let i = 0; i < matriz.length; i++) {
-        for (let j = 0; j < i; j++) {
-            if (matriz[i][j] !== 0) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
         function subirImagen() {
             var input = document.getElementById('inputImage');
             var preview = document.getElementById('imagenPreview');
