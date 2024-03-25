@@ -187,7 +187,7 @@ function verificarSolucion(s1,opt) {
 
 function modificarSol(s1,opt){
    
-    var ma=[],l1=[],l2=[],c1c=0,c1n=0,c2c=0,c2n=0,boolean1=false,boolean2=false;
+    var ma=[],l1=[],l2=[],c1c=0,c1n=0,c2c=0,c2n=0;
     copiarMatriz(s1,ma);
     console.log("or: "+s1);
     var b1,b2,mm;
@@ -201,6 +201,14 @@ function modificarSol(s1,opt){
         mm=-Number.MAX_SAFE_INTEGER;
     }
     do{
+        var l1=[],l2=[],c1c=0,c1n=0,c2c=0,c2n=0;
+        if(opt){
+            
+            mm=Number.MAX_SAFE_INTEGER;
+        }else{
+           
+            mm=-Number.MAX_SAFE_INTEGER;
+        }
         for(let i=0;i<ma.length;i++){
             c1c=0,c1n=0,c2c=0,c2n=0;
             for(let j=0;j<ma[0].length;j++){
@@ -208,15 +216,7 @@ function modificarSol(s1,opt){
                     c1c++;
                 }else{
                     c1n++;
-                    if(opt){
-                        if(ma[i][j]<mm && ma[i][j]!=0){
-                            mm=ma[i][j];
-                        }
-                    }else{
-                        if(ma[i][j]>mm && ma[i][j]!=0){
-                            mm=ma[i][j];
-                        }
-                    }
+                    
                 }
                 if(ma[j][i]==0){
                     c2c++;
@@ -238,6 +238,26 @@ function modificarSol(s1,opt){
                 
             }   
         }
+        for(let i=0;i<ma.length;i++){
+            for(let j=0;j<ma[0].length;j++){
+                if(opt){
+                    if(ma[i][j]<mm && ma[i][j]!=0){
+                        if(!(l2.includes(j)|| l1.includes(i))){
+
+                        mm=ma[i][j];
+                        }
+                    }
+                }else{
+                    if(ma[i][j]>mm && ma[i][j]!=0){
+                        if(!(l2.includes(j)|| l1.includes(i))){
+                            mm=ma[i][j];
+
+                        }
+                    }
+                }
+            }
+        }
+        
       
         console.log("l1: "+l1);
         console.log("l2: "+l2);
@@ -309,7 +329,6 @@ function modificarSol(s1,opt){
         }
     }
     if(valSol.length>0 && valsol2.length>0){
-        console.log("fasdfasdfa");
         valSol=[];
         valsol2=[];
         sol1=[];
