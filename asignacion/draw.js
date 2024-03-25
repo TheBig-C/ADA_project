@@ -255,6 +255,7 @@ function fabricInit() {
 
     // add the line, directed from fromObject to toObject with weight
     fabric.Canvas.prototype.AddWeightedLine = function (fromObject, toObject, weight) {
+       
         var from = fromObject.getCenterPoint();
         var to = toObject.getCenterPoint();
 
