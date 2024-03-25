@@ -25,6 +25,7 @@
     <script type="text/javascript" src="./input.js"></script>
     <script type="text/javascript" src="./save.js"></script>
     <script type="text/javascript" src="./uploadImage.js"></script>
+    <script type="text/javascript" src="./northwest.js"></script>
 
     <style>
         canvas {
@@ -226,20 +227,33 @@
         </div>
         <button class="modal-close is-large" aria-label="close"></button>
     </div>
-
     <!-- Modal -->
     <div class="modal" id="adjacencyMatrixModal">
         <div class="modal-background"></div>
         <div class="modal-content">
             <div class="box">
                 <h4 class="title is-4">Matriz de adyacencia</h4>
+                <!-- Combobox para seleccionar entre minimizar y maximizar -->
+                <button id="generateMatrixBtn" class="button is-primary" onclick="northWest()">Resolver con North
+                    West</button>
+
                 <table id="adjacencyMatrixTable" class="table">
                     <!-- Table content will be dynamically generated here -->
+                </table>
+            </div>
+
+            <!-- Matriz de asignación -->
+            <div class="box" id="assignmentMatrixBox" style="display: none;">
+                <h4 class="title is-4">Matriz de asignación óptima</h4>
+                <table id="assignmentMatrixTable" class="table">
+                    <!-- La tabla de la matriz de asignación se generará aquí dinámicamente -->
                 </table>
             </div>
         </div>
         <button class="modal-close is-large" aria-label="close"></button>
     </div>
+
+
 
 
     <script>
@@ -488,34 +502,39 @@
                 codeBlock.style.display = 'none';
             }
         }
+
         function generateAdjacencyMatrix(vertices, edges) {
             var matrix = [];
             var n = vertices.length;
-            
+
             // Create a mapping from vertex names to indices
-            var vertexIndexMapD = {};
+            var vertexIndexMap = {};
+            var index = 0;
 
-            var vertexIndexMapO = {};
+            // Separate vertices into demand and supply sides
+            var demandVertices = [];
+            var supplyVertices = [];
             for (var i = 0; i < n; i++) {
-                // Obtiene la referencia al objeto klass con name 'vertexA'
-                var vertexAObject = canvas._objects.find(obj => obj.name === 'vertex' + vertices[i]);
-
-                // Ahora vertexAObject contiene el objeto klass con name 'vertexA'
+                var vertexName = vertices[i];
+                var vertexAObject = canvas._objects.find(obj => obj.name === 'vertex' + vertexName);
                 var x = vertexAObject.translateX;
-                if (x >= 0 && x < (canvasWidth / 2)) {
-                    vertexIndexMapO[vertices[i]] = i;
+
+                if (x < canvasWidth / 2) {
+                    demandVertices.push(vertexName);
                 } else {
-                    vertexIndexMapD[vertices[i]] = i-(n/2);
-
+                    supplyVertices.push(vertexName);
                 }
-
-
             }
 
-
             // Initialize the matrix with zeros
-            for (var i = 0; i < (n/2); i++) {
-                matrix[i] = Array(n/2).fill(0);
+            for (var i = 0; i < demandVertices.length; i++) {
+                vertexIndexMap[demandVertices[i]] = index++;
+            }
+            for (var i = 0; i < supplyVertices.length; i++) {
+                vertexIndexMap[supplyVertices[i]] = index++;
+            }
+            for (var i = 0; i < demandVertices.length; i++) {
+                matrix[i] = Array(supplyVertices.length).fill(0);
             }
 
             // Fill in the matrix based on the edges
@@ -524,69 +543,79 @@
                 var toVertex = edges[i][1];
                 var weight = edges[i][2];
 
+                var fromIndex = vertexIndexMap[fromVertex];
+                var toIndex = vertexIndexMap[toVertex];
+
                 if (edges[i].length === 3) {
                     // Set the corresponding cell to the weight value for directed edges
-                    matrix[vertexIndexMapO[fromVertex]][vertexIndexMapD[toVertex]] = parseInt(weight) || 1;
+                    matrix[fromIndex][toIndex - demandVertices.length] = parseInt(weight) || 0; // Changed to 0
                 } else {
-                    // For undirected edges, set the reverse direction as well
-                    matrix[vertexIndexMapO[fromVertex]][vertexIndexMapD[toVertex]] = 1;
-                    matrix[vertexIndexMapO[toVertex]][vertexIndexMapD[fromVertex]] = 1;
+                    // For undirected edges, set both directions
+                    matrix[fromIndex][toIndex - demandVertices.length] = 0; // Changed to 0
+                    matrix[toIndex][fromIndex - demandVertices.length] = 0; // Changed to 0
                 }
             }
+            console.log(matrix);
             return matrix;
         }
 
-        function displayMatrixAsTable(matrix, vertices,vertexIndexMapD,vertexIndexMapO) {
-   
 
-    var tableContent = "<thead><tr><th></th>";
 
-    // Create table headers using node names
-    for (var i = 0; i < vertexIndexMapD.length; i++) {
-        tableContent += "<th>" + vertexIndexMapD[i] + "</th>";
-    }
-    tableContent += "</tr></thead><tbody>";
+        function displayMatrixAsTable(matrix, vertices, vertexIndexMapD, vertexIndexMapO) {
+            var tableContent = "<thead><tr><th></th>";
 
-    // Create table rows
-    for (var i = 0; i < vertexIndexMapO.length; i++) {
-        tableContent += "<tr><th>" + vertexIndexMapO[i] + "</th>";
-        for (var j = 0; j < vertexIndexMapD.length; j++) {
-            // Access matrix elements properly
-            var value = matrix[i][j] || 0;
-            tableContent += "<td>" + value + "</td>";
+            // Create table headers using node names
+            for (var i = 0; i < vertexIndexMapD.length; i++) {
+                tableContent += "<th>" + vertexIndexMapD[i] + "</th>";
+            }
+            tableContent += "<th>Oferta</th></tr></thead><tbody>";
+
+            // Create table rows
+            for (var i = 0; i < vertexIndexMapO.length; i++) {
+                tableContent += "<tr><th>" + vertexIndexMapO[i] + "</th>";
+                for (var j = 0; j < vertexIndexMapD.length; j++) {
+                    // Access matrix elements properly
+                    var value = matrix[i][j] || 0;
+                    tableContent += "<td>" + value + "</td>";
+                }
+                // Add the availability column
+                tableContent += "<td contenteditable='true'>0</td>";
+                tableContent += "</tr>";
+            }
+
+            // Add the demand row
+            tableContent += "<tr><th>Demanda</th>";
+            for (var j = 0; j < vertexIndexMapD.length + 1; j++) {
+                // Add editable cells initialized with 0 for demand
+                tableContent += "<td contenteditable='true'>0</td>";
+            }
+            tableContent += "</tr>";
+
+            tableContent += "</tbody></table>";
+
+            $("#adjacencyMatrixTable").html(tableContent);
         }
-        tableContent += "</tr>";
-    }
-
-    tableContent += "</tbody></table>";
-
-    $("#adjacencyMatrixTable").html(tableContent);
-}
 
         // Attach the function to the button click event
         $("#showAdjacencyMatrixBtn").on("click", function () {
             var n = VertexArr.length;
-    var vertexIndexMapO = [];
-    var vertexIndexMapD = [];
-    for (var i = 0; i < VertexArr.length; i++) {
-        var vertexAObject = canvas._objects.find(obj => obj.name === 'vertex' + VertexArr[i]);
-        var x = vertexAObject.translateX;
-        if (x >= 0 && x < (canvasWidth / 2)) {
-            vertexIndexMapO.push(VertexArr[i]);
-        } else {
-            vertexIndexMapD.push(VertexArr[i]);
-        }
-    }
-    
-    if(vertexIndexMapO.length==vertexIndexMapD.length && ((EdgeArr.length/vertexIndexMapO.length)%vertexIndexMapO.length==0)){
+            var vertexIndexMapO = [];
+            var vertexIndexMapD = [];
+            for (var i = 0; i < VertexArr.length; i++) {
+                var vertexAObject = canvas._objects.find(obj => obj.name === 'vertex' + VertexArr[i]);
+                var x = vertexAObject.translateX;
+                if (x >= 0 && x < (canvasWidth / 2)) {
+                    vertexIndexMapO.push(VertexArr[i]);
+                } else {
+                    vertexIndexMapD.push(VertexArr[i]);
+                }
+            }
+
             // Assuming VertexArr contains the vertices in the graph
             var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
             // Display the adjacency matrix in the modal, pass VertexArr as nodeNames
-            displayMatrixAsTable(adjacencyMatrix, VertexArr,vertexIndexMapD,vertexIndexMapO);
-    }else{
-        alert("Ingrese de forma correcta el grafo para poder generar la matriz correspondiente");
+            displayMatrixAsTable(adjacencyMatrix, VertexArr, vertexIndexMapD, vertexIndexMapO);
 
-    }
             // Show the modal
             $("#adjacencyMatrixModal").addClass("is-active");
 
