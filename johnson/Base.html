@@ -160,7 +160,7 @@
 
 
 
-    
+
     <!-- Upload PNG Button -->
     <button id="uploadPNGButton" class="button is-danger is-rounded"
         style="position: fixed; bottom: 80px; right: 20px;">
@@ -190,14 +190,15 @@
     </button>
 
     <!-- Help Button -->
-    <button onclick="abrirAyuda()" class="button is-info is-rounded" style="position: fixed; bottom: 20px; right: 20px; ">
+    <button onclick="abrirAyuda()" class="button is-info is-rounded"
+        style="position: fixed; bottom: 20px; right: 20px; ">
         <span class="icon is-small">
             <i class="fas fa-question"></i>
         </span>
         <span>Ayuda</span>
     </button>
 
-  
+
 
     <!-- Help Modal -->
     <div id="helpModal" class="modal">
@@ -235,7 +236,7 @@
         <button class="modal-close is-large" aria-label="close"></button>
     </div>
 
-    
+
     <script>
 
         var VertexColor = '#ffffff';            // the color of vertexs
@@ -249,6 +250,7 @@
         var isBothWays = false;                 // if true, edges have arrows, representing direct edges
         var connections = [];                   //global array to save all conection without weights (it doesn't saves loops)
 
+        var canvasWidth = $("#graph-drawer").outerWidth() / 0.9;                  // the width of canvas
         var canvasWidth = $("#graph-drawer").outerWidth() / 0.9;                  // the width of canvas
         var canvasHeight = $("#graph-drawer").outerHeight() / 1.3;                // the height of canvas
         var canvas = new fabric.Canvas('c', {                                     // the object of canvas
@@ -294,13 +296,17 @@
             lockMovementY: true,
         };
 
-  function abrirAyuda(){
-         window.open('instrucciones.pdf', '_blank');
-        } 
-       // Function to handle file selection and decode
-       function handleFileSelect(event) {
+        function abrirAyuda() {
+            window.open('instrucciones.pdf', '_blank');
+        }
+        // Function to handle file selection and decode
+        function abrirAyuda() {
+            window.open('instrucciones.pdf', '_blank');
+        }
+        // Function to handle file selection and decode
+        function handleFileSelect(event) {
             var input = event.target;
-            var fil=input.files;
+            var fil = input.files;
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
 
@@ -321,7 +327,7 @@
                             const decodedText = steg.decode(dataURL);
 
                             $('#GraphData').val(decodedText);
-                            tranInputToDrawer(false,true);
+                            tranInputToDrawer(false, true);
                         };
 
                         img.src = e.target.result;
@@ -333,14 +339,44 @@
 
                             reader.onload = function (e) {
                                 var contenido = e.target.result;
+                                var d=contenido.split("$$");
+                                console.log("contenido: ");
+                                console.log(contenido);
                                 // Hacer algo con el contenido, por ejemplo, mostrarlo en la consola
-                                $('#GraphData').val(contenido);
+                              //  $('#GraphData').val(d[0]);
+                             storeInputD(d[0]);
+                                console.log("otro:");
+                                console.log(d[1]);
+                                console.log("otro d:");
+                                var sd=d[0].split("\n");
+                                console.log(sd);
+                                audf=[]
+                                for(let i=0;i<sd.length;i++){
+                                    if(sd[i].length>1){
+                                        audf=sd[i].split(" ");
+                                        storeEdge(audf[0],audf[1],defaultLine.stroke,audf[0]===audf[1]);    
+                                    }
+                                }
+                                aux=d[1];
+                                aux2=[];
+                                su=aux.split("&&&");
+                                ms=[];
+                                for(let i=0;i<su.length;i++){
+                                    aux2=su[i].split("/");
+                                    ms[i]=aux2.slice();
+                                }
+                                for(let i=0;i<ms.length;i++){
+                                    storeVertex(ms[i][0], ms[i][1], ms[i][2], '#ffffff');
+                                }
+                                
 
                             };
 
                             reader.readAsText(input.files[0]);
-                            tranInputToDrawer(false);
-
+                            saveInit(true);
+                         // location.reload();
+                         //   tranInputToDrawer(true);
+                            
                         }
                     } else {
                         console.error('Tipo de archivo no compatible.');
@@ -367,22 +403,22 @@
         document.getElementById('inputImage').addEventListener('change', handleFileSelect);
 
         document.getElementById('downloadTextButton').addEventListener('click', function () {
-    var nombreArchivo = prompt("Ingrese un nombre para guardar el texto:", "Graph");
+            var nombreArchivo = prompt("Ingrese un nombre para guardar el texto:", "Graph");
 
-    if (nombreArchivo) {
-        const contenido = $('#GraphData').val();
-        const blob = new Blob([contenido], { type: 'text/plain' });
+            if (nombreArchivo) {
+                const contenido = $('#GraphData').val();
+                const blob = new Blob([contenido], { type: 'text/plain' });
 
-        const enlaceDescarga = document.createElement('a');
-        enlaceDescarga.href = window.URL.createObjectURL(blob);
-        enlaceDescarga.download = nombreArchivo + '.txt';
+                const enlaceDescarga = document.createElement('a');
+                enlaceDescarga.href = window.URL.createObjectURL(blob);
+                enlaceDescarga.download = nombreArchivo + '.txt';
 
-        // Simular clic en el enlace de descarga
-        document.body.appendChild(enlaceDescarga);
-        enlaceDescarga.click();
-        document.body.removeChild(enlaceDescarga);
-    }
-});
+                // Simular clic en el enlace de descarga
+                document.body.appendChild(enlaceDescarga);
+                enlaceDescarga.click();
+                document.body.removeChild(enlaceDescarga);
+            }
+        });
 
         // Download PNG Button Click Event
         document.getElementById('downloadPNGButton').addEventListener('click', function () {
@@ -424,8 +460,8 @@
                 // Luego de descargar, ocultar texto en la imagen
             };
 
-        img.src = 'data:image/png;base64,' + canvas.toDataURL().split(',')[1];
-    });
+            img.src = 'data:image/png;base64,' + canvas.toDataURL().split(',')[1];
+        });
         // Help Modal Close Event
         document.getElementById('closeHelp').addEventListener('click', function () {
             document.getElementById('helpModal').classList.remove('is-active');
@@ -681,24 +717,24 @@ function showAdjacencyMatrix() {
             [arrToSort[i], arrToSort[minIndex]] = [arrToSort[minIndex], arrToSort[i]];
 
 
-        }
-    }
-    return arrToSort;
-}
-
-function isDiagonalSuperior(matriz) {
-    
-    // Iterar sobre cada elemento por debajo de la diagonal superior
-    for (let i = 0; i < matriz.length; i++) {
-        for (let j = 0; j < i; j++) {
-            if (matriz[i][j] !== 0) {
-                return false;
+                }
             }
+            return arrToSort;
         }
-    }
 
-    return true;
-}
+        function isDiagonalSuperior(matriz) {
+
+            // Iterar sobre cada elemento por debajo de la diagonal superior
+            for (let i = 0; i < matriz.length; i++) {
+                for (let j = 0; j < i; j++) {
+                    if (matriz[i][j] !== 0) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
         function subirImagen() {
             var input = document.getElementById('inputImage');
             var preview = document.getElementById('imagenPreview');
