@@ -187,8 +187,11 @@ function verificarSolucion(s1,opt) {
 
 function modificarSol(s1,opt){
    
-    var ma=[],l1=[],l2=[],c1c=0,c1n=0,c2c=0,c2n=0;
+    var ma=[],l1=[],l2=[],c1c=0,c1n=0,c2c=0,c2cd=0,c2n=0,c=0;
     copiarMatriz(s1,ma);
+
+
+
     console.log("or: "+s1);
     var b1,b2,mm;
     if(opt){
@@ -209,8 +212,12 @@ function modificarSol(s1,opt){
            
             mm=-Number.MAX_SAFE_INTEGER;
         }
+
+
+
+        console.log("principio: "+ma)
         for(let i=0;i<ma.length;i++){
-            c1c=0,c1n=0,c2c=0,c2n=0;
+            c1c=0,c1n=0,c2c=0,c2n=0,c2cd=0;
             for(let j=0;j<ma[0].length;j++){
                 if(ma[i][j]==0){
                     c1c++;
@@ -218,8 +225,32 @@ function modificarSol(s1,opt){
                     c1n++;
                     
                 }
+                
+                  
+            }
+            
+            if(c1c>1){
+               if(!l1.includes(i)){
+                l1.push(i);
+
+               }
+                
+            }
+               
+        }
+        for(let i=0;i<ma.length;i++){
+            c1c=0,c1n=0,c2c=0,c2n=0,c2cd=0;
+            for(let j=0;j<ma[0].length;j++){
+               
                 if(ma[j][i]==0){
-                    c2c++;
+                    if(!l1.includes(j)){
+                        c2c++;
+                        console.log("i: "+j);
+                        console.log("j: "+i);
+                    }else{
+                        c2cd++;
+                        
+                    }
                 }else{
                     c2n++;
 
@@ -227,17 +258,19 @@ function modificarSol(s1,opt){
                   
             }
             
-            if(c1c>c1n){
-               
-               l1.push(i);
-                
-            }
-            if(c2c>c2n){
-                l2.push(i);
+            if((c2c>=1 && c2cd>1)||(c2c==0 && c2cd>=c2n)){
 
-                
+                if(!l2.includes(i)){
+                    l2.push(i);
+    
+                   }
             }   
         }
+
+
+
+
+
         for(let i=0;i<ma.length;i++){
             for(let j=0;j<ma[0].length;j++){
                 if(opt){
@@ -278,26 +311,40 @@ function modificarSol(s1,opt){
                 }
             }
         }
-        
+        if(!veriSolucion(ma)){
             for(let i=0;i<ma.length;i++){
                 for(let j=0;j<ma[0].length;j++){
                     if(opt){
                         if(ma[i][j]<0){
-                            arreglar(ma,i,j,opt);
+                            console.log("ant="+ma[i][j]);
+                            console.log(ma);
+    
+                            arreglar(ma,i,j,l1,l2);
+                            console.log("des");
+                            console.log(ma);
+    
                         }
                     }else{
                         if(ma[i][j]>0){
-                            arreglar(ma,i,j),opt;
+                            console.log("ant="+ma[i][j]);
+                            console.log(ma);
+    
+                            arreglar(ma,i,j,l1,l2);
+                            console.log("des");
+                            console.log(ma);
     
                         }
                     }
                     
                 }
             }
+        }
+           
         
        
          console.log("ma: "+ma);
-    }while(!veriSolucion(ma));
+         c++;
+    }while(!veriSolucion(ma) );
     copiarMatriz(ma,s1);
     console.log("ma");
     console.log(ma);
@@ -373,7 +420,8 @@ function modificarSol(s1,opt){
     }
     
 }
-function arreglar(matriz,f,c){
+
+function arreglar(matriz,f,c,l1,l2){
     var bf=false,bc=false;
     for(let i=0;i<matriz.length;i++){
         if(matriz[i][c]==0){
@@ -386,11 +434,21 @@ function arreglar(matriz,f,c){
     for(let i=0;i<matriz.length;i++){
 
             if(bc){
-                matriz[i][c]=matriz[i][c]+(matriz[f][c]*-1);
+                if(!matriz[i][c]==0){
+                    matriz[i][c]=matriz[i][c]+(matriz[f][c]*-1);
+
+                }else if (l1.includes(i) && l2.includes(c)){
+                    matriz[i][c]=matriz[i][c]+(matriz[f][c]*-1);
+
+                }
             }
             if(bf){
+                if(! matriz[f][i]==0){
                 matriz[f][i]=matriz[f][i]+(matriz[f][c]*-1);
+            }else if(l1.includes(f) && l2.includes(i)){
+                matriz[i][c]=matriz[i][c]+(matriz[f][c]*-1);
 
+            }
             }
         
     }

@@ -1,15 +1,17 @@
 // graph data will be saved in the buffer
-function saveInit() {
-    loadInput();
+function saveInit(d) {
+    loadInput(d);
 }
 
 // to save input
+function storeInputD(input) {
+    localStorage.setItem('InputData', input);
+}
 function storeInput() {
     localStorage.setItem('InputData', $('#GraphData').val());
 }
-
 // to load input
-function loadInput() {
+function loadInput(d) {
     var input = localStorage.getItem('InputData');
     if (input === null) {
         return;
@@ -17,7 +19,7 @@ function loadInput() {
 
     // restore the data in Input
     $('#GraphData').val(input);
-    tranInputToDrawer(true);
+    tranInputToDrawer(true,d);
 }
 
 // according to the index, save the vertex's info

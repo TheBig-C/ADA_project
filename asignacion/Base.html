@@ -354,9 +354,20 @@
                                 console.log("contenido: ");
                                 console.log(contenido);
                                 // Hacer algo con el contenido, por ejemplo, mostrarlo en la consola
-                                $('#GraphData').val(d[0]);
-                                console.log("otro:")
+                              //  $('#GraphData').val(d[0]);
+                             storeInputD(d[0]);
+                                console.log("otro:");
                                 console.log(d[1]);
+                                console.log("otro d:");
+                                var sd=d[0].split("\n");
+                                console.log(sd);
+                                audf=[]
+                                for(let i=0;i<sd.length;i++){
+                                    if(sd[i].length>1){
+                                        audf=sd[i].split(" ");
+                                        storeEdge(audf[0],audf[1],defaultLine.stroke,audf[0]===audf[1]);    
+                                    }
+                                }
                                 aux=d[1];
                                 aux2=[];
                                 su=aux.split("&&&");
@@ -366,17 +377,16 @@
                                     ms[i]=aux2.slice();
                                 }
                                 for(let i=0;i<ms.length;i++){
-                                    storeVertex(ms[i][0], ms[i][1], ms[i][2], 'white');
+                                    storeVertex(ms[i][0], ms[i][1], ms[i][2], '#ffffff');
                                 }
-                                for(let i=0;i<ms.length;i++){
-                                    loadVertex(ms[i][0]);
-                                }
+                                
 
                             };
 
                             reader.readAsText(input.files[0]);
-                          
-                            tranInputToDrawer(true);
+                            saveInit(true);
+                         // location.reload();
+                         //   tranInputToDrawer(true);
                             
                         }
                     } else {
@@ -531,34 +541,39 @@
                 codeBlock.style.display = 'none';
             }
         }
+        
         function generateAdjacencyMatrix(vertices, edges) {
             var matrix = [];
             var n = vertices.length;
 
             // Create a mapping from vertex names to indices
-            var vertexIndexMapD = {};
+            var vertexIndexMap = {};
+            var index = 0;
 
-            var vertexIndexMapO = {};
+            // Separate vertices into demand and supply sides
+            var demandVertices = [];
+            var supplyVertices = [];
             for (var i = 0; i < n; i++) {
-                // Obtiene la referencia al objeto klass con name 'vertexA'
-                var vertexAObject = canvas._objects.find(obj => obj.name === 'vertex' + vertices[i]);
-
-                // Ahora vertexAObject contiene el objeto klass con name 'vertexA'
+                var vertexName = vertices[i];
+                var vertexAObject = canvas._objects.find(obj => obj.name === 'vertex' + vertexName);
                 var x = vertexAObject.translateX;
-                if (x >= 0 && x < (canvasWidth / 2)) {
-                    vertexIndexMapO[vertices[i]] = i;
+
+                if (x < canvasWidth / 2) {
+                    demandVertices.push(vertexName);
                 } else {
-                    vertexIndexMapD[vertices[i]] = i - (n / 2);
-
+                    supplyVertices.push(vertexName);
                 }
-
-
             }
 
-
             // Initialize the matrix with zeros
-            for (var i = 0; i < (n / 2); i++) {
-                matrix[i] = Array(n / 2).fill(0);
+            for (var i = 0; i < demandVertices.length; i++) {
+                vertexIndexMap[demandVertices[i]] = index++;
+            }
+            for (var i = 0; i < supplyVertices.length; i++) {
+                vertexIndexMap[supplyVertices[i]] = index++;
+            }
+            for (var i = 0; i < demandVertices.length; i++) {
+                matrix[i] = Array(supplyVertices.length).fill(0);
             }
 
             // Fill in the matrix based on the edges
@@ -567,17 +582,22 @@
                 var toVertex = edges[i][1];
                 var weight = edges[i][2];
 
+                var fromIndex = vertexIndexMap[fromVertex];
+                var toIndex = vertexIndexMap[toVertex];
+
                 if (edges[i].length === 3) {
                     // Set the corresponding cell to the weight value for directed edges
-                    matrix[vertexIndexMapO[fromVertex]][vertexIndexMapD[toVertex]] = parseInt(weight) || 1;
+                    matrix[fromIndex][toIndex - demandVertices.length] = parseInt(weight) || 0; // Changed to 0
                 } else {
-                    // For undirected edges, set the reverse direction as well
-                    matrix[vertexIndexMapO[fromVertex]][vertexIndexMapD[toVertex]] = 1;
-                    matrix[vertexIndexMapO[toVertex]][vertexIndexMapD[fromVertex]] = 1;
+                    // For undirected edges, set both directions
+                    matrix[fromIndex][toIndex - demandVertices.length] = 0; // Changed to 0
+                    matrix[toIndex][fromIndex - demandVertices.length] = 0; // Changed to 0
                 }
             }
+            console.log(matrix);
             return matrix;
         }
+
 
         function displayMatrixAsTable(matrix, vertices, vertexIndexMapD, vertexIndexMapO) {
             var tableContent = "<div class='table-container'><div><h2>Matriz de adyacencia</h2><table id='adjacencyMatrixTable' class='matrix-table'><thead><tr><th></th>";
@@ -640,7 +660,7 @@
                         var row = '<tr>'; // Comienza una nueva fila
 
                         // Agrega una celda para cada elemento en el resultado
-                        row += '<td>' + vertexIndexMapO[i] + ' = ' + adjacencyMatrix[resultado[i][0]][resultado[i][1]] + ' -> ' + vertexIndexMapD[resultado[i][1]] + '</td>';
+                        row += '<td>' + vertexIndexMapO[i] + ' -> ' + vertexIndexMapD[resultado[i][1]] + ' = ' + adjacencyMatrix[resultado[i][0]][resultado[i][1]]  + '</td>';
 
                         asign = asign + adjacencyMatrix[resultado[i][0]][resultado[i][1]];
                         row += '</tr>'; // Termina la fila
@@ -654,7 +674,7 @@
                         var row = '<tr>'; // Comienza una nueva fila
 
                         // Agrega una celda para cada elemento en el resultado
-                        row += '<td>' + vertexIndexMapO[i] + ' = ' + adjacencyMatrix[resultado[i][0]][resultado[i][1]] + ' -> ' + vertexIndexMapD[resultado[i][1]] + '</td>';
+                        row += '<td>' + vertexIndexMapO[i] + ' -> ' + vertexIndexMapD[resultado[i][1]] + ' = ' + adjacencyMatrix[resultado[i][0]][resultado[i][1]]  + '</td>';
 
                         asign = asign + adjacencyMatrix[resultado[i][0]][resultado[i][1]];
                         row += '</tr>'; // Termina la fila
