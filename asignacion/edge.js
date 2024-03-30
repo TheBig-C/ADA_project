@@ -1,42 +1,51 @@
 function edgeInit() {
+
     fabric.Edge = fabric.util.createClass(
         fabric.Line,
         {
             type: 'Edge',
-
+    
             initialize: function (element, options) {
                 options || (options = {});
                 options.selectable = typeof options.selectable !== 'undefined' ? options.selectable : true;
                 options.objectCaching = false;
+    
                 this.callSuper('initialize', element, options);
+    
+                var r = Math.floor(Math.random() * 256);
+                var g = Math.floor(Math.random() * 256);
+                var b = Math.floor(Math.random() * 256);
+                this.color = 'rgb(' + r + ',' + g + ',' + b + ')';
+                this.set({ stroke: this.color });
             },
-
+    
             toObject: function () {
                 return fabric.util.object.extend(this.callSuper('toObject'));
             },
-
+    
             _render: function (ctx) {
                 this.callSuper('_render', ctx);
-
-                // do not render if width/height are zeros or object is not visible
+    
                 if (this.width === 0 && this.height === 0 || !this.visible) return;
-
+    
                 ctx.save();
-
-                // rotate
+    
                 var xDiff = this.x2 - this.x1;
                 var yDiff = this.y2 - this.y1;
                 var angle = Math.atan2(yDiff, xDiff);
+    
                 ctx.translate(xDiff / 2, yDiff / 2);
-
+    
                 // draw the weight
                 ctx.font = "16px Times New Roman";
+                ctx.fillStyle = this.color;
+    
                 ctx.fillText(
                     this.weight,
                     (- this.x2 + this.x1) / 2 + weightPadding * Math.sin(angle),
                     (- this.y2 + this.y1) / 2 - weightPadding * Math.cos(angle) + 6,
-                )
-
+                );
+    
                 // draw the triangle of the arrow
                 ctx.rotate(angle);
                 ctx.beginPath();
@@ -44,16 +53,17 @@ function edgeInit() {
                 ctx.lineTo(-25, 6);
                 ctx.lineTo(-25, -6);
                 ctx.closePath();
-                ctx.fillStyle = this.stroke;
+                ctx.fillStyle = this.color;
                 ctx.fill();
                 ctx.restore();
             },
-
+    
             clipTo: function (ctx) {
                 this._render(ctx);
             }
-        });
-
+        }
+    );
+    
 
 // Variable para almacenar el estado del botón de selección para las flechas
 var isSelectArrowMode = false;

@@ -318,6 +318,10 @@
             window.open('instrucciones.pdf', '_blank');
         }
         // Function to handle file selection and decode
+        function abrirAyuda() {
+            window.open('instrucciones.pdf', '_blank');
+        }
+        // Function to handle file selection and decode
         function handleFileSelect(event) {
             var input = event.target;
             var fil = input.files;
@@ -353,14 +357,44 @@
 
                             reader.onload = function (e) {
                                 var contenido = e.target.result;
+                                var d=contenido.split("$$");
+                                console.log("contenido: ");
+                                console.log(contenido);
                                 // Hacer algo con el contenido, por ejemplo, mostrarlo en la consola
-                                $('#GraphData').val(contenido);
+                              //  $('#GraphData').val(d[0]);
+                             storeInputD(d[0]);
+                                console.log("otro:");
+                                console.log(d[1]);
+                                console.log("otro d:");
+                                var sd=d[0].split("\n");
+                                console.log(sd);
+                                audf=[]
+                                for(let i=0;i<sd.length;i++){
+                                    if(sd[i].length>1){
+                                        audf=sd[i].split(" ");
+                                        storeEdge(audf[0],audf[1],defaultLine.stroke,audf[0]===audf[1]);    
+                                    }
+                                }
+                                aux=d[1];
+                                aux2=[];
+                                su=aux.split("&&&");
+                                ms=[];
+                                for(let i=0;i<su.length;i++){
+                                    aux2=su[i].split("/");
+                                    ms[i]=aux2.slice();
+                                }
+                                for(let i=0;i<ms.length;i++){
+                                    storeVertex(ms[i][0], ms[i][1], ms[i][2], '#ffffff');
+                                }
+                                
 
                             };
 
                             reader.readAsText(input.files[0]);
-                            tranInputToDrawer(false);
-
+                            saveInit(true);
+                         // location.reload();
+                         //   tranInputToDrawer(true);
+                            
                         }
                     } else {
                         console.error('Tipo de archivo no compatible.');
@@ -370,7 +404,6 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
-
         // Function to check if the file is an image
         function isImageFile(file) {
             return file.type.startsWith('image/');

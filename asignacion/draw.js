@@ -255,6 +255,7 @@ function fabricInit() {
 
     // add the line, directed from fromObject to toObject with weight
     fabric.Canvas.prototype.AddWeightedLine = function (fromObject, toObject, weight) {
+
         var from = fromObject.getCenterPoint();
         var to = toObject.getCenterPoint();
 
@@ -466,6 +467,40 @@ function fabricInit() {
         $("#GraphData").val('');
         canvas.renderAll();
         tranInputToDrawer(true);
+        drawSplitScreen(canvas);
     };
+
+    // Función para dividir la pantalla en dos y mostrar etiquetas de "demandas" y "utilidades"
+    function drawSplitScreen(canvas) {
+        var screenWidth = canvas.getWidth();
+        var screenHeight = canvas.getHeight();
+
+        // Dibujar la línea divisoria en el medio de la pantalla
+        var line = new fabric.Line([screenWidth / 2, 0, screenWidth / 2, screenHeight], {
+            stroke: 'black',
+            strokeWidth: 2,
+            selectable: false
+        });
+        canvas.add(line);
+
+        // Agregar texto "demandas" en el lado izquierdo
+        var demandText = new fabric.Text('Origen', {
+            left: screenWidth / 6,
+            top: 10,
+            fontSize: 25,
+            selectable: false
+        });
+        canvas.add(demandText);
+
+        // Agregar texto "utilidades" en el lado derecho
+        var utilityText = new fabric.Text('Destino', {
+            left: 3 * screenWidth / 5,
+            top: 10,
+            fontSize: 25,
+            selectable: false
+        });
+        canvas.add(utilityText);
+    }
+    drawSplitScreen(canvas);
 
 }
