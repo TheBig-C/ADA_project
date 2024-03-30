@@ -234,7 +234,7 @@
             <div class="box">
                 <h4 class="title is-4">Matriz de adyacencia</h4>
                 <!-- Combobox para seleccionar entre minimizar y maximizar -->
-                <button id="generateMatrixBtn" class="button is-primary" onclick="northWest()">Resolver con North
+                <button id="generateMatrixBtn" class="button is-primary">Resolver con North
                     West</button>
 
                 <table id="adjacencyMatrixTable" class="table">
@@ -559,8 +559,6 @@
             return matrix;
         }
 
-
-
         function displayMatrixAsTable(matrix, vertices, vertexIndexMapD, vertexIndexMapO) {
             var tableContent = "<thead><tr><th></th>";
 
@@ -585,15 +583,20 @@
 
             // Add the demand row
             tableContent += "<tr><th>Demanda</th>";
-            for (var j = 0; j < vertexIndexMapD.length + 1; j++) {
+            for (var j = 0; j < vertexIndexMapD.length; j++) {
                 // Add editable cells initialized with 0 for demand
                 tableContent += "<td contenteditable='true'>0</td>";
             }
+            // Add the last cell in demand row as non-editable and blank
+            tableContent += "<td class='non-editable'></td>";
             tableContent += "</tr>";
 
             tableContent += "</tbody></table>";
 
             $("#adjacencyMatrixTable").html(tableContent);
+
+            // Disable editing for cells with class 'non-editable'
+            $(".non-editable").prop('contenteditable', false);
         }
 
         // Attach the function to the button click event
@@ -625,6 +628,26 @@
             });
         });
 
+        // Attach the function to the button click event
+        $("#generateMatrixBtn").on("click", function () {
+            var n = VertexArr.length;
+            var vertexIndexMapO = [];
+            var vertexIndexMapD = [];
+            for (var i = 0; i < VertexArr.length; i++) {
+                var vertexAObject = canvas._objects.find(obj => obj.name === 'vertex' + VertexArr[i]);
+                var x = vertexAObject.translateX;
+                if (x >= 0 && x < (canvasWidth / 2)) {
+                    vertexIndexMapO.push(VertexArr[i]);
+                } else {
+                    vertexIndexMapD.push(VertexArr[i]);
+                }
+            }
+            // Assuming VertexArr contains the vertices in the graph
+            var assignmentMatrix = northWest();
+            // Display the adjacency matrix in the modal, pass VertexArr as nodeNames
+            displayMatrixAsTablenw(assignmentMatrix, VertexArr, vertexIndexMapD, vertexIndexMapO);
+
+        });
 
         function subirImagen() {
             var input = document.getElementById('inputImage');

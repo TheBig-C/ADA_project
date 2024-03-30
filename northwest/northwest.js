@@ -1,65 +1,80 @@
 function northWest() {
     // Obtener la matriz de costos y las demandas de la tabla
     var adjacencyMatrix = getAdjacencyMatrix();
-    var demand = getDemand();
-    var supply = getSupply(adjacencyMatrix);
 
-    // Verificar si los datos son válidos
-    if (!adjacencyMatrix || !demand || !supply || !validateSupplyDemand(supply, demand)) {
-        alert('Por favor, ingrese valores válidos para la matriz de costos, asegúrese de que la suma de las demandas sea igual a la oferta.');
-        return;
-    }
+    console.log(adjacencyMatrix);
 
     // Obtener las dimensiones de la matriz de asignación
     var numRows = adjacencyMatrix.length;
-    var numCols = demand.length;
+    console.log(numRows);
+    var numCols = adjacencyMatrix[0].length - 1; // Excluimos la columna de oferta
 
     // Inicializar la matriz de asignación óptima con ceros
-    var assignmentMatrix = Array.from({ length: numRows }, () => Array(numCols).fill(0));
+    var assignmentMatrix = Array.from({ length: numRows - 1 }, () => Array(numCols).fill(0));
 
-    // Variables para controlar la demanda restante en cada columna
-    var remainingDemand = demand.slice(); // Copia de la demanda original
+    // Bucle principal: Algoritmo de North-West
+    for (var i = 0; i < numRows - 1; i++) {
+        var supply = adjacencyMatrix[i][numCols]; // Obtener la oferta de la fila
+        for (var j = 0; j < numCols; j++) {
+            var demand = adjacencyMatrix[numRows - 1][j]; // Obtener la demanda de la columna
+            if (supply > 0 && demand > 0) {
+                // Asignar la cantidad mínima entre la oferta y la demanda restante
+                var amount = Math.min(supply, demand);
+                assignmentMatrix[i][j] = amount;
+                // Actualizar la oferta y la demanda restante
+                adjacencyMatrix[i][numCols] -= amount; // Restar la cantidad asignada a la oferta
+                adjacencyMatrix[numRows - 1][j] -= amount; // Restar la cantidad asignada a la demanda
+                // Continuar asignando oferta restante si queda
+                supply -= amount;
+            }
+        }
+    }
 
-    // Variables para controlar la oferta restante en cada fila
-    var remainingSupply = supply.slice(); // Copia de la oferta original
-
-    // Recorrer la matriz de costos y asignar según el algoritmo de North-West
+    // Método de mejora por diferencias
+    var improved = true;
     while (true) {
-        // Encontrar la celda con el menor costo disponible
-        var minCostCell = { cost: Infinity, row: -1, col: -1 };
-        for (var i = 0; i < numRows; i++) {
+        console.log("mejorando");
+        improved = false; // Reiniciamos improved a false al inicio de cada iteración
+        // Calcular la matriz de diferencias
+        var differenceMatrix = [];
+        for (var i = 0; i < numRows - 1; i++) {
+            differenceMatrix.push([]);
             for (var j = 0; j < numCols; j++) {
-                // Si hay oferta y demanda restantes y el costo es menor que el mínimo actual
-                if (remainingSupply[i] > 0 && remainingDemand[j] > 0 && adjacencyMatrix[i][j] < minCostCell.cost) {
-                    // Actualizar la celda con el nuevo costo mínimo
-                    minCostCell.cost = adjacencyMatrix[i][j];
-                    minCostCell.row = i;
-                    minCostCell.col = j;
+                differenceMatrix[i][j] = adjacencyMatrix[i][j] - assignmentMatrix[i][j];
+            }
+        }
+        console.log(differenceMatrix);
+
+        // Encontrar la celda con la mayor diferencia positiva
+        var maxPositiveDifference = { difference: -Infinity, row: -1, col: -1 };
+        for (var i = 0; i < numRows - 1; i++) {
+            for (var j = 0; j < numCols; j++) {
+                if (differenceMatrix[i][j] > maxPositiveDifference.difference) {
+                    maxPositiveDifference.difference = differenceMatrix[i][j];
+                    maxPositiveDifference.row = i;
+                    maxPositiveDifference.col = j;
+                    console.log("hola");
                 }
             }
         }
 
-        // Si no se encuentra ninguna celda con costo finito, salir del bucle
-        if (minCostCell.cost === Infinity) {
-            break;
+        // Si se encontró una diferencia positiva, mejorar la asignación
+        if (maxPositiveDifference.difference > 0) {
+            var amount = Math.min(adjacencyMatrix[maxPositiveDifference.row][numCols], adjacencyMatrix[numRows - 1][maxPositiveDifference.col]);
+            console.log("hola1");
+            if (amount > 0) {
+                console.log("hola2");
+                assignmentMatrix[maxPositiveDifference.row][maxPositiveDifference.col] += amount;
+                adjacencyMatrix[maxPositiveDifference.row][numCols] -= amount; // Restar la cantidad asignada a la oferta
+                adjacencyMatrix[numRows - 1][maxPositiveDifference.col] -= amount; // Restar la cantidad asignada a la demanda
+                improved = true; // Si hay una mejora, continuamos el bucle
+            }
         }
-
-        // Asignar la cantidad mínima entre la oferta y la demanda restante
-        var amount = Math.min(remainingSupply[minCostCell.row], remainingDemand[minCostCell.col]);
-        assignmentMatrix[minCostCell.row][minCostCell.col] = amount;
-
-        // Restar la cantidad asignada a la demanda restante en la columna
-        remainingDemand[minCostCell.col] -= amount;
-
-        // Restar la cantidad asignada a la oferta restante en la fila
-        remainingSupply[minCostCell.row] -= amount;
+        //console.log(assignmentMatrix);
     }
 
-    // Calcular el costo total de la asignación
-    var totalCost = calculateTotalCost(adjacencyMatrix, assignmentMatrix);
 
-    // Mostrar la matriz de asignación óptima y el costo total
-    displayAssignmentMatrix(assignmentMatrix, totalCost);
+    return assignmentMatrix;
 }
 
 // Función para verificar que la suma de las demandas sea igual a la oferta
@@ -84,6 +99,25 @@ function getSupply(adjacencyMatrix) {
     }
     return supply;
 }
+
+// Función para obtener la demanda desde la última fila de la matriz
+function getDemand(adjacencyMatrix) {
+    var demand = [];
+    // Verificar que la matriz no esté vacía
+    if (adjacencyMatrix.length === 0) {
+        return demand;
+    }
+    // Obtener el número de filas (suponiendo que todas las columnas tienen la misma longitud)
+    var numRows = adjacencyMatrix.length;
+    // Obtener la última fila de la matriz
+    var lastRow = adjacencyMatrix[numRows - 1];
+    // Recorrer la última fila de la matriz y obtener los elementos, excepto el último elemento que representa la oferta
+    for (var j = 0; j < lastRow.length - 1; j++) {
+        demand.push(lastRow[j]);
+    }
+    return demand;
+}
+
 // Función para obtener la matriz de costos desde la tabla
 function getAdjacencyMatrix() {
     var adjacencyMatrix = [];
@@ -97,19 +131,10 @@ function getAdjacencyMatrix() {
     return adjacencyMatrix;
 }
 
-// Función para obtener la demanda desde la tabla
-function getDemand() {
-    var demand = [];
-    $('#adjacencyMatrixTable tbody tr:last td:not(:last)').each(function () {
-        demand.push(parseInt($(this).text()) || 0);
-    });
-    return demand;
-}
-
 // Función para calcular el costo total de la asignación
 function calculateTotalCost(adjacencyMatrix, assignmentMatrix) {
     var totalCost = 0;
-    for (var i = 0; i < adjacencyMatrix.length; i++) {
+    for (var i = 0; i < adjacencyMatrix.length - 1; i++) {
         for (var j = 0; j < adjacencyMatrix[i].length; j++) {
             // Verificar si la asignación en la celda actual es un número válido
             if (!isNaN(assignmentMatrix[i][j])) {
@@ -124,16 +149,49 @@ function calculateTotalCost(adjacencyMatrix, assignmentMatrix) {
 }
 
 // Función para mostrar la matriz de asignación y el costo total
-function displayAssignmentMatrix(assignmentMatrix, totalCost) {
+function displayMatrixAsTablenw(assignmentMatrix, vertices, vertexIndexMapD, vertexIndexMapO) {
+    var adjacencyMatrix = getAdjacencyMatrix();
+    var supply = getSupply(adjacencyMatrix);
+    var demand = getDemand(adjacencyMatrix);
+    var totalCost = calculateTotalCost(adjacencyMatrix, assignmentMatrix);
     var assignmentMatrixContent = "<h4 class='title is-4'>Matriz de asignación óptima</h4><table class='table'>";
-    for (var i = 0; i < assignmentMatrix.length - 1; i++) {
-        assignmentMatrixContent += "<tr>";
-        for (var j = 0; j < assignmentMatrix[i].length; j++) {
-            assignmentMatrixContent += "<td>" + assignmentMatrix[i][j] + "</td>";
+    assignmentMatrixContent += "<thead><tr><th></th>";
+
+    // Create table headers using node names
+    for (var i = 0; i < vertexIndexMapD.length; i++) {
+        assignmentMatrixContent += "<th>" + vertexIndexMapD[i] + "</th>";
+    }
+    assignmentMatrixContent += "<th>Oferta</th></tr></thead><tbody>";
+
+    // Create table rows
+    for (var i = 0; i < vertexIndexMapO.length; i++) {
+        assignmentMatrixContent += "<tr><th>" + vertexIndexMapO[i] + "</th>";
+        var rowSum = 0; // Suma de los valores de la fila
+        for (var j = 0; j < vertexIndexMapD.length; j++) {
+            // Access matrix elements properly
+            var value = assignmentMatrix[i][j] || 0;
+            assignmentMatrixContent += "<td>" + value + "</td>";
+            rowSum += value; // Agregar el valor actual a la suma de la fila
         }
+        // Add the availability column (offer)
+        assignmentMatrixContent += "<td>" + supply[i] + "</td>";
         assignmentMatrixContent += "</tr>";
     }
-    assignmentMatrixContent += "</table>";
+
+    // Add the demand row
+    assignmentMatrixContent += "<tr><th>Demanda</th>";
+    var totalDemand = 0; // Suma de la demanda
+    for (var j = 0; j < vertexIndexMapD.length; j++) {
+        // Add cells with demand values
+        var demandValue = demand[j];
+        assignmentMatrixContent += "<td>" + demandValue + "</td>";
+        totalDemand += demandValue; // Agregar el valor actual a la suma de la demanda
+    }
+    // Add the sum of demand to the last cell
+    assignmentMatrixContent += "<td>" + totalDemand + "</td>";
+    assignmentMatrixContent += "</tr>";
+
+    assignmentMatrixContent += "</tbody></table>";
     assignmentMatrixContent += "<p>Costo total de asignación: " + totalCost + "</p>";
     $("#assignmentMatrixBox").html(assignmentMatrixContent);
     $("#assignmentMatrixBox").show();
