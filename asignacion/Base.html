@@ -365,7 +365,7 @@
                                 for(let i=0;i<sd.length;i++){
                                     if(sd[i].length>1){
                                         audf=sd[i].split(" ");
-                                        storeEdge(audf[0],audf[1],defaultLine.stroke,audf[0]===audf[1]);    
+                                        storeEdge(audf[0],audf[1],defaultLine.stroke,audf.length>2);    
                                     }
                                 }
                                 aux=d[1];

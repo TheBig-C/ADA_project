@@ -2,56 +2,55 @@ function asignacion(matriz, opt) {
     var matrix = [], sol = {};
     copiarMatriz(matriz, matrix);
     if (opt) {
-        var b = [], b1 = [], comp = [], comp1 = [];
-        b = minColumna(matrix);
-        b1 = armarMatrizFilas(b);
-        comp = comparar(matrix, b1);
-        a = minFila(comp);
-        a1 = armarMatrizColumnas(a);
-        comp1 = comparar(comp, a1);
-        console.log(comp1);
-        sol = verificarSolucion(comp1,opt);
+        filasAr(matrix);
+        columnasAr(matrix);
+        sol = verificarSolucion(matrix, opt);
         console.log("sol1: " + sol);
     } else {
-        var b = [], b1 = [], comp = [], comp1 = [];
-        b = maxColumna(matrix);
-        b1 = armarMatrizFilas(b);
-        comp = comparar(matrix, b1);
-        a = maxFila(comp);
-        a1 = armarMatrizColumnas(a);
-        comp1 = comparar(comp, a1);
-        console.log("compw"+comp1);
-        sol = verificarSolucion(comp1,opt);
+        matrizNegativa(matrix);
+        prepararMatriz(matrix);
+        filasAr(matrix);
+        columnasAr(matrix);
+        console.log("primero: ");
+        for (let i = 0; i < matrix.length; i++) {
+            console.log(matrix[i]);
+        }
+
+        sol = verificarSolucion(matrix, opt);
         console.log("sol1: " + sol);
     }
     return sol;
 }
 function veriSolucion(s1) {
-    console.log("vef: "+s1);
+    console.log("vef:")
+
+    for (let i = 0; i < s1.length; i++) {
+        console.log(s1[i]);
+    }
     var valSol = [], valsol2 = [];
     var sol1 = [];
     var sol2 = [];
- 
-    
-    
-    
+
+
+
+
     // Llenar las matrices valSol y valsol2 con los índices correspondientes
     for (let i = 0; i < s1.length; i++) {
         valSol[i] = i;
         valsol2[i] = s1.length - i - 1;
     }
-    
-   
-    
+
+
+
     // Iterar sobre s1 para determinar las soluciones
     for (let i = 0; i < s1.length; i++) {
         for (let j = 0; j < s1[0].length; j++) {
-            if (s1[i][valSol[j]] == 0 && verificarFila(i,sol1) ) {
+            if (s1[i][valSol[j]] == 0 && verificarFila(i, sol1)) {
                 sol1.push([i, valSol[j]]);
                 // Remover el índice usado de valSol
                 valSol.splice(j, 1);
 
-            } else if (s1[i][valsol2[j]] == 0 && verificarFila(i,sol1)) {
+            } else if (s1[i][valsol2[j]] == 0 && verificarFila(i, sol1)) {
                 sol2.push([i, valsol2[j]]);
                 // Remover el índice usado de valsol2
                 valsol2.splice(j, 1);
@@ -59,31 +58,31 @@ function veriSolucion(s1) {
             }
         }
     }
-    if(valSol.length>0 && valsol2.length>0){
+    if (valSol.length > 0 && valsol2.length > 0) {
         console.log("fasdfasdfa");
-        valSol=[];
-        valsol2=[];
-        sol1=[];
-        sol2=[];
-    
-         // Llenar las matrices valSol y valsol2 con los índices correspondientes
-         for (let i = 0; i < s1.length; i++) {
+        valSol = [];
+        valsol2 = [];
+        sol1 = [];
+        sol2 = [];
+
+        // Llenar las matrices valSol y valsol2 con los índices correspondientes
+        for (let i = 0; i < s1.length; i++) {
             valSol[i] = i;
             valsol2[i] = s1.length - i - 1;
         }
-        
-       
-        
+
+
+
         // Iterar sobre s1 para determinar las soluciones
-        for (let i = s1.length-1; i >=0; i--) {
-            for (let j =0; j  < s1[0].length-1; j++) {
-                if (s1[i][valSol[j]] == 0 && verificarFila(i,sol1)) {
+        for (let i = s1.length - 1; i >= 0; i--) {
+            for (let j = 0; j < s1[0].length - 1; j++) {
+                if (s1[i][valSol[j]] == 0 && verificarFila(i, sol1)) {
                     sol1.push([i, valSol[j]]);
                     // Remover el índice usado de valSol
                     valSol.splice(j, 1);
-                    
 
-                } else if (s1[i][valsol2[j]] == 0 && verificarFila(i,sol1)) {
+
+                } else if (s1[i][valsol2[j]] == 0 && verificarFila(i, sol1)) {
                     sol2.push([i, valsol2[j]]);
                     // Remover el índice usado de valsol2
                     valsol2.splice(j, 1);
@@ -92,44 +91,44 @@ function veriSolucion(s1) {
             }
         }
     }
-    
-   console.log("valSol: "+valSol);
-   console.log("valSol2w: "+valsol2);
+
+    console.log("valSol: " + valSol);
+    console.log("valSol2w: " + valsol2);
     // Verificar si se encontraron todas las soluciones
-    
-    return valSol.length === 0||valsol2.length === 0;
+
+    return valSol.length === 0 || valsol2.length === 0;
     // Si no se encontraron todas las soluciones, llamar a modificarSol
 }
-function verificarFila(n,arr){
-    for(let i=0;i<arr.length;i++){
-        if(arr[i][0]==n){
+function verificarFila(n, arr) {
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i][0] == n) {
             return false;
         }
     }
     return true;
 }
-function verificarSolucion(s1,opt) {
+function verificarSolucion(s1, opt) {
     var valSol = [], valsol2 = [];
     var sol1 = [];
     var sol2 = [];
-    
+
     // Llenar las matrices valSol y valsol2 con los índices correspondientes
     for (let i = 0; i < s1.length; i++) {
         valSol[i] = i;
         valsol2[i] = s1.length - i - 1;
     }
-    
-   
-    
+
+
+
     // Iterar sobre s1 para determinar las soluciones
     for (let i = 0; i < s1.length; i++) {
         for (let j = 0; j < s1[0].length; j++) {
-            if (s1[i][valSol[j]] == 0 && verificarFila(i,sol1) ) {
+            if (s1[i][valSol[j]] == 0 && verificarFila(i, sol1)) {
                 sol1.push([i, valSol[j]]);
                 // Remover el índice usado de valSol
                 valSol.splice(j, 1);
 
-            } else if (s1[i][valsol2[j]] == 0 && verificarFila(i,sol1)) {
+            } else if (s1[i][valsol2[j]] == 0 && verificarFila(i, sol1)) {
                 sol2.push([i, valsol2[j]]);
                 // Remover el índice usado de valsol2
                 valsol2.splice(j, 1);
@@ -137,31 +136,31 @@ function verificarSolucion(s1,opt) {
             }
         }
     }
-    if(valSol.length>0 && valsol2.length>0){
+    if (valSol.length > 0 && valsol2.length > 0) {
         console.log("fasdfasdfa");
-        valSol=[];
-        valsol2=[];
-        sol1=[];
-        sol2=[];
-    
-         // Llenar las matrices valSol y valsol2 con los índices correspondientes
-         for (let i = 0; i < s1.length; i++) {
+        valSol = [];
+        valsol2 = [];
+        sol1 = [];
+        sol2 = [];
+
+        // Llenar las matrices valSol y valsol2 con los índices correspondientes
+        for (let i = 0; i < s1.length; i++) {
             valSol[i] = i;
             valsol2[i] = s1.length - i - 1;
         }
-        
-       
-        
+
+
+
         // Iterar sobre s1 para determinar las soluciones
-        for (let i = s1.length-1; i >=0; i--) {
-            for (let j =0; j  < s1[0].length-1; j++) {
-                if (s1[i][valSol[j]] == 0 && verificarFila(i,sol1)) {
+        for (let i = s1.length - 1; i >= 0; i--) {
+            for (let j = 0; j < s1[0].length - 1; j++) {
+                if (s1[i][valSol[j]] == 0 && verificarFila(i, sol1)) {
                     sol1.push([i, valSol[j]]);
                     // Remover el índice usado de valSol
                     valSol.splice(j, 1);
-                    
 
-                } else if (s1[i][valsol2[j]] == 0 && verificarFila(i,sol1)) {
+
+                } else if (s1[i][valsol2[j]] == 0 && verificarFila(i, sol1)) {
                     sol2.push([i, valsol2[j]]);
                     // Remover el índice usado de valsol2
                     valsol2.splice(j, 1);
@@ -170,182 +169,285 @@ function verificarSolucion(s1,opt) {
             }
         }
     }
-    
-    
-    console.log("k: "+sol1);
-    
+
+
+    console.log("k: " + sol1);
+
     // Verificar si se encontraron todas las soluciones
     if (valSol.length === 0) {
         return sol1;
     } else if (valsol2.length === 0) {
         return sol2;
     }
-    
+
     // Si no se encontraron todas las soluciones, llamar a modificarSol
-    return modificarSol(s1,opt);
+    return modificarSol(s1, opt);
 }
 
-function modificarSol(s1,opt){
-   
-    var ma=[],l1=[],l2=[],c1c=0,c1n=0,c2c=0,c2cd=0,c2n=0,c=0;
-    copiarMatriz(s1,ma);
+function modificarSol(s1, opt) {
+
+    var ma = [], l1 = [], l2 = [], c1c = 0, c1n = 0, c2c = 0, c2cd = 0, c2n = 0, c = 0, lv1 = [], lv2 = [];
+    copiarMatriz(s1, ma);
 
 
 
-    console.log("or: "+s1);
-    var b1,b2,mm;
-    if(opt){
-        b1=1;
-        b2=-1;
-        mm=Number.MAX_SAFE_INTEGER;
-    }else{
-        b1=1;
-        b2=-1;
-        mm=-Number.MAX_SAFE_INTEGER;
-    }
-    do{
-        var l1=[],l2=[],c1c=0,c1n=0,c2c=0,c2n=0;
-        if(opt){
-            
-            mm=Number.MAX_SAFE_INTEGER;
-        }else{
-           
-            mm=-Number.MAX_SAFE_INTEGER;
+    console.log("or: " + s1);
+    var b1 = 1, b2 = -1, mm;
+
+
+    mm = Number.MAX_SAFE_INTEGER;
+
+    do {
+        var l1 = [], l2 = [], lv1 = [], lv2 = [], c1c = 0, c1n = 0, c2c = 0, c2n = 0;
+
+
+        mm = Number.MAX_SAFE_INTEGER;
+
+
+
+
+        console.log("principio:")
+
+        for (let i = 0; i < ma.length; i++) {
+            console.log(ma[i]);
         }
 
-
-
-        console.log("principio: "+ma)
-        for(let i=0;i<ma.length;i++){
-            c1c=0,c1n=0,c2c=0,c2n=0,c2cd=0;
-            for(let j=0;j<ma[0].length;j++){
-                if(ma[i][j]==0){
+        for (let i = 0; i < ma.length; i++) {
+            c1c = 0, c1n = 0, c2c = 0, c2n = 0, c2cd = 0;
+            for (let j = 0; j < ma[0].length; j++) {
+                if (ma[i][j] == 0) {
                     c1c++;
-                }else{
+                } else {
                     c1n++;
-                    
-                }
-                
-                  
-            }
-            
-            if(c1c>1){
-               if(!l1.includes(i)){
-                l1.push(i);
 
-               }
-                
+                }
+
+
             }
-               
+
+            if (c1c > 1) {
+                if (!l1.includes(i)) {
+                    l1.push(i);
+
+                }
+
+            }
+
         }
-        for(let i=0;i<ma.length;i++){
-            c1c=0,c1n=0,c2c=0,c2n=0,c2cd=0;
-            for(let j=0;j<ma[0].length;j++){
-               
-                if(ma[j][i]==0){
-                    if(!l1.includes(j)){
+        for (let i = 0; i < ma.length; i++) {
+            c1c = 0, c1n = 0, c2c = 0, c2n = 0, c2cd = 0;
+            for (let j = 0; j < ma[0].length; j++) {
+
+                if (ma[j][i] == 0) {
+                    if (!l1.includes(j)) {
                         c2c++;
-                        console.log("i: "+j);
-                        console.log("j: "+i);
-                    }else{
+                        console.log("i: " + j);
+                        console.log("j: " + i);
+                    } else {
                         c2cd++;
-                        
+
                     }
-                }else{
+                } else {
                     c2n++;
 
                 }
-                  
-            }
-            
-            if((c2c>=1 && c2cd>1)||(c2c==0 && c2cd>=c2n)){
 
-                if(!l2.includes(i)){
+            }
+
+            if ((c2c >= 1 && c2cd >= 1) || (c2c == 0 && c2cd >= c2n) || (c2c >= 1 && c2cd == 0) ||(c2cd>=Math.floor(ma.length/2))) {
+
+                if (!l2.includes(i)) {
                     l2.push(i);
-    
-                   }
-            }   
-        }
-
-
-
-
-
-        for(let i=0;i<ma.length;i++){
-            for(let j=0;j<ma[0].length;j++){
-                if(opt){
-                    if(ma[i][j]<mm && ma[i][j]!=0){
-                        if(!(l2.includes(j)|| l1.includes(i))){
-
-                        mm=ma[i][j];
-                        }
-                    }
-                }else{
-                    if(ma[i][j]>mm && ma[i][j]!=0){
-                        if(!(l2.includes(j)|| l1.includes(i))){
-                            mm=ma[i][j];
-
-                        }
-                    }
-                }
-            }
-        }
-        
-      
-        console.log("l1: "+l1);
-        console.log("l2: "+l2);
-        for(var i =0 ;i<l2.length;i++){
-            for(var j=0;j<l1.length;j++){
-                ma[l1[j]][l2[i]]=ma[l1[j]][l2[i]]+(mm*b1);
-            }
-        }
-      
-      
-        
-        for(let i=0;i<ma.length;i++){
-            for(let j=0;j<ma[0].length;j++){
-                
-                if(!(l2.includes(j)|| l1.includes(i))){
-                    ma[i][j]=ma[i][j]+(mm*b2);;
 
                 }
             }
         }
-        if(!veriSolucion(ma)){
-            for(let i=0;i<ma.length;i++){
-                for(let j=0;j<ma[0].length;j++){
-                    if(opt){
-                        if(ma[i][j]<0){
-                            console.log("ant="+ma[i][j]);
-                            console.log(ma);
-    
-                            arreglar(ma,i,j,l1,l2);
-                            console.log("des");
-                            console.log(ma);
-    
-                        }
-                    }else{
-                        if(ma[i][j]>0){
-                            console.log("ant="+ma[i][j]);
-                            console.log(ma);
-    
-                            arreglar(ma,i,j,l1,l2);
-                            console.log("des");
-                            console.log(ma);
-    
-                        }
+        let l1Copy = l1.slice();
+
+        for (let h = 0; h < l1Copy.length; h++) {
+            let auxl = l1Copy[h];
+            l1.splice(l1.indexOf(auxl), 1);
+            for (let i = 0; i < ma.length; i++) {
+                console.log("numero: " + auxl);
+                console.log("array: " + ma[auxl]);
+                if (!(l2.includes(i))) {
+                    if (ma[auxl][i] == 0) {
+                        console.log("aj?")
+                        l1.push(auxl);
+                        i = ma.length;
                     }
-                    
                 }
             }
         }
-           
-        
-       
-         console.log("ma: "+ma);
-         c++;
-    }while(!veriSolucion(ma) );
-    copiarMatriz(ma,s1);
+        // Crear una copia de l2 para iterar sobre ella sin modificar la original
+        let l2Copy = l2.slice();
+
+        for (let h = 0; h < l2Copy.length; h++) {
+            let auxl = l2Copy[h];
+            l2.splice(l2.indexOf(auxl), 1);
+            for (let i = 0; i < ma.length; i++) {
+                if (!(l1.includes(i))) {
+                    if (ma[i][auxl] == 0) {
+                        l2.push(auxl);
+                        i = ma.length;
+                    }
+                }
+            }
+        }
+
+
+        for (let i = 0; i < ma.length; i++) {
+            c1c = 0, c1n = 0, c2c = 0, c2n = 0, c2cd = 0;
+            for (let j = 0; j < ma[0].length; j++) {
+                if (ma[j][i] == 0) {
+                    c1c++;
+                } else {
+                    c1n++;
+
+                }
+
+
+            }
+
+            if (c1c > 1) {
+                if (!lv1.includes(i)) {
+                    lv1.push(i);
+
+                }
+
+            }
+
+        }
+        for (let i = 0; i < ma.length; i++) {
+            c1c = 0, c1n = 0, c2c = 0, c2n = 0, c2cd = 0;
+            for (let j = 0; j < ma[0].length; j++) {
+
+                if (ma[i][j] == 0) {
+                    if (!lv1.includes(j)) {
+                        c2c++;
+                        console.log("i: " + i);
+                        console.log("j: " + j);
+                    } else {
+                        c2cd++;
+
+                    }
+                } else {
+                    c2n++;
+
+                }
+
+            }
+
+            if ((c2c >= 1 && c2cd >= 1) || (c2c == 0 && c2cd >= c2n) || (c2c >= 1 && c2cd == 0) ||(c2cd>=Math.floor(ma.length/2))) {
+
+                if (!lv2.includes(i)) {
+                    lv2.push(i);
+
+                }
+            }
+        }
+
+        // Iteración sobre lv1
+        let lv1Copy = lv1.slice();
+
+        for (let h = 0; h < lv1Copy.length; h++) {
+            let auxl = lv1Copy[h];
+            lv1.splice(lv1.indexOf(auxl), 1);
+            for (let i = 0; i < ma.length; i++) {
+                if (!(lv2.includes(i))) {
+                    if (ma[auxl][i] == 0) {
+                        lv1.push(auxl);
+                        i = ma.length;
+                    }
+                }
+            }
+        }
+
+        // Iteración sobre lv2
+        let lv2Copy = lv2.slice();
+
+        for (let h = 0; h < lv2Copy.length; h++) {
+            let auxl = lv2Copy[h];
+            lv2.splice(lv2.indexOf(auxl), 1);
+            for (let i = 0; i < ma.length; i++) {
+                if (!(lv1.includes(i))) {
+                    if (ma[i][auxl] == 0) {
+                        lv2.push(auxl);
+                        i = ma.length;
+                    }
+                }
+            }
+        }
+
+        var c1 = 0, c2 = 0;
+        for (let i = 0; i < ma.length; i++) {
+            for (let j = 0; j < ma[0].length; j++) {
+                if (!(l1.includes(i) || l2.includes(j))) {
+                    c1++;
+                }
+                if (!(lv1.includes(j) || lv2.includes(i))) {
+                    c2++;
+                }
+            }
+
+        }
+        console.log("l1: " + l1);
+        console.log("l2: " + l2);
+        console.log("lv1: " + lv1);
+        console.log("lv2: " + lv2);
+        if (c1 < c2) {
+            l1 = lv2;
+            l2 = lv1;
+        }
+
+        console.log("c1: " + c1);
+        console.log("c2: " + c2);
+
+        for (let i = 0; i < ma.length; i++) {
+            for (let j = 0; j < ma[0].length; j++) {
+
+                if (ma[i][j] < mm && ma[i][j] != 0) {
+                    if (!(l2.includes(j) || l1.includes(i))) {
+
+                        mm = ma[i][j];
+                    }
+                }
+
+            }
+        }
+
+
+
+        for (var i = 0; i < l2.length; i++) {
+            for (var j = 0; j < l1.length; j++) {
+                ma[l1[j]][l2[i]] = ma[l1[j]][l2[i]] + (mm * b1);
+            }
+        }
+
+
+
+        for (let i = 0; i < ma.length; i++) {
+            for (let j = 0; j < ma[0].length; j++) {
+
+                if (!(l2.includes(j) || l1.includes(i))) {
+                    ma[i][j] = ma[i][j] + (mm * b2);;
+
+                }
+            }
+        }
+        console.log("matriz res: ");
+
+        for (let i = 0; i < ma.length; i++) {
+            console.log(ma[i]);
+        }
+
+
+
+
+        console.log("ma: " + ma);
+        c++;
+    } while (!veriSolucion(ma));
+    copiarMatriz(ma, s1);
     console.log("ma");
     console.log(ma);
     var valSol = [], valsol2 = [];
@@ -356,18 +458,18 @@ function modificarSol(s1,opt){
         valSol[i] = i;
         valsol2[i] = s1.length - i - 1;
     }
-    
-   
-    
+
+
+
     // Iterar sobre s1 para determinar las soluciones
     for (let i = 0; i < s1.length; i++) {
         for (let j = 0; j < s1[0].length; j++) {
-            if (s1[i][valSol[j]] == 0 && verificarFila(i,sol1) ) {
+            if (s1[i][valSol[j]] == 0 && verificarFila(i, sol1)) {
                 sol1.push([i, valSol[j]]);
                 // Remover el índice usado de valSol
                 valSol.splice(j, 1);
 
-            } else if (s1[i][valsol2[j]] == 0 && verificarFila(i,sol1)) {
+            } else if (s1[i][valsol2[j]] == 0 && verificarFila(i, sol1)) {
                 sol2.push([i, valsol2[j]]);
                 // Remover el índice usado de valsol2
                 valsol2.splice(j, 1);
@@ -375,30 +477,30 @@ function modificarSol(s1,opt){
             }
         }
     }
-    if(valSol.length>0 && valsol2.length>0){
-        valSol=[];
-        valsol2=[];
-        sol1=[];
-        sol2=[];
-    
-         // Llenar las matrices valSol y valsol2 con los índices correspondientes
-         for (let i = 0; i < s1.length; i++) {
+    if (valSol.length > 0 && valsol2.length > 0) {
+        valSol = [];
+        valsol2 = [];
+        sol1 = [];
+        sol2 = [];
+
+        // Llenar las matrices valSol y valsol2 con los índices correspondientes
+        for (let i = 0; i < s1.length; i++) {
             valSol[i] = i;
             valsol2[i] = s1.length - i - 1;
         }
-        
-       
-        
+
+
+
         // Iterar sobre s1 para determinar las soluciones
-        for (let i = s1.length-1; i >=0; i--) {
-            for (let j =0; j  < s1[0].length-1; j++) {
-                if (s1[i][valSol[j]] == 0 && verificarFila(i,sol1)) {
+        for (let i = s1.length - 1; i >= 0; i--) {
+            for (let j = 0; j < s1[0].length - 1; j++) {
+                if (s1[i][valSol[j]] == 0 && verificarFila(i, sol1)) {
                     sol1.push([i, valSol[j]]);
                     // Remover el índice usado de valSol
                     valSol.splice(j, 1);
-                    
 
-                } else if (s1[i][valsol2[j]] == 0 && verificarFila(i,sol1)) {
+
+                } else if (s1[i][valsol2[j]] == 0 && verificarFila(i, sol1)) {
                     sol2.push([i, valsol2[j]]);
                     // Remover el índice usado de valsol2
                     valsol2.splice(j, 1);
@@ -410,49 +512,49 @@ function modificarSol(s1,opt){
 
         sol2.reverse();
     }
-    
-    
+
+
     // Verificar si se encontraron todas las soluciones
     if (valSol.length === 0) {
         return sol1;
     } else if (valsol2.length === 0) {
         return sol2;
     }
-    
+
 }
 
-function arreglar(matriz,f,c,l1,l2){
-    var bf=false,bc=false;
-    for(let i=0;i<matriz.length;i++){
-        if(matriz[i][c]==0){
-            bc=true;
+function arreglar(matriz, f, c, l1, l2) {
+    var bf = false, bc = false;
+    for (let i = 0; i < matriz.length; i++) {
+        if (matriz[i][c] == 0) {
+            bc = true;
         }
-        if(matriz[f][i]==0){
-            bf=true;
+        if (matriz[f][i] == 0) {
+            bf = true;
         }
     }
-    for(let i=0;i<matriz.length;i++){
+    for (let i = 0; i < matriz.length; i++) {
 
-            if(bc){
-                if(!matriz[i][c]==0){
-                    matriz[i][c]=matriz[i][c]+(matriz[f][c]*-1);
+        if (bc) {
+            if (!matriz[i][c] == 0) {
+                matriz[i][c] = matriz[i][c] + (matriz[f][c] * -1);
 
-                }else if (l1.includes(i) && l2.includes(c)){
-                    matriz[i][c]=matriz[i][c]+(matriz[f][c]*-1);
-
-                }
-            }
-            if(bf){
-                if(! matriz[f][i]==0){
-                matriz[f][i]=matriz[f][i]+(matriz[f][c]*-1);
-            }else if(l1.includes(f) && l2.includes(i)){
-                matriz[i][c]=matriz[i][c]+(matriz[f][c]*-1);
+            } else if (l1.includes(i) && l2.includes(c)) {
+                matriz[i][c] = matriz[i][c] + (matriz[f][c] * -1);
 
             }
+        }
+        if (bf) {
+            if (!matriz[f][i] == 0) {
+                matriz[f][i] = matriz[f][i] + (matriz[f][c] * -1);
+            } else if (l1.includes(f) && l2.includes(i)) {
+                matriz[i][c] = matriz[i][c] + (matriz[f][c] * -1);
+
             }
-        
+        }
+
     }
-    
+
 }
 function matrizVacia(m1) {
     let matriz = [];
@@ -558,7 +660,7 @@ function maxFila(matriz) {
     // Iterar sobre las columnas y filas para encontrar el mínimo en cada columna
     for (var j = 0; j < matriz[0].length; j++) {
         for (var i = 1; i < matriz.length; i++) {
-            if (matriz[j][i] >maximos[j]) {
+            if (matriz[j][i] > maximos[j]) {
                 maximos[j] = matriz[j][i];
             }
         }
@@ -579,3 +681,84 @@ function armarMatrizColumnas(a) {
     return nuevaMatriz;
 }
 
+
+function filasAr(matrix) {
+    let min = Number.MAX_SAFE_INTEGER;
+    for (let i = 0; i < matrix.length; i++) {
+        min = Number.MAX_SAFE_INTEGER;
+        for (let j = 0; j < matrix[0].length; j++) {
+            if (min > matrix[i][j]) {
+                min = matrix[i][j];
+
+            }
+        }
+        console.log("minfila: " + min);
+        for (let j = 0; j < matrix[0].length; j++) {
+            matrix[i][j] = matrix[i][j] - min;
+        }
+    }
+}
+function columnasAr(matrix) {
+    let min = Number.MAX_SAFE_INTEGER;
+    for (let i = 0; i < matrix.length; i++) {
+        min = Number.MAX_SAFE_INTEGER;
+        for (let j = 0; j < matrix[0].length; j++) {
+            if (min > matrix[j][i]) {
+                min = matrix[j][i];
+
+            }
+        }
+        console.log("mincol: " + min);
+
+        for (let j = 0; j < matrix[0].length; j++) {
+            matrix[j][i] = matrix[j][i] - min;
+        }
+    }
+}
+function matrizNegativa(matrix) {
+    console.log("matriz negativa: ");
+
+    for (let i = 0; i < matrix.length; i++) {
+        console.log(matrix[i]);
+    }
+    for (let i = 0; i < matrix.length; i++) {
+        for (let j = 0; j < matrix[0].length; j++) {
+            matrix[j][i] = matrix[j][i] * (-1);
+        }
+    }
+    console.log("matriz negativa:2 ");
+
+    for (let i = 0; i < matrix.length; i++) {
+        console.log(matrix[i]);
+    }
+}
+function prepararMatriz(matrix) {
+    console.log("preparar:")
+
+    for (let i = 0; i < matrix.length; i++) {
+        console.log(matrix[i]);
+    }
+    let min = Number.MAX_SAFE_INTEGER;
+    for (let i = 0; i < matrix.length; i++) {
+        for (let j = 0; j < matrix[0].length; j++) {
+            if (min > matrix[i][j]) {
+                min = matrix[i][j];
+
+            }
+        }
+    }
+    console.log("min: " + min);
+    for (let i = 0; i < matrix.length; i++) {
+        for (let j = 0; j < matrix[0].length; j++) {
+
+            matrix[i][j] = matrix[i][j] - min;
+
+
+        }
+    }
+    console.log("preparar2:")
+
+    for (let i = 0; i < matrix.length; i++) {
+        console.log(matrix[i]);
+    }
+}
