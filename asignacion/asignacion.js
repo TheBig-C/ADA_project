@@ -254,7 +254,7 @@ function modificarSol(s1, opt) {
 
             }
 
-            if ((c2c >= 1 && c2cd >= 1) || (c2c == 0 && c2cd >= c2n) || (c2c >= 1 && c2cd == 0) ||(c2cd>=Math.floor(ma.length/2))) {
+            if ((c2c >= 1 && c2cd >= 1) || (c2c == 0 && c2cd >= c2n) || (c2c >= 1 && c2cd == 0) ||(c2cd>=Math.floor(ma.length/2) && ma.length>5)) {
 
                 if (!l2.includes(i)) {
                     l2.push(i);
@@ -263,36 +263,44 @@ function modificarSol(s1, opt) {
             }
         }
         let l1Copy = l1.slice();
-
+        console.log("l1 y l2 pre: "+l1+" "+l2)
         for (let h = 0; h < l1Copy.length; h++) {
             let auxl = l1Copy[h];
-            l1.splice(l1.indexOf(auxl), 1);
+            let b=true;
             for (let i = 0; i < ma.length; i++) {
                 console.log("numero: " + auxl);
                 console.log("array: " + ma[auxl]);
                 if (!(l2.includes(i))) {
                     if (ma[auxl][i] == 0) {
                         console.log("aj?")
-                        l1.push(auxl);
+                        b=false;
                         i = ma.length;
                     }
                 }
             }
+            if(b){
+                l1.splice(l1.indexOf(auxl), 1);
+                console.log("l1: "+auxl);
+                }
         }
         // Crear una copia de l2 para iterar sobre ella sin modificar la original
         let l2Copy = l2.slice();
 
         for (let h = 0; h < l2Copy.length; h++) {
             let auxl = l2Copy[h];
-            l2.splice(l2.indexOf(auxl), 1);
+            let b=true;
             for (let i = 0; i < ma.length; i++) {
                 if (!(l1.includes(i))) {
                     if (ma[i][auxl] == 0) {
-                        l2.push(auxl);
+                        b=false;
                         i = ma.length;
                     }
                 }
             }
+            if(b){
+                l2.splice(l2.indexOf(auxl), 1);
+                console.log("l2: "+auxl);
+                }
         }
 
 
@@ -338,7 +346,7 @@ function modificarSol(s1, opt) {
 
             }
 
-            if ((c2c >= 1 && c2cd >= 1) || (c2c == 0 && c2cd >= c2n) || (c2c >= 1 && c2cd == 0) ||(c2cd>=Math.floor(ma.length/2))) {
+            if ((c2c >= 1 && c2cd >= 1) || (c2c == 0 && c2cd >= c2n) || (c2c >= 1 && c2cd == 0) ||(c2cd>=Math.floor(ma.length/2) && ma.length>5)) {
 
                 if (!lv2.includes(i)) {
                     lv2.push(i);
@@ -349,34 +357,53 @@ function modificarSol(s1, opt) {
 
         // Iteración sobre lv1
         let lv1Copy = lv1.slice();
+        console.log("lv1 y lv2 pre: "+lv1+" "+lv2)
 
         for (let h = 0; h < lv1Copy.length; h++) {
             let auxl = lv1Copy[h];
-            lv1.splice(lv1.indexOf(auxl), 1);
+            let b=true;
             for (let i = 0; i < ma.length; i++) {
+                console.log("numero: " + auxl);
+                console.log("trust: "+ma[i][auxl]);
+
                 if (!(lv2.includes(i))) {
-                    if (ma[auxl][i] == 0) {
-                        lv1.push(auxl);
+                    if (ma[i][auxl] == 0) {
+                        b=false;
                         i = ma.length;
                     }
                 }
+            }
+            if(b){
+            lv1.splice(lv1.indexOf(auxl), 1);
+console.log("lv1: "+auxl);
             }
         }
 
         // Iteración sobre lv2
         let lv2Copy = lv2.slice();
+        console.log("lv1 y lv2 pre: "+lv1+" "+lv2)
 
         for (let h = 0; h < lv2Copy.length; h++) {
             let auxl = lv2Copy[h];
-            lv2.splice(lv2.indexOf(auxl), 1);
+            let b=true;
+            
             for (let i = 0; i < ma.length; i++) {
+                console.log("numero: " + auxl);
+                console.log("array: " + ma[auxl]);
+                console.log("trust: "+ma[auxl][i]);
+
                 if (!(lv1.includes(i))) {
-                    if (ma[i][auxl] == 0) {
-                        lv2.push(auxl);
+                    if (ma[auxl][i] == 0) {
+                       b=false;
+                       console.log("l");
                         i = ma.length;
                     }
                 }
             }
+            if(b){
+                lv2.splice(lv2.indexOf(auxl), 1);
+                console.log("lv2: "+auxl);
+                }
         }
 
         var c1 = 0, c2 = 0;
