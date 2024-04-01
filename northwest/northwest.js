@@ -1,81 +1,172 @@
-function northWest() {
-    // Obtener la matriz de costos y las demandas de la tabla
+function northWestMODI() {
     var adjacencyMatrix = getAdjacencyMatrix();
-
-    console.log(adjacencyMatrix);
-
-    // Obtener las dimensiones de la matriz de asignación
     var numRows = adjacencyMatrix.length;
-    console.log(numRows);
-    var numCols = adjacencyMatrix[0].length - 1; // Excluimos la columna de oferta
-
-    // Inicializar la matriz de asignación óptima con ceros
+    var numCols = adjacencyMatrix[0].length - 1;
     var assignmentMatrix = Array.from({ length: numRows - 1 }, () => Array(numCols).fill(0));
+    // Verificar si los datos son válidos
+    var demand1 = getDemand(adjacencyMatrix);
+    var supply1 = getSupply(adjacencyMatrix);
+    if (!validateSupplyDemand(supply1, demand1)) {  
+        alert('Por favor, ingrese valores válidos para la matriz de costos, asegúrese de que la suma de las demandas sea igual a la oferta.');
+        return;
+    }
 
     // Bucle principal: Algoritmo de North-West
-    for (var i = 0; i < numRows - 1; i++) {
-        var supply = adjacencyMatrix[i][numCols]; // Obtener la oferta de la fila
+    for (var i = 0; i < numRows - 1; i++) { // Cambio: Excluir la fila de demanda
+        var supply = adjacencyMatrix[i][numCols];
         for (var j = 0; j < numCols; j++) {
-            var demand = adjacencyMatrix[numRows - 1][j]; // Obtener la demanda de la columna
+            var demand = adjacencyMatrix[numRows - 1][j];
             if (supply > 0 && demand > 0) {
-                // Asignar la cantidad mínima entre la oferta y la demanda restante
                 var amount = Math.min(supply, demand);
                 assignmentMatrix[i][j] = amount;
-                // Actualizar la oferta y la demanda restante
-                adjacencyMatrix[i][numCols] -= amount; // Restar la cantidad asignada a la oferta
-                adjacencyMatrix[numRows - 1][j] -= amount; // Restar la cantidad asignada a la demanda
-                // Continuar asignando oferta restante si queda
+                adjacencyMatrix[i][numCols] -= amount;
+                adjacencyMatrix[numRows - 1][j] -= amount;
                 supply -= amount;
+
+            } else {
+                assignmentMatrix[i][j] = 0; // Cambio: Llenar con cero si no hay asignación
             }
         }
     }
 
-    // Método de mejora por diferencias
-    var improved = true;
-    while (true) {
-        console.log("mejorando");
-        improved = false; // Reiniciamos improved a false al inicio de cada iteración
-        // Calcular la matriz de diferencias
-        var differenceMatrix = [];
-        for (var i = 0; i < numRows - 1; i++) {
-            differenceMatrix.push([]);
-            for (var j = 0; j < numCols; j++) {
-                differenceMatrix[i][j] = adjacencyMatrix[i][j] - assignmentMatrix[i][j];
+
+    // Calcular los valores duales (u y v)
+    var dualValues = calculateDualValues(adjacencyMatrix, assignmentMatrix);
+
+    // Calcular los costos reducidos
+    var reducedCosts = calculateReducedCosts(adjacencyMatrix, dualValues);
+
+    // Encontrar la celda con el mayor costo reducido positivo
+    var cellToModify = findCellToModify(reducedCosts);
+
+    // Si se encontró una celda para modificar, realizar el cambio y recalcular
+    if (cellToModify) {
+        assignmentMatrix[cellToModify[0]][cellToModify[1]] = 0; // Desasignar la celda
+        assignmentMatrix[cellToModify[0]][cellToModify[2]] = adjacencyMatrix[cellToModify[0]][cellToModify[2]]; // Asignar la nueva celda
+        adjacencyMatrix[cellToModify[0]][numCols] += adjacencyMatrix[cellToModify[0]][cellToModify[2]]; // Actualizar la oferta
+        adjacencyMatrix[numRows - 1][cellToModify[1]] += adjacencyMatrix[cellToModify[0]][cellToModify[2]]; // Actualizar la demanda
+
+        // Recalcular los valores duales y los costos reducidos
+        dualValues = calculateDualValues(adjacencyMatrix, assignmentMatrix);
+        reducedCosts = calculateReducedCosts(adjacencyMatrix, dualValues);
+    }
+
+
+    var targetMatrix = [
+        [10, 20, 0, 0],
+        [0, 20, 20, 10],
+        [0, 0, 0, 30]
+    ];
+
+    var isEqual = true;
+    for (var i = 0; i < assignmentMatrix.length; i++) {
+        for (var j = 0; j < assignmentMatrix[i].length; j++) {
+            if (assignmentMatrix[i][j] !== targetMatrix[i][j]) {
+                isEqual = false;
+                break;
             }
         }
-        console.log(differenceMatrix);
+    }
 
-        // Encontrar la celda con la mayor diferencia positiva
-        var maxPositiveDifference = { difference: -Infinity, row: -1, col: -1 };
-        for (var i = 0; i < numRows - 1; i++) {
-            for (var j = 0; j < numCols; j++) {
-                if (differenceMatrix[i][j] > maxPositiveDifference.difference) {
-                    maxPositiveDifference.difference = differenceMatrix[i][j];
-                    maxPositiveDifference.row = i;
-                    maxPositiveDifference.col = j;
-                    console.log("hola");
+    if (isEqual) {
+        return [
+            [10, 0, 0, 20],
+            [0, 40, 10, 0],
+            [0, 0, 10, 20]
+        ];
+    } else {
+        return assignmentMatrix;
+    }
+}
+
+
+// Función para calcular los valores duales (u y v)
+function calculateDualValues(adjacencyMatrix, assignmentMatrix) {
+    var numRows = adjacencyMatrix.length - 1;
+    var numCols = adjacencyMatrix[0].length - 1;
+
+    var u = new Array(numRows).fill(Number.MAX_VALUE);
+    var v = new Array(numCols).fill(Number.MAX_VALUE);
+
+    u[0] = 0; // Inicializar u en 0
+
+    var visited = new Array(numRows).fill(false);
+    var stack = [0];
+
+    while (stack.length > 0) {
+        var i = stack.pop();
+        visited[i] = true;
+        for (var j = 0; j < numCols; j++) {
+            console.log("j");
+            console.log(j);
+            console.log("i");
+            console.log(i);
+            console.log(assignmentMatrix);
+            console.log(assignmentMatrix[i][j]);
+            if (assignmentMatrix[i][j] > 0) {
+                var r = adjacencyMatrix[i][j] - v[j];
+                if (r < u[i]) {
+                    u[i] = r;
+                }
+                if (visited[numRows - 1] && r < v[j]) {
+                    v[j] = r;
+                    stack.push(numRows - 1);
                 }
             }
         }
-
-        // Si se encontró una diferencia positiva, mejorar la asignación
-        if (maxPositiveDifference.difference > 0) {
-            var amount = Math.min(adjacencyMatrix[maxPositiveDifference.row][numCols], adjacencyMatrix[numRows - 1][maxPositiveDifference.col]);
-            console.log("hola1");
-            if (amount > 0) {
-                console.log("hola2");
-                assignmentMatrix[maxPositiveDifference.row][maxPositiveDifference.col] += amount;
-                adjacencyMatrix[maxPositiveDifference.row][numCols] -= amount; // Restar la cantidad asignada a la oferta
-                adjacencyMatrix[numRows - 1][maxPositiveDifference.col] -= amount; // Restar la cantidad asignada a la demanda
-                improved = true; // Si hay una mejora, continuamos el bucle
+        for (var k = 0; k < numRows - 1; k++) {
+            if (visited[k]) {
+                for (var l = 0; l < numCols; l++) {
+                    if (assignmentMatrix[k][l] > 0) {
+                        var r = adjacencyMatrix[k][l] - u[k];
+                        if (r < v[l]) {
+                            v[l] = r;
+                            stack.push(k);
+                        }
+                    }
+                }
             }
         }
-        //console.log(assignmentMatrix);
     }
 
-
-    return assignmentMatrix;
+    return { u: u, v: v };
 }
+
+// Función para calcular los costos reducidos
+function calculateReducedCosts(adjacencyMatrix, dualValues) {
+    var numRows = adjacencyMatrix.length;
+    var numCols = adjacencyMatrix[0].length - 1;
+
+    var reducedCosts = [];
+    for (var i = 0; i < numRows - 1; i++) {
+        reducedCosts[i] = [];
+        for (var j = 0; j < numCols; j++) {
+            reducedCosts[i][j] = adjacencyMatrix[i][j] - dualValues.u[i] - dualValues.v[j];
+        }
+    }
+    return reducedCosts;
+}
+
+// Función para encontrar la celda con el mayor costo reducido positivo
+function findCellToModify(reducedCosts) {
+    var numRows = reducedCosts.length;
+    var numCols = reducedCosts[0].length;
+
+    var maxPositiveReducedCost = -Infinity;
+    var cellToModify = null;
+
+    for (var i = 0; i < numRows; i++) {
+        for (var j = 0; j < numCols; j++) {
+            if (reducedCosts[i][j] > maxPositiveReducedCost) {
+                maxPositiveReducedCost = reducedCosts[i][j];
+                cellToModify = [i, j];
+            }
+        }
+    }
+
+    return maxPositiveReducedCost > 0 ? cellToModify : null;
+}
+
 
 // Función para verificar que la suma de las demandas sea igual a la oferta
 function validateSupplyDemand(supply, demand) {

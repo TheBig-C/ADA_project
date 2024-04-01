@@ -588,7 +588,6 @@
                     matrix[toIndex][fromIndex - demandVertices.length] = 0; // Changed to 0
                 }
             }
-            console.log(matrix);
             return matrix;
         }
 
@@ -676,7 +675,7 @@
                 }
             }
             // Assuming VertexArr contains the vertices in the graph
-            var assignmentMatrix = northWest();
+            var assignmentMatrix = northWestMODI();
             // Display the adjacency matrix in the modal, pass VertexArr as nodeNames
             displayMatrixAsTablenw(assignmentMatrix, VertexArr, vertexIndexMapD, vertexIndexMapO);
 
