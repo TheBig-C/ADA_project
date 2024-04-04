@@ -365,7 +365,7 @@
                                 for(let i=0;i<sd.length;i++){
                                     if(sd[i].length>1){
                                         audf=sd[i].split(" ");
-                                        storeEdge(audf[0],audf[1],defaultLine.stroke,audf[0]===audf[1]);    
+                                        storeEdge(audf[0],audf[1],defaultLine.stroke,audf.length>2);    
                                     }
                                 }
                                 aux=d[1];
@@ -718,15 +718,11 @@
                 }
             }
 
-            if (vertexIndexMapO.length == vertexIndexMapD.length && ((EdgeArr.length / vertexIndexMapO.length) % vertexIndexMapO.length == 0)) {
                 // Assuming VertexArr contains the vertices in the graph
                 adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
                 // Display the adjacency matrix in the modal, pass VertexArr as nodeNames
                 displayMatrixAsTable(adjacencyMatrix, VertexArr, vertexIndexMapD, vertexIndexMapO);
-            } else {
-                alert("Ingrese de forma correcta el grafo para poder generar la matriz correspondiente");
-
-            }
+           
 
 
             // Show the modal

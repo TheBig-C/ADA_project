@@ -25,6 +25,7 @@
     <script type="text/javascript" src="./input.js"></script>
     <script type="text/javascript" src="./save.js"></script>
     <script type="text/javascript" src="./uploadImage.js"></script>
+    <script type="text/javascript" src="./johnson.js"></script>
 
     <style>
         canvas {
@@ -251,6 +252,7 @@
         var connections = [];                   //global array to save all conection without weights (it doesn't saves loops)
 
         var canvasWidth = $("#graph-drawer").outerWidth() / 0.9;                  // the width of canvas
+        var canvasWidth = $("#graph-drawer").outerWidth() / 0.9;                  // the width of canvas
         var canvasHeight = $("#graph-drawer").outerHeight() / 1.3;                // the height of canvas
         var canvas = new fabric.Canvas('c', {                                     // the object of canvas
             backgroundColor: "#fff",
@@ -338,44 +340,44 @@
 
                             reader.onload = function (e) {
                                 var contenido = e.target.result;
-                                var d=contenido.split("$$");
+                                var d = contenido.split("$$");
                                 console.log("contenido: ");
                                 console.log(contenido);
                                 // Hacer algo con el contenido, por ejemplo, mostrarlo en la consola
-                              //  $('#GraphData').val(d[0]);
-                             storeInputD(d[0]);
+                                //  $('#GraphData').val(d[0]);
+                                storeInputD(d[0]);
                                 console.log("otro:");
                                 console.log(d[1]);
                                 console.log("otro d:");
-                                var sd=d[0].split("\n");
+                                var sd = d[0].split("\n");
                                 console.log(sd);
-                                audf=[]
-                                for(let i=0;i<sd.length;i++){
-                                    if(sd[i].length>1){
-                                        audf=sd[i].split(" ");
-                                        storeEdge(audf[0],audf[1],defaultLine.stroke,audf[0]===audf[1]);    
+                                audf = []
+                                for (let i = 0; i < sd.length; i++) {
+                                    if (sd[i].length > 1) {
+                                        audf = sd[i].split(" ");
+                                        storeEdge(audf[0], audf[1], defaultLine.stroke, audf.length > 2);
                                     }
                                 }
-                                aux=d[1];
-                                aux2=[];
-                                su=aux.split("&&&");
-                                ms=[];
-                                for(let i=0;i<su.length;i++){
-                                    aux2=su[i].split("/");
-                                    ms[i]=aux2.slice();
+                                aux = d[1];
+                                aux2 = [];
+                                su = aux.split("&&&");
+                                ms = [];
+                                for (let i = 0; i < su.length; i++) {
+                                    aux2 = su[i].split("/");
+                                    ms[i] = aux2.slice();
                                 }
-                                for(let i=0;i<ms.length;i++){
+                                for (let i = 0; i < ms.length; i++) {
                                     storeVertex(ms[i][0], ms[i][1], ms[i][2], '#ffffff');
                                 }
-                                
+
 
                             };
 
                             reader.readAsText(input.files[0]);
                             saveInit(true);
-                         // location.reload();
-                         //   tranInputToDrawer(true);
-                            
+                            // location.reload();
+                            //   tranInputToDrawer(true);
+
                         }
                     } else {
                         console.error('Tipo de archivo no compatible.');
@@ -617,6 +619,10 @@
         // Attach the function to the button click event
         $("#showAdjacencyMatrixBtn").on("click", function () {
             showAdjacencyMatrix();
+            console.log("vertexarr: "+VertexArr);
+                console.log(EdgeArr);
+
+                johnson(VertexArr,EdgeArr);
         });
 
         // Function to display the adjacency matrix
@@ -644,8 +650,10 @@
                 if (isDiagonalSuperior(adjacencyMatrix)) {
                     break;
                 }
+                
             }
 
+          
             // Calculate the maximum value for each column
             var maxValuesInColumns = [];
             for (var i = 0; i < adjacencyMatrix.length; i++) {
