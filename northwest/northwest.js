@@ -1,172 +1,165 @@
-function northWestMODI() {
-    var adjacencyMatrix = getAdjacencyMatrix();
-    var numRows = adjacencyMatrix.length;
-    var numCols = adjacencyMatrix[0].length - 1;
-    var assignmentMatrix = Array.from({ length: numRows - 1 }, () => Array(numCols).fill(0));
-    // Verificar si los datos son válidos
-    var demand1 = getDemand(adjacencyMatrix);
-    var supply1 = getSupply(adjacencyMatrix);
-    if (!validateSupplyDemand(supply1, demand1)) {  
+function northWest() {
+    var costsMatrix = getAdjacencyMatrix();
+    var numRows = costsMatrix.length;
+    var numCols = costsMatrix[0].length;
+    var assignmentMatrix = Array.from({ length: numRows - 1 }, () => Array(numCols - 1).fill(0));
+
+    var supply = getSupply(costsMatrix);
+    var demand = getDemand(costsMatrix);
+
+    if (!validateSupplyDemand(supply, demand)) {
         alert('Por favor, ingrese valores válidos para la matriz de costos, asegúrese de que la suma de las demandas sea igual a la oferta.');
         return;
     }
 
-    // Bucle principal: Algoritmo de North-West
-    for (var i = 0; i < numRows - 1; i++) { // Cambio: Excluir la fila de demanda
-        var supply = adjacencyMatrix[i][numCols];
-        for (var j = 0; j < numCols; j++) {
-            var demand = adjacencyMatrix[numRows - 1][j];
-            if (supply > 0 && demand > 0) {
-                var amount = Math.min(supply, demand);
-                assignmentMatrix[i][j] = amount;
-                adjacencyMatrix[i][numCols] -= amount;
-                adjacencyMatrix[numRows - 1][j] -= amount;
-                supply -= amount;
+    var i = 0, j = 0;
 
-            } else {
-                assignmentMatrix[i][j] = 0; // Cambio: Llenar con cero si no hay asignación
-            }
-        }
+    while (i < supply.length && j < demand.length) {
+        var amount = Math.min(supply[i], demand[j]);
+        assignmentMatrix[i][j] = amount;
+
+        supply[i] -= amount;
+        demand[j] -= amount;
+
+        if (supply[i] === 0) i++;
+        if (demand[j] === 0) j++;
     }
-
-
-    // Calcular los valores duales (u y v)
-    var dualValues = calculateDualValues(adjacencyMatrix, assignmentMatrix);
-
-    // Calcular los costos reducidos
-    var reducedCosts = calculateReducedCosts(adjacencyMatrix, dualValues);
-
-    // Encontrar la celda con el mayor costo reducido positivo
-    var cellToModify = findCellToModify(reducedCosts);
-
-    // Si se encontró una celda para modificar, realizar el cambio y recalcular
-    if (cellToModify) {
-        assignmentMatrix[cellToModify[0]][cellToModify[1]] = 0; // Desasignar la celda
-        assignmentMatrix[cellToModify[0]][cellToModify[2]] = adjacencyMatrix[cellToModify[0]][cellToModify[2]]; // Asignar la nueva celda
-        adjacencyMatrix[cellToModify[0]][numCols] += adjacencyMatrix[cellToModify[0]][cellToModify[2]]; // Actualizar la oferta
-        adjacencyMatrix[numRows - 1][cellToModify[1]] += adjacencyMatrix[cellToModify[0]][cellToModify[2]]; // Actualizar la demanda
-
-        // Recalcular los valores duales y los costos reducidos
-        dualValues = calculateDualValues(adjacencyMatrix, assignmentMatrix);
-        reducedCosts = calculateReducedCosts(adjacencyMatrix, dualValues);
-    }
-
-
-    var targetMatrix = [
-        [10, 20, 0, 0],
-        [0, 20, 20, 10],
-        [0, 0, 0, 30]
-    ];
-
-    var isEqual = true;
-    for (var i = 0; i < assignmentMatrix.length; i++) {
-        for (var j = 0; j < assignmentMatrix[i].length; j++) {
-            if (assignmentMatrix[i][j] !== targetMatrix[i][j]) {
-                isEqual = false;
-                break;
-            }
-        }
-    }
-
-    if (isEqual) {
-        return [
-            [10, 0, 0, 20],
-            [0, 40, 10, 0],
-            [0, 0, 10, 20]
-        ];
-    } else {
-        return assignmentMatrix;
-    }
+    modiMethod(costsMatrix, assignmentMatrix);
+    return assignmentMatrix;
 }
 
-
-// Función para calcular los valores duales (u y v)
-function calculateDualValues(adjacencyMatrix, assignmentMatrix) {
-    var numRows = adjacencyMatrix.length - 1;
-    var numCols = adjacencyMatrix[0].length - 1;
-
-    var u = new Array(numRows).fill(Number.MAX_VALUE);
-    var v = new Array(numCols).fill(Number.MAX_VALUE);
-
-    u[0] = 0; // Inicializar u en 0
-
-    var visited = new Array(numRows).fill(false);
-    var stack = [0];
-
-    while (stack.length > 0) {
-        var i = stack.pop();
-        visited[i] = true;
-        for (var j = 0; j < numCols; j++) {
-            console.log("j");
-            console.log(j);
-            console.log("i");
-            console.log(i);
-            console.log(assignmentMatrix);
-            console.log(assignmentMatrix[i][j]);
+function modiMethod(costsMatrix, assignmentMatrix) {
+    let numRows = costsMatrix.length - 1;
+    let numCols = costsMatrix[0].length - 1;
+    let u = new Array(numRows).fill(null);
+    let v = new Array(numCols).fill(null);
+    let markedIndices = [];
+    for (let i = 0; i < numRows; i++) {
+        for (let j = 0; j < numCols; j++) {
             if (assignmentMatrix[i][j] > 0) {
-                var r = adjacencyMatrix[i][j] - v[j];
-                if (r < u[i]) {
-                    u[i] = r;
-                }
-                if (visited[numRows - 1] && r < v[j]) {
-                    v[j] = r;
-                    stack.push(numRows - 1);
-                }
-            }
-        }
-        for (var k = 0; k < numRows - 1; k++) {
-            if (visited[k]) {
-                for (var l = 0; l < numCols; l++) {
-                    if (assignmentMatrix[k][l] > 0) {
-                        var r = adjacencyMatrix[k][l] - u[k];
-                        if (r < v[l]) {
-                            v[l] = r;
-                            stack.push(k);
-                        }
-                    }
-                }
+                markedIndices.push([i, j]);
             }
         }
     }
 
-    return { u: u, v: v };
-}
-
-// Función para calcular los costos reducidos
-function calculateReducedCosts(adjacencyMatrix, dualValues) {
-    var numRows = adjacencyMatrix.length;
-    var numCols = adjacencyMatrix[0].length - 1;
-
-    var reducedCosts = [];
-    for (var i = 0; i < numRows - 1; i++) {
-        reducedCosts[i] = [];
-        for (var j = 0; j < numCols; j++) {
-            reducedCosts[i][j] = adjacencyMatrix[i][j] - dualValues.u[i] - dualValues.v[j];
-        }
-    }
-    return reducedCosts;
-}
-
-// Función para encontrar la celda con el mayor costo reducido positivo
-function findCellToModify(reducedCosts) {
-    var numRows = reducedCosts.length;
-    var numCols = reducedCosts[0].length;
-
-    var maxPositiveReducedCost = -Infinity;
-    var cellToModify = null;
-
-    for (var i = 0; i < numRows; i++) {
-        for (var j = 0; j < numCols; j++) {
-            if (reducedCosts[i][j] > maxPositiveReducedCost) {
-                maxPositiveReducedCost = reducedCosts[i][j];
-                cellToModify = [i, j];
+    u[0] = 0;
+    let markedIndicesCount = markedIndices.length;
+    while (markedIndicesCount > 0) {
+        for (let index = 0; index < markedIndices.length; index++) {
+            let [i, j] = markedIndices[index];
+            if (u[i] !== null && v[j] === null) {
+                v[j] = costsMatrix[i][j] - u[i];
+                markedIndicesCount--;
+            } else if (u[i] === null && v[j] !== null) {
+                u[i] = costsMatrix[i][j] - v[j];
+                markedIndicesCount--;
             }
         }
     }
 
-    return maxPositiveReducedCost > 0 ? cellToModify : null;
+    let d = Array.from({ length: numRows }, () => Array(numCols).fill(0));
+    let canImprove = false;
+    for (let i = 0; i < numRows; i++) {
+        for (let j = 0; j < numCols; j++) {
+            if (assignmentMatrix[i][j] === 0) {
+                d[i][j] = (u[i] + v[j]) - costsMatrix[i][j];
+                if (d[i][j] > 0) canImprove = true;
+            }
+        }
+    }
+
+    if (canImprove) {
+        let maxNegative = 0;
+        let cellToImprove = null;
+        for (let i = 0; i < numRows; i++) {
+            for (let j = 0; j < numCols; j++) {
+                if (d[i][j] > maxNegative) {
+                    maxNegative = d[i][j];
+                    cellToImprove = [i, j];
+                }
+            }
+        }
+
+        console.log(assignmentMatrix);
+        console.log(cellToImprove);
+
+        if (cellToImprove) {
+            let cycle = findCycle(assignmentMatrix, cellToImprove);
+            //let cycle = [[0, 3], [1, 3], [1, 1], [0,1]];
+            if (cycle) {
+                adjustAssignments(assignmentMatrix, cycle);
+
+                console.log("Se puede mejorar la solución, se encontro un ciclo");
+            } else {
+                console.log("No se puede mejorar, no se encontro un ciclo");
+            }
+        }
+    }
 }
 
+function findCycle(matrix, startCell, path = [startCell], visited = new Set([startCell.toString()])) {
+    // Direcciones a explorar: Arriba, Abajo, Izquierda, Derecha
+    const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+    if (path.length > 1 && equals(startCell, path[0])) {
+        return path; // Ciclo completado, no consideramos el ciclo trivial (inicio = fin)
+    }
+
+    for (const [dx, dy] of directions) {
+        const nextCell = [startCell[0] + dx, startCell[1] + dy];
+        const nextCellKey = nextCell.toString();
+
+        // Condición para cerrar el ciclo correctamente, evitando el punto de inicio inmediato
+        if (path.length > 3 && nextCellKey === path[0].toString()) {
+            return [...path, nextCell]; // Ciclo completado
+        }
+
+        // Verificar los límites de la matriz, si la siguiente celda ya fue visitada, y si tiene asignación válida
+        if (
+            nextCell[0] >= 0 && nextCell[0] < matrix.length &&
+            nextCell[1] >= 0 && nextCell[1] < matrix[0].length &&
+            !visited.has(nextCellKey) && matrix[nextCell[0]][nextCell[1]] !== 0 &&
+            (matrix[nextCell[0]][nextCell[1]] > 0 || nextCellKey === path[0].toString()) // Permitimos el retorno al inicio para cerrar el ciclo
+        ) {
+            visited.add(nextCellKey); // Marcar como visitada
+
+            const newPath = [...path, nextCell];
+            console.log("add");
+            console.log(visited);
+            const result = findCycle(matrix, nextCell, newPath, visited);
+            if (result) return result; // Ciclo encontrado
+
+            // No se encontró ciclo, remover de visited y path para backtracking
+            visited.delete(nextCellKey);
+            console.log("delete");
+            console.log(visited);
+        }
+    }
+
+    return null; // No se encontró un ciclo
+}
+
+function equals(cell1, cell2) {
+    return cell1[0] === cell2[0] && cell1[1] === cell2[1];
+}
+
+function adjustAssignments(assignmentMatrix, cycle) {
+    let min = Infinity;
+
+    for (let i = 1; i < cycle.length; i += 2) {
+        const [r, c] = cycle[i];
+        min = Math.min(min, assignmentMatrix[r][c]);
+    }
+
+    for (let i = 0; i < cycle.length; ++i) {
+        const [r, c] = cycle[i];
+        if (i % 2 === 0) {
+            assignmentMatrix[r][c] += min;
+        } else {
+            assignmentMatrix[r][c] -= min;
+        }
+    }
+}
 
 // Función para verificar que la suma de las demandas sea igual a la oferta
 function validateSupplyDemand(supply, demand) {
