@@ -25,6 +25,7 @@
     <script type="text/javascript" src="./input.js"></script>
     <script type="text/javascript" src="./save.js"></script>
     <script type="text/javascript" src="./uploadImage.js"></script>
+    <script type="text/javascript" src="./johnson.js"></script>
 
     <style>
         canvas {
@@ -145,7 +146,7 @@
                                         <!--<button id="removeAll" onclick="canvas.removeAll()">Remove All</button>-->
                                         <button id="removeAll" onclick="canvas.removeAll()">Eliminar Todo</button>
                                         <button id="showAdjacencyMatrixBtn">Mostrar ruta critica</button>
-                                        
+
                                     </div>
                                 </div>
                             </div>
@@ -339,44 +340,44 @@
 
                             reader.onload = function (e) {
                                 var contenido = e.target.result;
-                                var d=contenido.split("$$");
+                                var d = contenido.split("$$");
                                 console.log("contenido: ");
                                 console.log(contenido);
                                 // Hacer algo con el contenido, por ejemplo, mostrarlo en la consola
-                              //  $('#GraphData').val(d[0]);
-                             storeInputD(d[0]);
+                                //  $('#GraphData').val(d[0]);
+                                storeInputD(d[0]);
                                 console.log("otro:");
                                 console.log(d[1]);
                                 console.log("otro d:");
-                                var sd=d[0].split("\n");
+                                var sd = d[0].split("\n");
                                 console.log(sd);
-                                audf=[]
-                                for(let i=0;i<sd.length;i++){
-                                    if(sd[i].length>1){
-                                        audf=sd[i].split(" ");
-                                        storeEdge(audf[0],audf[1],defaultLine.stroke,audf[0]===audf[1]);    
+                                audf = []
+                                for (let i = 0; i < sd.length; i++) {
+                                    if (sd[i].length > 1) {
+                                        audf = sd[i].split(" ");
+                                        storeEdge(audf[0], audf[1], defaultLine.stroke, audf.length > 2);
                                     }
                                 }
-                                aux=d[1];
-                                aux2=[];
-                                su=aux.split("&&&");
-                                ms=[];
-                                for(let i=0;i<su.length;i++){
-                                    aux2=su[i].split("/");
-                                    ms[i]=aux2.slice();
+                                aux = d[1];
+                                aux2 = [];
+                                su = aux.split("&&&");
+                                ms = [];
+                                for (let i = 0; i < su.length; i++) {
+                                    aux2 = su[i].split("/");
+                                    ms[i] = aux2.slice();
                                 }
-                                for(let i=0;i<ms.length;i++){
+                                for (let i = 0; i < ms.length; i++) {
                                     storeVertex(ms[i][0], ms[i][1], ms[i][2], '#ffffff');
                                 }
-                                
+
 
                             };
 
                             reader.readAsText(input.files[0]);
                             saveInit(true);
-                         // location.reload();
-                         //   tranInputToDrawer(true);
-                            
+                            // location.reload();
+                            //   tranInputToDrawer(true);
+
                         }
                     } else {
                         console.error('Tipo de archivo no compatible.');
@@ -519,7 +520,7 @@
             }
         }
 
-        
+
         function generateAdjacencyMatrix(vertices, edges) {
             var matrix = [];
             var n = vertices.length;
@@ -552,169 +553,175 @@
             }
             return matrix;
         }
-        
+
         function displayMatrixAsTable(matrix, nodeNames) {
-    var tableContent = "<thead><tr><th></th>";
+            var tableContent = "<thead><tr><th></th>";
 
-    // Create table headers using node names, excluding the last column
-    for (var i = 0; i < nodeNames.length - 1; i++) {
-        tableContent += "<th>" + nodeNames[i] + "</th>";
-    }
-
-    // Add a column for row sums
-    tableContent += "</tr></thead><tbody>";
-
-    // Find maximum values in each column, excluding the last column
-    var maxValuesInColumns = [];
-    for (var j = 0; j < matrix[0].length - 1; j++) {
-        var maxInColumn = Math.max(...matrix.map(row => row[j]).slice(0, -1));
-        maxValuesInColumns.push(maxInColumn);
-    }
-
-    // Find maximum values in each row, excluding the last row
-    var maxValuesInRows = [];
-    for (var i = 0; i < matrix.length - 1; i++) {
-        var maxInRow = Math.max(...matrix[i].slice(0, -1));
-        maxValuesInRows.push(maxInRow);
-    }
-
-    // Create table rows, excluding the last row
-    for (var i = 0; i < matrix.length - 1; i++) {
-        tableContent += "<tr><th>" + nodeNames[i] + "</th>";
-
-        for (var j = 0; j < matrix[i].length - 1; j++) {
-            // Check if the current value is the maximum in both its row and column
-            var isMax = (matrix[i][j] === maxValuesInRows[i]) && (matrix[i][j] === maxValuesInColumns[j]);
-
-            // Apply bold style only when maximum in both row and column
-            if (isMax) {
-                tableContent += "<td><strong>" + matrix[i][j] + "</strong></td>";
-            } else {
-                tableContent += "<td>" + matrix[i][j] + "</td>";
+            // Create table headers using node names, excluding the last column
+            for (var i = 0; i < nodeNames.length - 1; i++) {
+                tableContent += "<th>" + nodeNames[i] + "</th>";
             }
+
+            // Add a column for row sums
+            tableContent += "</tr></thead><tbody>";
+
+            // Find maximum values in each column, excluding the last column
+            var maxValuesInColumns = [];
+            for (var j = 0; j < matrix[0].length - 1; j++) {
+                var maxInColumn = Math.max(...matrix.map(row => row[j]).slice(0, -1));
+                maxValuesInColumns.push(maxInColumn);
+            }
+
+            // Find maximum values in each row, excluding the last row
+            var maxValuesInRows = [];
+            for (var i = 0; i < matrix.length - 1; i++) {
+                var maxInRow = Math.max(...matrix[i].slice(0, -1));
+                maxValuesInRows.push(maxInRow);
+            }
+
+            // Create table rows, excluding the last row
+            for (var i = 0; i < matrix.length - 1; i++) {
+                tableContent += "<tr><th>" + nodeNames[i] + "</th>";
+
+                for (var j = 0; j < matrix[i].length - 1; j++) {
+                    // Check if the current value is the maximum in both its row and column
+                    var isMax = (matrix[i][j] === maxValuesInRows[i]) && (matrix[i][j] === maxValuesInColumns[j]);
+
+                    // Apply bold style only when maximum in both row and column
+                    if (isMax) {
+                        tableContent += "<td><strong>" + matrix[i][j] + "</strong></td>";
+                    } else {
+                        tableContent += "<td>" + matrix[i][j] + "</td>";
+                    }
+                }
+
+                // Add the last column without bold style
+                tableContent += "<td>" + matrix[i][matrix[i].length - 1] + "</td>";
+
+                tableContent += "</tr>";
+            }
+
+            // Add the last row without bold style
+            tableContent += "<tr><th>" + nodeNames[nodeNames.length - 1] + "</th>";
+            for (var j = 0; j < matrix[matrix.length - 1].length; j++) {
+                tableContent += "<td>" + matrix[matrix.length - 1][j] + "</td>";
+            }
+            tableContent += "</tr>";
+
+            tableContent += "</tbody>";
+
+            $("#adjacencyMatrixTable").html(tableContent);
         }
 
-        // Add the last column without bold style
-        tableContent += "<td>" + matrix[i][matrix[i].length - 1] + "</td>";
-
-        tableContent += "</tr>";
-    }
-
-    // Add the last row without bold style
-    tableContent += "<tr><th>" + nodeNames[nodeNames.length - 1] + "</th>";
-    for (var j = 0; j < matrix[matrix.length - 1].length; j++) {
-        tableContent += "<td>" + matrix[matrix.length - 1][j] + "</td>";
-    }
-    tableContent += "</tr>";
-
-    tableContent += "</tbody>";
-
-    $("#adjacencyMatrixTable").html(tableContent);
-}
 
 
 
+        // Attach the function to the button click event
+        $("#showAdjacencyMatrixBtn").on("click", function () {
+            showAdjacencyMatrix();
+            console.log("vertexarr: "+VertexArr);
+                console.log(EdgeArr);
 
-// Attach the function to the button click event
-$("#showAdjacencyMatrixBtn").on("click", function () {
-    showAdjacencyMatrix();
-});
+                johnson(VertexArr,EdgeArr);
+        });
 
-// Function to display the adjacency matrix
-function showAdjacencyMatrix() {
-    while (true) {
-        // Assuming VertexArr contains the vertices in the graph
-        var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
-        orden = [];
-        nuevoOrden = [];
-        var aux = 0;
-        for (var i = 0; i < VertexArr.length; i++) {
-            aux = 0;
-            for (var j = 0; j < VertexArr.length; j++) {
-                if (adjacencyMatrix[j][i] > 0) {
-                    aux = j + 1;
+        // Function to display the adjacency matrix
+        function showAdjacencyMatrix() {
+            while (true) {
+                // Assuming VertexArr contains the vertices in the graph
+                var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
+                orden = [];
+                nuevoOrden = [];
+                var aux = 0;
+                for (var i = 0; i < VertexArr.length; i++) {
+                    aux = 0;
+                    for (var j = 0; j < VertexArr.length; j++) {
+                        if (adjacencyMatrix[j][i] > 0) {
+                            aux = j + 1;
+                        }
+                    }
+                    orden[i] = aux;
+                }
+
+                VertexArr = selectionSort(orden, VertexArr);
+                // Display the adjacency matrix in the modal, pass VertexArr as nodeNames
+
+                adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
+                if (isDiagonalSuperior(adjacencyMatrix)) {
+                    break;
+                }
+                
+            }
+
+          
+            // Calculate the maximum value for each column
+            var maxValuesInColumns = [];
+            for (var i = 0; i < adjacencyMatrix.length; i++) {
+                var maxInColumn = 0;
+                for (var j = 0; j < adjacencyMatrix.length; j++) {
+                    if (adjacencyMatrix[j][i] > maxInColumn) {
+                        maxInColumn = adjacencyMatrix[j][i];
+                    }
+                }
+                maxValuesInColumns.push(maxInColumn);
+            }
+
+            // Calculate the maximum value for each row
+            var maxValuesInRows = [];
+            for (var i = 0; i < adjacencyMatrix.length; i++) {
+                maxValuesInRows.push(Math.max.apply(null, adjacencyMatrix[i]));
+            }
+
+            // Sum the max values of each column and row, considering the maximum value in the corresponding row or column
+            var columnSum = 0;
+            for (var i = 0; i < adjacencyMatrix.length; i++) {
+                for (var j = 0; j < adjacencyMatrix.length; j++) {
+                    if (adjacencyMatrix[i][j] === maxValuesInColumns[j] && adjacencyMatrix[i][j] === maxValuesInRows[i]) {
+                        columnSum += adjacencyMatrix[i][j];
+                    }
                 }
             }
-            orden[i] = aux;
-        }
 
-        VertexArr = selectionSort(orden, VertexArr);
-        // Display the adjacency matrix in the modal, pass VertexArr as nodeNames
-
-        adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
-        if (isDiagonalSuperior(adjacencyMatrix)) {
-            break;
-        }
-    }
-
-    // Calculate the maximum value for each column
-    var maxValuesInColumns = [];
-    for (var i = 0; i < adjacencyMatrix.length; i++) {
-        var maxInColumn = 0;
-        for (var j = 0; j < adjacencyMatrix.length; j++) {
-            if (adjacencyMatrix[j][i] > maxInColumn) {
-                maxInColumn = adjacencyMatrix[j][i];
+            // Add a new row to display the sum of row maxima
+            var rowMaxSumRow = [];
+            for (var i = 0; i < VertexArr.length; i++) {
+                rowMaxSumRow.push(maxValuesInRows[i]);
             }
-        }
-        maxValuesInColumns.push(maxInColumn);
-    }
+            rowMaxSumRow.push(columnSum);
+            adjacencyMatrix.push(rowMaxSumRow);
 
-    // Calculate the maximum value for each row
-    var maxValuesInRows = [];
-    for (var i = 0; i < adjacencyMatrix.length; i++) {
-        maxValuesInRows.push(Math.max.apply(null, adjacencyMatrix[i]));
-    }
-
-    // Sum the max values of each column and row, considering the maximum value in the corresponding row or column
-    var columnSum = 0;
-    for (var i = 0; i < adjacencyMatrix.length; i++) {
-        for (var j = 0; j < adjacencyMatrix.length; j++) {
-            if (adjacencyMatrix[i][j] === maxValuesInColumns[j] && adjacencyMatrix[i][j] === maxValuesInRows[i]) {
-                columnSum += adjacencyMatrix[i][j];
+            // Add a new column to display the sum of column maxima
+            for (var i = 0; i < adjacencyMatrix.length; i++) {
+                adjacencyMatrix[i].push(maxValuesInColumns[i]);
             }
+
+            // Display the adjacency matrix
+            displayMatrixAsTable(adjacencyMatrix, VertexArr.concat([' ']));
+
+            // Show the modal
+            $("#adjacencyMatrixModal").addClass("is-active");
+
+            // Close the modal when the close button or background is clicked
+            $(".modal-close, .modal-background").on("click", function () {
+                $("#adjacencyMatrixModal").removeClass("is-active");
+            });
         }
-    }
-
-    // Add a new row to display the sum of row maxima
-    var rowMaxSumRow = [];
-    for (var i = 0; i < VertexArr.length; i++) {
-        rowMaxSumRow.push(maxValuesInRows[i]);
-    }
-    rowMaxSumRow.push(columnSum);
-    adjacencyMatrix.push(rowMaxSumRow);
-
-    // Add a new column to display the sum of column maxima
-    for (var i = 0; i < adjacencyMatrix.length; i++) {
-        adjacencyMatrix[i].push(maxValuesInColumns[i]);
-    }
-
-    // Display the adjacency matrix
-    displayMatrixAsTable(adjacencyMatrix, VertexArr.concat([' ']));
-
-    // Show the modal
-    $("#adjacencyMatrixModal").addClass("is-active");
-
-    // Close the modal when the close button or background is clicked
-    $(".modal-close, .modal-background").on("click", function () {
-        $("#adjacencyMatrixModal").removeClass("is-active");
-    });
-}
 
 
-               function selectionSort(arr, arrToSort) {
-    const n = arr.length;
-    for (let i = 0; i < n - 1; i++) {
-        let minIndex = i;
-        for (let j = i + 1; j < n; j++) {
-            if (arr[j] < arr[minIndex]) {
-                minIndex = j;
-            }
-        }
-        if (minIndex !== i) {
-            // Intercambiar los elementos en el array a ordenar
-            [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
-            // Intercambiar los elementos correspondientes en el otro array
-            [arrToSort[i], arrToSort[minIndex]] = [arrToSort[minIndex], arrToSort[i]];
+        function selectionSort(arr, arrToSort) {
+            const n = arr.length;
+            for (let i = 0; i < n - 1; i++) {
+                let minIndex = i;
+                for (let j = i + 1; j < n; j++) {
+                    if (arr[j] < arr[minIndex]) {
+                        minIndex = j;
+                    }
+                }
+                if (minIndex !== i) {
+                    // Intercambiar los elementos en el array a ordenar
+                    [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
+                    // Intercambiar los elementos correspondientes en el otro array
+                    [arrToSort[i], arrToSort[minIndex]] = [arrToSort[minIndex], arrToSort[i]];
 
 
                 }

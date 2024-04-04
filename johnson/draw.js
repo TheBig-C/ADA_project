@@ -228,7 +228,8 @@ function fabricInit() {
         canvas.renderAll();
 
     }
-
+    
+    
     // add the line, directed from fromObject to toObject
     fabric.Canvas.prototype.AddLine = function (fromObject, toObject) {
         var from = fromObject.getCenterPoint();
