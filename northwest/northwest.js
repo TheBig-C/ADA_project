@@ -21,131 +21,117 @@ function northWest() {
         supply[i] -= amount;
         demand[j] -= amount;
 
-        if (supply[i] === 0) i++;
-        if (demand[j] === 0) j++;
+        if (supply[i] === 0 && i < supply.length) i++;
+        if (demand[j] === 0 && j < demand.length) j++;
     }
     modiMethod(costsMatrix, assignmentMatrix);
     return assignmentMatrix;
 }
 
 function modiMethod(costsMatrix, assignmentMatrix) {
-    let numRows = costsMatrix.length - 1;
-    let numCols = costsMatrix[0].length - 1;
-    let u = new Array(numRows).fill(null);
-    let v = new Array(numCols).fill(null);
-    let markedIndices = [];
-    for (let i = 0; i < numRows; i++) {
-        for (let j = 0; j < numCols; j++) {
-            if (assignmentMatrix[i][j] > 0) {
-                markedIndices.push([i, j]);
-            }
-        }
-    }
-
-    u[0] = 0;
-    let markedIndicesCount = markedIndices.length;
-    while (markedIndicesCount > 0) {
-        for (let index = 0; index < markedIndices.length; index++) {
-            let [i, j] = markedIndices[index];
-            if (u[i] !== null && v[j] === null) {
-                v[j] = costsMatrix[i][j] - u[i];
-                markedIndicesCount--;
-            } else if (u[i] === null && v[j] !== null) {
-                u[i] = costsMatrix[i][j] - v[j];
-                markedIndicesCount--;
-            }
-        }
-    }
-
-    let d = Array.from({ length: numRows }, () => Array(numCols).fill(0));
-    let canImprove = false;
-    for (let i = 0; i < numRows; i++) {
-        for (let j = 0; j < numCols; j++) {
-            if (assignmentMatrix[i][j] === 0) {
-                d[i][j] = (u[i] + v[j]) - costsMatrix[i][j];
-                if (d[i][j] > 0) canImprove = true;
-            }
-        }
-    }
-
-    if (canImprove) {
-        let maxNegative = 0;
-        let cellToImprove = null;
+    let improvement = true;
+    while (improvement) {
+        let numRows = costsMatrix.length - 1;
+        let numCols = costsMatrix[0].length - 1;
+        let u = new Array(numRows).fill(null);
+        let v = new Array(numCols).fill(null);
+        let markedIndices = [];
         for (let i = 0; i < numRows; i++) {
             for (let j = 0; j < numCols; j++) {
-                if (d[i][j] > maxNegative) {
-                    maxNegative = d[i][j];
-                    cellToImprove = [i, j];
+                if (assignmentMatrix[i][j] > 0) {
+                    markedIndices.push([i, j]);
                 }
             }
         }
 
-        console.log(assignmentMatrix);
-        console.log(cellToImprove);
+        u[0] = 0;
+        let progressMade;
+        do {
+            progressMade = false; 
+            let remainingIndices = [];
+            for (let index = 0; index < markedIndices.length; index++) {
+                let [i, j] = markedIndices[index];
+                if (u[i] !== null && v[j] === null) {
+                    v[j] = costsMatrix[i][j] - u[i];
+                    progressMade = true;
+                } else if (u[i] === null && v[j] !== null) {
+                    u[i] = costsMatrix[i][j] - v[j];
+                    progressMade = true;
+                } else {
+                    remainingIndices.push([i, j]);
+                }
+            }
+            markedIndices = remainingIndices;
+            if (!progressMade && markedIndices.length > 0) {
+                let [i, j] = markedIndices[0];
+                if (u[i] === null) {
+                    u[i] = 0;
+                } else {
+                    v[j] = 0;
+                }
+                progressMade = true;
+            }
+        } while (progressMade && markedIndices.length > 0); 
 
-        if (cellToImprove) {
-            let cycle = findCycle(assignmentMatrix, cellToImprove);
-            //let cycle = [[0, 3], [1, 3], [1, 1], [0,1]];
-            if (cycle) {
-                adjustAssignments(assignmentMatrix, cycle);
+        console.log(u);
+        console.log(v);
 
-                console.log("Se puede mejorar la solución, se encontro un ciclo");
-            } else {
-                console.log("No se puede mejorar, no se encontro un ciclo");
+        let d = Array.from({ length: numRows }, () => Array(numCols).fill(0));
+        let canImprove = false;
+        for (let i = 0; i < numRows; i++) {
+            for (let j = 0; j < numCols; j++) {
+                if (assignmentMatrix[i][j] === 0) {
+                    d[i][j] = (u[i] + v[j]) - costsMatrix[i][j];
+                    if (d[i][j] > 0) canImprove = true;
+                }
             }
         }
+        console.log(d);
+        var matrix1 = [];
+        for (var i = 0; i < assignmentMatrix.length; i++) {
+            matrix1[i] = assignmentMatrix[i].slice(); // Copia los elementos de cada fila
+        }
+        console.log(matrix1);
+        if (canImprove) {
+            let maxPositive = 0;
+            let cellToImprove = null;
+            for (let i = 0; i < numRows; i++) {
+                for (let j = 0; j < numCols; j++) {
+                    if (d[i][j] > maxPositive) {
+                        maxPositive = d[i][j];
+                        cellToImprove = [i, j];
+                    }
+                }
+            }
+
+            
+            console.log(cellToImprove);
+
+            if (cellToImprove) {
+                let cycle = findCycle(assignmentMatrix, cellToImprove);
+                if (cycle) {
+                    adjustAssignments(assignmentMatrix, cycle);
+
+                    console.log("Se puede mejorar la solución, se encontro un ciclo");
+                } else {
+                    console.log("No se puede mejorar, no se encontro un ciclo");
+                    improvement = false;
+                }
+            }
+        } else {
+            improvement = false;
+        }
     }
 }
 
-function findCycle(matrix, startCell, path = [startCell], visited = new Set([startCell.toString()])) {
-    // Direcciones a explorar: Arriba, Abajo, Izquierda, Derecha
-    const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-
-    if (path.length > 1 && equals(startCell, path[0])) {
-        return path; // Ciclo completado, no consideramos el ciclo trivial (inicio = fin)
+function copiarMatriz(matriz, matrix) {
+    for (var i = 0; i < matriz.length; i++) {
+        matrix[i] = matriz[i].slice(); // Copia los elementos de cada fila
     }
-
-    for (const [dx, dy] of directions) {
-        const nextCell = [startCell[0] + dx, startCell[1] + dy];
-        const nextCellKey = nextCell.toString();
-
-        // Condición para cerrar el ciclo correctamente, evitando el punto de inicio inmediato
-        if (path.length > 3 && nextCellKey === path[0].toString()) {
-            return [...path, nextCell]; // Ciclo completado
-        }
-
-        // Verificar los límites de la matriz, si la siguiente celda ya fue visitada, y si tiene asignación válida
-        if (
-            nextCell[0] >= 0 && nextCell[0] < matrix.length &&
-            nextCell[1] >= 0 && nextCell[1] < matrix[0].length &&
-            !visited.has(nextCellKey) && matrix[nextCell[0]][nextCell[1]] !== 0 &&
-            (matrix[nextCell[0]][nextCell[1]] > 0 || nextCellKey === path[0].toString()) // Permitimos el retorno al inicio para cerrar el ciclo
-        ) {
-            visited.add(nextCellKey); // Marcar como visitada
-
-            const newPath = [...path, nextCell];
-            console.log("add");
-            console.log(visited);
-            const result = findCycle(matrix, nextCell, newPath, visited);
-            if (result) return result; // Ciclo encontrado
-
-            // No se encontró ciclo, remover de visited y path para backtracking
-            visited.delete(nextCellKey);
-            console.log("delete");
-            console.log(visited);
-        }
-    }
-
-    return null; // No se encontró un ciclo
-}
-
-function equals(cell1, cell2) {
-    return cell1[0] === cell2[0] && cell1[1] === cell2[1];
 }
 
 function adjustAssignments(assignmentMatrix, cycle) {
     let min = Infinity;
-
     for (let i = 1; i < cycle.length; i += 2) {
         const [r, c] = cycle[i];
         min = Math.min(min, assignmentMatrix[r][c]);
