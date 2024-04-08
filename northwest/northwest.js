@@ -21,131 +21,528 @@ function northWest() {
         supply[i] -= amount;
         demand[j] -= amount;
 
-        if (supply[i] === 0) i++;
-        if (demand[j] === 0) j++;
+        if (supply[i] === 0 && i < supply.length) i++;
+        if (demand[j] === 0 && j < demand.length) j++;
     }
     modiMethod(costsMatrix, assignmentMatrix);
     return assignmentMatrix;
 }
 
 function modiMethod(costsMatrix, assignmentMatrix) {
-    let numRows = costsMatrix.length - 1;
-    let numCols = costsMatrix[0].length - 1;
-    let u = new Array(numRows).fill(null);
-    let v = new Array(numCols).fill(null);
-    let markedIndices = [];
-    for (let i = 0; i < numRows; i++) {
-        for (let j = 0; j < numCols; j++) {
-            if (assignmentMatrix[i][j] > 0) {
-                markedIndices.push([i, j]);
-            }
-        }
-    }
-
-    u[0] = 0;
-    let markedIndicesCount = markedIndices.length;
-    while (markedIndicesCount > 0) {
-        for (let index = 0; index < markedIndices.length; index++) {
-            let [i, j] = markedIndices[index];
-            if (u[i] !== null && v[j] === null) {
-                v[j] = costsMatrix[i][j] - u[i];
-                markedIndicesCount--;
-            } else if (u[i] === null && v[j] !== null) {
-                u[i] = costsMatrix[i][j] - v[j];
-                markedIndicesCount--;
-            }
-        }
-    }
-
-    let d = Array.from({ length: numRows }, () => Array(numCols).fill(0));
-    let canImprove = false;
-    for (let i = 0; i < numRows; i++) {
-        for (let j = 0; j < numCols; j++) {
-            if (assignmentMatrix[i][j] === 0) {
-                d[i][j] = (u[i] + v[j]) - costsMatrix[i][j];
-                if (d[i][j] > 0) canImprove = true;
-            }
-        }
-    }
-
-    if (canImprove) {
-        let maxNegative = 0;
-        let cellToImprove = null;
+    let improvement = true;
+    while (improvement) {
+        let numRows = costsMatrix.length - 1;
+        let numCols = costsMatrix[0].length - 1;
+        let u = new Array(numRows).fill(null);
+        let v = new Array(numCols).fill(null);
+        let markedIndices = [];
         for (let i = 0; i < numRows; i++) {
             for (let j = 0; j < numCols; j++) {
-                if (d[i][j] > maxNegative) {
-                    maxNegative = d[i][j];
-                    cellToImprove = [i, j];
+                if (assignmentMatrix[i][j] > 0) {
+                    markedIndices.push([i, j]);
                 }
             }
         }
 
-        console.log(assignmentMatrix);
-        console.log(cellToImprove);
-
-        if (cellToImprove) {
-            let cycle = findCycle(assignmentMatrix, cellToImprove);
-            //let cycle = [[0, 3], [1, 3], [1, 1], [0,1]];
-            if (cycle) {
-                adjustAssignments(assignmentMatrix, cycle);
-
-                console.log("Se puede mejorar la solución, se encontro un ciclo");
-            } else {
-                console.log("No se puede mejorar, no se encontro un ciclo");
+        u[0] = 0;
+        let progressMade;
+        do {
+            progressMade = false; 
+            let remainingIndices = [];
+            for (let index = 0; index < markedIndices.length; index++) {
+                let [i, j] = markedIndices[index];
+                if (u[i] !== null && v[j] === null) {
+                    v[j] = costsMatrix[i][j] - u[i];
+                    progressMade = true;
+                } else if (u[i] === null && v[j] !== null) {
+                    u[i] = costsMatrix[i][j] - v[j];
+                    progressMade = true;
+                } else {
+                    remainingIndices.push([i, j]);
+                }
             }
+            markedIndices = remainingIndices;
+            if (!progressMade && markedIndices.length > 0) {
+                let [i, j] = markedIndices[0];
+                if (u[i] === null) {
+                    u[i] = 0;
+                } else {
+                    v[j] = 0;
+                }
+                progressMade = true;
+            }
+        } while (progressMade && markedIndices.length > 0); 
+
+        console.log(u);
+        console.log(v);
+
+        let d = Array.from({ length: numRows }, () => Array(numCols).fill(0));
+        let canImprove = false;
+        for (let i = 0; i < numRows; i++) {
+            for (let j = 0; j < numCols; j++) {
+                if (assignmentMatrix[i][j] === 0) {
+                    d[i][j] = (u[i] + v[j]) - costsMatrix[i][j];
+                    if (d[i][j] > 0) canImprove = true;
+                }
+            }
+        }
+        console.log("matrixd");
+        for(let i=0;i<d.length;i++){
+            console.log(d[i]);
+        }
+        var matrix1 = [];
+        for (var i = 0; i < assignmentMatrix.length; i++) {
+            matrix1[i] = assignmentMatrix[i].slice(); // Copia los elementos de cada fila
+        }
+        console.log("matrix");
+        for(let i=0;i<matrix1.length;i++){
+            console.log(matrix1[i]);
+        }
+        if (canImprove) {
+            let maxPositive = 0;
+            let cellToImprove = null;
+            for (let i = 0; i < numRows; i++) {
+                for (let j = 0; j < numCols; j++) {
+                    if (d[i][j] > maxPositive) {
+                        maxPositive = d[i][j];
+                        cellToImprove = [i, j];
+                    }
+                }
+            }
+
+            console.log(cellToImprove);
+
+            if (cellToImprove) {
+                let cycle = findCycle(assignmentMatrix, cellToImprove);
+                if (cycle) {
+                    adjustAssignments(assignmentMatrix, cycle);
+
+                    console.log("Se puede mejorar la solución, se encontro un ciclo");
+                } else {
+                    console.log("No se puede mejorar, no se encontro un ciclo");
+                    improvement = false;
+                }
+            }
+        } else {
+            improvement = false;
         }
     }
 }
-
-function findCycle(matrix, startCell, path = [startCell], visited = new Set([startCell.toString()])) {
-    // Direcciones a explorar: Arriba, Abajo, Izquierda, Derecha
+function findCycle(matrix, startCell) {
+    var cantB=false,c=0;
+    var auxi=startCell[0],auxj=startCell[1];
+    if(auxi+1<matrix.length){
+        if(matrix[auxi+1][auxj])
+            c++;
+    }
+    if(auxi-1>=0){
+        if(matrix[auxi-1][auxj])
+            c++;
+    }
+    if(auxj+1<matrix[0].length){
+        if(matrix[auxi][auxj+1])
+            c++;
+    }
+    if(auxj-1>=0){
+        if(matrix[auxi][auxj-1])
+            c++;
+    }
+    cantB=c>=3;
+    var d = [], matriz = [], valor1 = [], valo2 = [], anterior, va = "primero";
     const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+    const dire1 = [[-1, 0], [1, 0]];
+    const dire2 = [[0, -1], [0, 1]];
+    var contador = 0;
+    copiarMatriz(matrix, matriz);
+    do {
+        console.log("va: " + va);
 
-    if (path.length > 1 && equals(startCell, path[0])) {
-        return path; // Ciclo completado, no consideramos el ciclo trivial (inicio = fin)
-    }
+        if (contador == 0) {
+            d = directions;
+            i = startCell[0];
+            j = startCell[1];
+            // matriz[i][j] = min;
+            siguiente = [i, j];
+        } else if (va == "h") {
 
-    for (const [dx, dy] of directions) {
-        const nextCell = [startCell[0] + dx, startCell[1] + dy];
-        const nextCellKey = nextCell.toString();
+            d = dire2;
+        } else {
 
-        // Condición para cerrar el ciclo correctamente, evitando el punto de inicio inmediato
-        if (path.length > 3 && nextCellKey === path[0].toString()) {
-            return [...path, nextCell]; // Ciclo completado
+            d = dire1;
         }
 
-        // Verificar los límites de la matriz, si la siguiente celda ya fue visitada, y si tiene asignación válida
-        if (
-            nextCell[0] >= 0 && nextCell[0] < matrix.length &&
-            nextCell[1] >= 0 && nextCell[1] < matrix[0].length &&
-            !visited.has(nextCellKey) && matrix[nextCell[0]][nextCell[1]] !== 0 &&
-            (matrix[nextCell[0]][nextCell[1]] > 0 || nextCellKey === path[0].toString()) // Permitimos el retorno al inicio para cerrar el ciclo
-        ) {
-            visited.add(nextCellKey); // Marcar como visitada
 
-            const newPath = [...path, nextCell];
-            console.log("add");
-            console.log(visited);
-            const result = findCycle(matrix, nextCell, newPath, visited);
-            if (result) return result; // Ciclo encontrado
+        if (contador == 0) {
+            valor1.push(siguiente);
 
-            // No se encontró ciclo, remover de visited y path para backtracking
-            visited.delete(nextCellKey);
-            console.log("delete");
-            console.log(visited);
+        } else if (contador % 2 == 0) {
+            valor1.push(siguiente[0]);
+        } else {
+            valo2.push(siguiente[0]);
+        }
+        contador++;
+        console.log("c_ad " + contador + " siguie: " + siguiente + "i: " + i + "j " + j + "star: " + startCell + "d" + d + "va: " + va);
+        
+        siguiente = camino(matriz, va, d, i, j, startCell,contador,cantB);
+        va = siguiente[1];
+        console.log("va: " + va);
+        
+        if (siguiente == null) {
+            return null;
+        }
+
+        if (equals(siguiente[0], ["o", "k"])) {
+
+            break;
+        }
+        i = siguiente[0][0];
+        j = siguiente[0][1];
+        console.log("c_ " + contador + " siguie: " + siguiente + "i: " + i + "j " + j + "star: " + startCell);
+        console.log(siguiente != startCell)
+    } while (siguiente[0] != startCell);
+    let arrayCombinado = [];
+    for (let d = 0; d < Math.max(valor1.length, valo2.length); d++) {
+        if (d < valor1.length) {
+            arrayCombinado.push(valor1[d]);
+        }
+        if (d < valo2.length) {
+            arrayCombinado.push(valo2[d]);
         }
     }
+    console.log("arr: " + arrayCombinado);
+    return arrayCombinado;
+    //return null; // No se encontró un ciclo
+}
 
-    return null; // No se encontró un ciclo
+function camino(matriz, va, d, xi, xj, startCell,contador,cantB) {
+    var res = null;
+    for (let i = 0; i < d.length; i++) {
+        var str = d[i][0] + ", " + d[i][1];
+        console.log("str: " + str);
+        switch (str) {
+            case "-1, 0":
+                console.log("add")
+                if (xi - 1 >= 0) {
+                    res = arriba(matriz, xi, xj, startCell,cantB);
+                    va = "h";
+                }
+                break;
+            case "1, 0":
+                if (xi + 1 < matriz.length) {
+                    res = abajo(matriz, xi, xj, startCell,cantB);
+                    va = "h";
+                }
+                break;
+            case "0, -1":
+                if (xj - 1 >= 0) {
+                    res = izq(matriz, xi, xj, startCell,cantB);
+                    va = "v";
+                    console.log("iz: " + res);
+
+                }
+                break;
+            case "0, 1":
+                if (xj + 1 < matriz[0].length) {
+                    res = der(matriz, xi, xj, startCell,cantB);
+                    va = "v";
+                    console.log("dec: " + res);
+
+                }
+                break;
+        }
+        if (res != null) {
+            console.log("resL " + res);
+            break;
+        }
+    }
+    console.log("contador: "+contador);
+    if(res==null && contador%2==0){
+        for (let i = 0; i < d.length; i++) {
+            var str = d[i][0] + ", " + d[i][1];
+            console.log("str: " + str);
+            switch (str) {
+                case "-1, 0":
+                    if (xi - 1 >= 0) {
+                        res = arriba1(matriz, xi, xj, startCell,cantB);
+                        va = "h";
+                    }
+                    break;
+                case "1, 0":
+                    if (xi + 1 < matriz.length) {
+                        res = abajo1(matriz, xi, xj, startCell,cantB);
+                        va = "h";
+                    }
+                    break;
+                case "0, -1":
+                    if (xj - 1 >= 0) {
+                        res = izq1(matriz, xi, xj, startCell,cantB);
+                        va = "v";
+                        console.log("iz: " + res);
+    
+                    }
+                    break;
+                case "0, 1":
+                    if (xj + 1 < matriz[0].length) {
+                        res = der1(matriz, xi, xj, startCell,cantB);
+                        va = "v";
+                        console.log("dec: " + res);
+    
+                    }
+                    break;
+            }
+            if (res != null) {
+                console.log("resL " + res);
+                break;
+            }
+        }   
+    }
+    console.log("cam: " + res);
+    console.log("canva: " + va);
+    return [res, va];
+}
+function fila(i, j, ma, startCell,v) {
+    var ja = j + 1;
+    while (ja < ma[0].length) {
+
+        if (ma[i][ja] > 0 || equals([i, ja], startCell)) {
+            if(v){
+               return column(i,ja,ma,startCell,false);
+            }else{
+                return true;
+
+            }
+        }
+        ja++;
+    }
+    ja = j - 1;
+    while (ja >= 0) {
+
+        if (ma[i][ja] > 0 || equals([i, ja], startCell)) {
+            if(v){
+               return column(i,ja,ma,startCell,false);
+            }else{
+                return true;
+
+            }
+        }
+        ja--;
+    }
+    return false;
+}
+function column(i, j, ma, startCell,v) {
+    var ia = i + 1;
+    while (ia < ma.length) {
+
+        if (ma[ia][j] > 0 || equals([ia, j], startCell)) {
+            if(v){
+               return fila(ia,j,ma,startCell,false);
+            }else{
+                return true;
+
+            }
+        }
+        ia++;
+    }
+    ia = i - 1;
+    while (ia >= 0) {
+
+        if (ma[ia][j] > 0 || equals([ia, j], startCell)) {
+            if(v){
+               return fila(ia,j,ma,startCell,false);
+            }else{
+                return true;
+
+            }
+        }
+        ia--;
+    }
+    return false;
+}
+
+
+function izq1(matriz, xi, xj, startCell,cantB) {
+    var i = xi, j = xj - 1;
+    var r = null;
+    while (j >= 0) {
+        if (equals([i, j], startCell)) {
+            return "ok";
+        }
+        
+            if (column(i, j, matriz, startCell,cantB)) {
+                r = [i, j];
+                break;
+            } else {
+                j--;
+            }
+        
+
+    }
+    return r;
+}
+function der1(matriz, xi, xj, startCell,cantB) {
+    var i = xi, j = xj + 1;
+    var r = null;
+    while (j < matriz[0].length) {
+
+        if (equals([i, j], startCell)) {
+            return "ok";
+        }
+        
+            if (column(i, j, matriz, startCell,cantB)) {
+                r = [i, j];
+                break;
+            } else {
+                j++;
+            }
+        
+
+    }
+    return r;
+}
+function abajo1(matriz, xi, xj, startCell,cantB) {
+    var i = xi + 1, j = xj;
+    var r = null;
+    while (i < matriz.length) {
+        console.log("matris: " + matriz[i][j]);
+
+        if (equals([i, j], startCell)) {
+            return "ok";
+        }
+       
+            if (fila(i, j, matriz, startCell,cantB)) {
+                r = [i, j];
+                break;
+            } else {
+                i++;
+            }
+        
+
+    }
+    console.log("dfd: " + r);
+    return r;
+}
+function arriba1(matriz, xi, xj, startCell,cantB) {
+    var i = xi - 1, j = xj;
+    var r = null;
+    while (i >= 0) {
+        if (equals([i, j], startCell)) {
+            return "ok";
+        }
+       
+            if (fila(i, j, matriz, startCell,cantB)) {
+                r = [i, j];
+                break;
+            } else {
+                i--;
+            }
+        
+
+    }
+    return r;
+}
+
+
+
+function izq(matriz, xi, xj, startCell,cantB) {
+    var i = xi, j = xj - 1;
+    var r = null;
+    while (j >= 0) {
+        if (equals([i, j], startCell)) {
+            return "ok";
+        }
+        if (matriz[i][j] > 0) {
+            if (column(i, j, matriz, startCell,cantB)) {
+                r = [i, j];
+                break;
+            } else {
+                j--;
+            }
+        } else {
+            j--;
+        }
+
+    }
+    return r;
+}
+function der(matriz, xi, xj, startCell,cantB) {
+    var i = xi, j = xj + 1;
+    var r = null;
+    while (j < matriz[0].length) {
+
+        if (equals([i, j], startCell)) {
+            return "ok";
+        }
+        if (matriz[i][j] > 0) {
+            if (column(i, j, matriz, startCell,cantB)) {
+                r = [i, j];
+                break;
+            } else {
+                j++;
+            }
+        } else {
+            j++;
+        }
+
+    }
+    return r;
+}
+function abajo(matriz, xi, xj, startCell,cantB) {
+    var i = xi + 1, j = xj;
+    var r = null;
+    while (i < matriz.length) {
+        console.log("matris: " + matriz[i][j]);
+
+        if (equals([i, j], startCell)) {
+            return "ok";
+        }
+        if (matriz[i][j] > 0) {
+            if (fila(i, j, matriz, startCell,cantB)) {
+                r = [i, j];
+                break;
+            } else {
+                i++;
+            }
+        } else {
+            i++;
+        }
+
+    }
+    console.log("dfd: " + r);
+    return r;
+}
+function arriba(matriz, xi, xj, startCell,cantB) {
+    var i = xi - 1, j = xj;
+    var r = null;
+    while (i >= 0) {
+        if (equals([i, j], startCell)) {
+            return "ok";
+        }
+        if (matriz[i][j] > 0) {
+            if (fila(i, j, matriz, startCell,cantB)) {
+                r = [i, j];
+                break;
+            } else {
+                i--;
+            }
+        } else {
+            i--;
+        }
+
+    }
+    return r;
 }
 
 function equals(cell1, cell2) {
     return cell1[0] === cell2[0] && cell1[1] === cell2[1];
 }
+function copiarMatriz(matriz, matrix) {
+    for (var i = 0; i < matriz.length; i++) {
+        matrix[i] = matriz[i].slice(); // Copia los elementos de cada fila
+    }
+}
 
 function adjustAssignments(assignmentMatrix, cycle) {
     let min = Infinity;
-
     for (let i = 1; i < cycle.length; i += 2) {
         const [r, c] = cycle[i];
         min = Math.min(min, assignmentMatrix[r][c]);
