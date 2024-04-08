@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="estilos.css">
+    <link rel="shortcut icon" href="icon.png" type="image/png">
+</head>
+<body>
+    <center>
+<script src="jQuery.js"></script>
+<main><div id="main-content"></div></main>
+<div id="reset">
+    <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 14.155 14.155" style="enable-background:new 0 0 14.155 14.155;" xml:space="preserve"><g>
+        <path style="fill:#ffffffaa;" d="M12.083,1.887c-0.795-0.794-1.73-1.359-2.727-1.697v2.135c0.48,0.239,0.935,0.55,1.334,0.95
+            c1.993,1.994,1.993,5.236,0,7.229c-1.993,1.99-5.233,1.99-7.229,0c-1.991-1.995-1.991-5.235,0-7.229
+            C3.466,3.269,3.482,3.259,3.489,3.25h0.002l1.181,1.179L4.665,0.685L0.923,0.68l1.176,1.176C2.092,1.868,2.081,1.88,2.072,1.887
+            c-2.763,2.762-2.763,7.243,0,10.005c2.767,2.765,7.245,2.765,10.011,0C14.844,9.13,14.847,4.649,12.083,1.887z"/></g></svg>
+    <small>RESET</small>
+</div>
+<section>
+    <div>
+        <div id="divStop"><div id="b/tn-stop">STOP</div></div>
+        <br>
+        
+        <div class="fila">
+            <div class="div-label"><label for="inputN">Elementos: &nbsp;</label>
+            <input class="slider" value="20" min="1" max="1000" name="inputN" type="number" id="inputN"/>
+        </div>
+
+        <div style="clear:both"></div>
+        <br>
+        <br>
+        <div class="fila" id="filaVel">
+            <div class="div-label"><label for="inputTime"> Latencia: &nbsp;  </label></div>
+            <input class="slider" value="30" min="10" max="300" name="rangeslider" type="range" id="inputTime"/>
+        </div>
+        <div style="clear:both"></div>
+    
+
+        
+    </div>
+   
+    <div class="fila">
+        <div class = "botones">
+        
+            <h1>Elija un método de ordenamiento:</h1>
+            <select id="metodoSeleccionado" name="select" onchange="ShowSelected();">
+                <option value="seleccion">Selection</option>
+                <option value="insercion">Insertion</option>
+                <option value="shell">Shell</option>
+                <option value="merge">Merge</option>
+            </select>
+            <button id="ingresarDatos">Ingresar datos de entrada</button> 
+            <button id="seleccionar" class="green">Ordenar</button>
+            
+            
+        </div>
+    </div>
+    <br><br>
+    <div id="temporizador" align="center">Tiempo transcurrido: 0 minutos 0 segundos</div>
+</section>
+<script src="codigo.js"></script>
+
+</body>
+</html>

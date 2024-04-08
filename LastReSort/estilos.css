@@ -1,0 +1,443 @@
+*{
+    box-sizing: border-box;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font-family: sans-serif;
+}
+body{
+    background: #fbfbfb;
+}
+html, body{
+  overflow-x: hidden;
+}
+main{
+    width: 100%;
+    height: calc(40vh + 20px);
+    background: rgb(255, 255, 255);
+    position: relative;
+}
+main #main-content{
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 25px;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto; /* Centra horizontalmente el contenido */
+
+}
+
+
+
+main #main-content > div{
+    display: inline-block;
+    vertical-align: bottom;
+    background-color: #000000;
+    border-radius: 250px 250px 0 0;
+}
+main #main-content.pocos > div{
+    border: 0 solid rgb(179, 179, 179);
+    border-right-width: 1px;
+   
+}
+/* main #main-content > div:hover{
+    background: blue !important;
+} */
+section{
+    width: 100%;
+    
+    text-align: center;
+    align-content: center;
+}
+section label{
+    color:rgb(5, 0, 0);
+    font-size: 20px;
+    
+}
+section > div{
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+
+
+.barra {
+    background-color: #0041C2; /* Color de fondo de la barra */
+    border: 1px solid #000; /* Borde de la barra */
+    position: relative; /* Posición relativa para alinear el valor dentro de la barra */
+}
+
+.barra span {
+  visibility: hidden;
+  width: 60px;
+  background-color: #fffa9b;
+  color: #000000;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+  bottom: 100px;
+  left: 50%;
+  margin-left: -30px;
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.botones{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 1em;
+  margin-top:50px;
+
+}
+
+.botones select{
+  display: inline-block;
+	width: 100%;
+	cursor: pointer;
+  	padding: 7px 10px;
+  	height: 42px;
+  	outline: 0; 
+  	border: 0;
+	border-radius: 0;
+	background: #f0f0f0;
+	color: #000000;
+	font-size: 1em;
+	color: #000000;
+	font-family: 
+	'Quicksand', sans-serif;
+	border:2px solid rgba(0,0,0,0.2);
+    border-radius: 12px;
+    position: relative;
+    transition: all 0.25s ease;
+}
+
+.botones select:hover{
+	background: #B1E8CD;
+}
+
+.botones h1{
+
+}
+
+#temporizador {
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  color: #333;
+  padding: 10px;
+  background-color: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+button{
+  -webkit-tap-highlight-color: transparent;
+  color:rgb(255, 255, 255);
+  cursor: pointer;
+  padding: 20px 0;
+  font-weight: bold;
+  font-size: 18px;
+  /* box-shadow: 5px 5px 8px 5px rgba(0, 0, 0, 0.433); */
+  background-color: rgba(255, 255, 255, 0.4);
+  border: 5px solid;
+  border-radius: 250px;
+  --hover-saturation:0%;
+  --hover-lightness:0%;
+  color: hsl(var(--hue), calc(var(--saturation) + var(--hover-saturation)),calc( var(--lightness) + var(--hover-lightness)) );
+  border-color: hsl(var(--hue), calc(var(--saturation) + var(--hover-saturation)),calc( var(--lightness) + var(--hover-lightness)) );
+
+}
+button:hover{
+    --hover-lightness:10%;
+    box-shadow: 0px 0px 10px 0px  hsl(var(--hue), calc(var(--saturation)),calc( var(--lightness)) ) inset,0px 0px 20px 0px  hsl(var(--hue), calc(var(--saturation)),calc( var(--lightness)) );
+}
+
+
+button.red{
+  --hue:0;
+  --saturation:100%;
+  --lightness:65%;
+}
+button.blue{
+  --hue:229;
+  --saturation:100%;
+  --lightness:65%;
+}
+button.light-blue{
+  --hue:174;
+  --saturation:100%;
+  --lightness:42%;
+}
+button.orange{
+  --hue:39;
+  --saturation:100%;
+  --lightness:50%;
+}
+button.green{
+  --hue:140;
+  --saturation:100%;
+  --lightness:35%;
+}
+button.pink{
+  --hue:350;
+  --saturation:100%;
+  --lightness:78%;
+}
+/* .botones > div:hover{
+  color:black;
+  box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.433);
+} */
+
+
+
+#divStop{
+    display: none;
+    position: relative;
+    top:0;
+    
+    color: rgb(255, 99, 99);
+    font-size: 30px;
+    font-weight: 900;
+    background: rgb(255, 255, 255);
+    height: 120px;
+    width: 100%;
+    margin-bottom: -120px;
+    padding: 35px 0;
+    z-index: 300;
+
+}
+#divStop:hover{
+  color:red;
+  cursor: pointer;
+  background: rgb(255, 255, 255);
+
+}
+
+.fila{
+  width: 100%;
+  margin: 0 auto;
+}
+.fila >*{
+  float: left;
+  vertical-align: middle;
+}
+.div-label{
+  display: inline-block;
+  padding-top: 7px;
+}
+.div-label > *{
+  vertical-align: middle;
+  display: inline-block;
+}
+p{
+  color:rgb(0, 0, 0);
+  font-size: 26px;
+  font-weight: bold;
+  margin:0 10px;
+  width: 58px ;
+  text-align: center;
+}
+
+/*inputs*/
+input[type=range] {
+  -webkit-appearance: none;
+  margin: 18px 0;
+  width: calc(100% - 180px);
+  float:right;
+}
+input[type=range]:focus {
+  outline: none;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8.4px;
+  cursor: pointer;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  background: hsl(180, 50%, 25%);
+  border-radius: 1.3px;
+  border: 0.2px solid #010101;
+}
+input[type=range]::-webkit-slider-thumb {
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  border: 1px solid #000000;
+  height: 36px;
+  width: 16px;
+  border-radius: 3px;
+  background: #ffffff;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -14px;
+}
+input[type=range]::-webkit-slider-thumb::after {
+ content: "d";
+}
+input[type=range]:focus::-webkit-slider-runnable-track {
+  background: hsl(180, 50%, 32%);
+}
+
+.slider {
+  font-size: 30px; /* Ajusta el tamaño del texto */
+  padding: 10px; /* Aumenta el espacio alrededor del texto */
+  width: 90px; /* Ajusta el ancho del recuadro */
+}
+
+
+input[type=range]::-moz-range-track {
+  width: 100%;
+  height: 8.4px;
+  cursor: pointer;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  background: #3071a9;
+  border-radius: 1.3px;
+  border: 0.2px solid #010101;
+}
+input[type=range]::-moz-range-thumb {
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  border: 1px solid #000000;
+  height: 36px;
+  width: 16px;
+  border-radius: 3px;
+  background: #ffffff;
+  cursor: pointer;
+}
+input[type=range]::-ms-track {
+  width: 100%;
+  height: 8.4px;
+  cursor: pointer;
+  background: transparent;
+  border-color: transparent;
+  border-width: 16px 0;
+  color: transparent;
+}
+input[type=range]::-ms-fill-lower {
+  background: #2a6495;
+  border: 0.2px solid #010101;
+  border-radius: 2.6px;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+}
+input[type=range]::-ms-fill-upper {
+  background: #3071a9;
+  border: 0.2px solid #010101;
+  border-radius: 2.6px;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+}
+input[type=range]::-ms-thumb {
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+  border: 1px solid #000000;
+  height: 36px;
+  width: 16px;
+  border-radius: 3px;
+  background: #ffffff;
+  cursor: pointer;
+}
+input[type=range]:focus::-ms-fill-lower {
+  background: #3071a9;
+}
+input[type=range]:focus::-ms-fill-upper {
+  background: #367ebd;
+}
+ 
+   #main-content div {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black; 
+  }
+  
+  /* Tooltip text */
+  main div span {
+    visibility: hidden;
+    width: 60px;
+    background-color: #fffa9b;
+    color: #000000;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+  
+    /* Position the tooltip text */
+    position: absolute;
+    z-index: 1;
+    bottom: 100px;
+    left: 50%;
+    margin-left: -30px;
+  
+    /* Fade in tooltip */
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  /* Tooltip arrow */
+  main div span::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+  }
+  
+  /* Show the tooltip text when you mouse over the tooltip container */
+  #main-content div:hover span {
+    visibility: visible;
+    opacity: 1;
+  }
+  #main-content div:hover{
+    background-color: #c1c1c1 !important;
+  }
+
+ 
+
+  #reset{
+    width: 80px;
+    border-radius: 15px;
+    background-color: rgba(228, 228, 228, 0.333);
+    position: absolute;
+    top:30vh;
+    left: calc(50vw - 40px);
+    cursor:pointer;
+    padding: 15px;
+    padding-bottom: 8px;
+    color:white;
+    text-align: center;
+  }
+  #reset:hover{
+    background-color: rgba(255, 255, 255, 0.533);
+  }
+  @media screen and  (max-width: 600px){
+    main #main-content{
+        padding: 0 5px;
+    }
+    button{
+      font-size: 16px;
+    }
+    .botones{
+      margin-top:0;
+    }
+    p{
+      font-size:16px;
+      width: 30px;
+      margin-top:6px;margin-top:6px;
+    }
+    section  label{
+      font-size:16px;
+      margin-top:6px;
+    }
+    input[type=range] {
+      width: calc(100% - 140px);
+    }
+  }
