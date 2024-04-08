@@ -8,7 +8,7 @@ function northWest() {
     var demand = getDemand(costsMatrix);
 
     if (!validateSupplyDemand(supply, demand)) {
-        alert('Por favor, ingrese valores válidos para la matriz de costos, asegúrese de que la suma de las demandas sea igual a la oferta.');
+        alert('Por favor, ingrese valores válidos para la matriz de costos, asegúrese de que la suma de las Demandas sea igual a la Disponibilidad.');
         return;
     }
 
@@ -92,7 +92,7 @@ function modiMethod(costsMatrix, assignmentMatrix) {
         }
         var matrix1 = [];
         for (var i = 0; i < assignmentMatrix.length; i++) {
-            matrix1[i] = assignmentMatrix[i].slice(); // Copia los elementos de cada fila
+            matrix1[i] = assignmentMatrix[i].slice();
         }
         console.log("matrix");
         for(let i=0;i<matrix1.length;i++){
@@ -673,7 +673,7 @@ function displayMatrixAsTablenw(assignmentMatrix, vertices, vertexIndexMapD, ver
     for (var i = 0; i < vertexIndexMapD.length; i++) {
         assignmentMatrixContent += "<th>" + vertexIndexMapD[i] + "</th>";
     }
-    assignmentMatrixContent += "<th>Oferta</th></tr></thead><tbody>";
+    assignmentMatrixContent += "<th>Disponibilidad</th></tr></thead><tbody>";
 
     // Create table rows
     for (var i = 0; i < vertexIndexMapO.length; i++) {
