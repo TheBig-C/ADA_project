@@ -129,25 +129,7 @@ function modiMethod(costsMatrix, assignmentMatrix) {
     }
 }
 function findCycle(matrix, startCell) {
-    var cantB=false,c=0;
-    var auxi=startCell[0],auxj=startCell[1];
-    if(auxi+1<matrix.length){
-        if(matrix[auxi+1][auxj])
-            c++;
-    }
-    if(auxi-1>=0){
-        if(matrix[auxi-1][auxj])
-            c++;
-    }
-    if(auxj+1<matrix[0].length){
-        if(matrix[auxi][auxj+1])
-            c++;
-    }
-    if(auxj-1>=0){
-        if(matrix[auxi][auxj-1])
-            c++;
-    }
-    cantB=c>=3;
+    var cantB=true,c=0;
     var d = [], matriz = [], valor1 = [], valo2 = [], anterior, va = "primero";
     const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
     const dire1 = [[-1, 0], [1, 0]];
@@ -158,15 +140,36 @@ function findCycle(matrix, startCell) {
         console.log("va: " + va);
 
         if (contador == 0) {
+             cantB=false,c=0;
+            var auxi=startCell[0],auxj=startCell[1];
+            if(auxi+1<matrix.length){
+                if(matrix[auxi+1][auxj]>0)
+                    c++;
+            }
+            if(auxi-1>=0){
+                if(matrix[auxi-1][auxj]>0)
+                    c++;
+            }
+            if(auxj+1<matrix[0].length){
+                if(matrix[auxi][auxj+1]>0)
+                    c++;
+            }
+            if(auxj-1>=0){
+                if(matrix[auxi][auxj-1]>0)
+                    c++;
+            }
+            cantB=c>=3;
             d = directions;
             i = startCell[0];
             j = startCell[1];
             // matriz[i][j] = min;
             siguiente = [i, j];
         } else if (va == "h") {
-
+            cantB=true;
             d = dire2;
         } else {
+           
+            cantB=true;
 
             d = dire1;
         }
@@ -218,7 +221,7 @@ function camino(matriz, va, d, xi, xj, startCell,contador,cantB) {
     var res = null;
     for (let i = 0; i < d.length; i++) {
         var str = d[i][0] + ", " + d[i][1];
-        console.log("str: " + str);
+        console.log("str: " + str+"cant: "+cantB);
         switch (str) {
             case "-1, 0":
                 console.log("add")
@@ -255,7 +258,7 @@ function camino(matriz, va, d, xi, xj, startCell,contador,cantB) {
             break;
         }
     }
-    console.log("contador: "+contador);
+    console.log("contador: "+contador+"cant "+cantB);
     if(res==null && contador%2==0){
         for (let i = 0; i < d.length; i++) {
             var str = d[i][0] + ", " + d[i][1];
@@ -306,7 +309,13 @@ function fila(i, j, ma, startCell,v) {
 
         if (ma[i][ja] > 0 || equals([i, ja], startCell)) {
             if(v){
-               return column(i,ja,ma,startCell,false);
+               if(! column(i,ja,ma,startCell,false)){
+                if(ja+1<ma[0].length){
+                    ja++;
+                }
+               }else{
+                return true;
+               }
             }else{
                 return true;
 
@@ -319,7 +328,13 @@ function fila(i, j, ma, startCell,v) {
 
         if (ma[i][ja] > 0 || equals([i, ja], startCell)) {
             if(v){
-               return column(i,ja,ma,startCell,false);
+                if(! column(i,ja,ma,startCell,false)){
+                    if(ja-1>= 0){
+                        ja--;
+                    }
+                   }else{
+                    return true;
+                   }
             }else{
                 return true;
 
@@ -335,7 +350,16 @@ function column(i, j, ma, startCell,v) {
 
         if (ma[ia][j] > 0 || equals([ia, j], startCell)) {
             if(v){
-               return fila(ia,j,ma,startCell,false);
+
+
+                if(!fila(ia,j,ma,startCell,false)){
+                    if(ia+1<ma.length){
+                        ia++;
+                    }
+                   }else{
+                    return true;
+                   }
+
             }else{
                 return true;
 
@@ -348,7 +372,14 @@ function column(i, j, ma, startCell,v) {
 
         if (ma[ia][j] > 0 || equals([ia, j], startCell)) {
             if(v){
-               return fila(ia,j,ma,startCell,false);
+                if(!fila(ia,j,ma,startCell,false)){
+                    if(ia-1>= 0){
+                        ia--;
+                    }
+                   }else{
+                    return true;
+                   }
+
             }else{
                 return true;
 
