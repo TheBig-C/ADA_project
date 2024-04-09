@@ -47,7 +47,7 @@ function modiMethod(costsMatrix, assignmentMatrix) {
         u[0] = 0;
         let progressMade;
         do {
-            progressMade = false; 
+            progressMade = false;
             let remainingIndices = [];
             for (let index = 0; index < markedIndices.length; index++) {
                 let [i, j] = markedIndices[index];
@@ -71,7 +71,7 @@ function modiMethod(costsMatrix, assignmentMatrix) {
                 }
                 progressMade = true;
             }
-        } while (progressMade && markedIndices.length > 0); 
+        } while (progressMade && markedIndices.length > 0);
 
         console.log(u);
         console.log(v);
@@ -87,7 +87,7 @@ function modiMethod(costsMatrix, assignmentMatrix) {
             }
         }
         console.log("matrixd");
-        for(let i=0;i<d.length;i++){
+        for (let i = 0; i < d.length; i++) {
             console.log(d[i]);
         }
         var matrix1 = [];
@@ -95,41 +95,53 @@ function modiMethod(costsMatrix, assignmentMatrix) {
             matrix1[i] = assignmentMatrix[i].slice();
         }
         console.log("matrix");
-        for(let i=0;i<matrix1.length;i++){
+        for (let i = 0; i < matrix1.length; i++) {
             console.log(matrix1[i]);
         }
         if (canImprove) {
             let maxPositive = 0;
-            let cellToImprove = null;
+            let cellsToImprove = [];
             for (let i = 0; i < numRows; i++) {
                 for (let j = 0; j < numCols; j++) {
                     if (d[i][j] > maxPositive) {
                         maxPositive = d[i][j];
-                        cellToImprove = [i, j];
+                        cellsToImprove = [[i, j]];
+                    } else if (d[i][j] === maxPositive) {
+                        cellsToImprove.push([i, j]);
                     }
                 }
             }
 
-            console.log(cellToImprove);
-
-            if (cellToImprove) {
-                let cycle = findCycle(assignmentMatrix, cellToImprove);
-                if (cycle) {
-                    adjustAssignments(assignmentMatrix, cycle);
-
-                    console.log("Se puede mejorar la solución, se encontro un ciclo");
-                } else {
-                    console.log("No se puede mejorar, no se encontro un ciclo");
+            console.log(cellsToImprove);
+            let cycleFound = false;
+            for (let cell of cellsToImprove) {
+                try{
+                    let cycle = findCycle(assignmentMatrix, cell);
+                    if (cycle) {
+                        adjustAssignments(assignmentMatrix, cycle);
+                        console.log("Se puede mejorar la solución, se encontró un ciclo para la celda: ", cell);
+                        cycleFound = true;
+                        break;
+                    }
+                } catch (error){
+                    console.log("Llego hasta donde llego");
                     improvement = false;
+                    break;
                 }
+            }
+
+            if (!cycleFound) {
+                console.log("No se puede mejorar, no se encontró un ciclo para ninguna celda candidata");
+                improvement = false;
             }
         } else {
             improvement = false;
         }
     }
 }
+
 function findCycle(matrix, startCell) {
-    var cantB=true,c=0;
+    var cantB = true, c = 0;
     var d = [], matriz = [], valor1 = [], valo2 = [], anterior, va = "primero";
     const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
     const dire1 = [[-1, 0], [1, 0]];
@@ -140,36 +152,36 @@ function findCycle(matrix, startCell) {
         console.log("va: " + va);
 
         if (contador == 0) {
-             cantB=false,c=0;
-            var auxi=startCell[0],auxj=startCell[1];
-            if(auxi+1<matrix.length){
-                if(matrix[auxi+1][auxj]>0)
+            cantB = false, c = 0;
+            var auxi = startCell[0], auxj = startCell[1];
+            if (auxi + 1 < matrix.length) {
+                if (matrix[auxi + 1][auxj] > 0)
                     c++;
             }
-            if(auxi-1>=0){
-                if(matrix[auxi-1][auxj]>0)
+            if (auxi - 1 >= 0) {
+                if (matrix[auxi - 1][auxj] > 0)
                     c++;
             }
-            if(auxj+1<matrix[0].length){
-                if(matrix[auxi][auxj+1]>0)
+            if (auxj + 1 < matrix[0].length) {
+                if (matrix[auxi][auxj + 1] > 0)
                     c++;
             }
-            if(auxj-1>=0){
-                if(matrix[auxi][auxj-1]>0)
+            if (auxj - 1 >= 0) {
+                if (matrix[auxi][auxj - 1] > 0)
                     c++;
             }
-            cantB=c>=3;
+            cantB = c >= 3;
             d = directions;
             i = startCell[0];
             j = startCell[1];
             // matriz[i][j] = min;
             siguiente = [i, j];
         } else if (va == "h") {
-            cantB=true;
+            cantB = true;
             d = dire2;
         } else {
-           
-            cantB=true;
+
+            cantB = true;
 
             d = dire1;
         }
@@ -185,11 +197,11 @@ function findCycle(matrix, startCell) {
         }
         contador++;
         console.log("c_ad " + contador + " siguie: " + siguiente + "i: " + i + "j " + j + "star: " + startCell + "d" + d + "va: " + va);
-        
-        siguiente = camino(matriz, va, d, i, j, startCell,contador,cantB);
+
+        siguiente = camino(matriz, va, d, i, j, startCell, contador, cantB);
         va = siguiente[1];
         console.log("va: " + va);
-        
+
         if (siguiente == null) {
             return null;
         }
@@ -217,28 +229,28 @@ function findCycle(matrix, startCell) {
     //return null; // No se encontró un ciclo
 }
 
-function camino(matriz, va, d, xi, xj, startCell,contador,cantB) {
+function camino(matriz, va, d, xi, xj, startCell, contador, cantB) {
     var res = null;
     for (let i = 0; i < d.length; i++) {
         var str = d[i][0] + ", " + d[i][1];
-        console.log("str: " + str+"cant: "+cantB);
+        console.log("str: " + str + "cant: " + cantB);
         switch (str) {
             case "-1, 0":
                 console.log("add")
                 if (xi - 1 >= 0) {
-                    res = arriba(matriz, xi, xj, startCell,cantB);
+                    res = arriba(matriz, xi, xj, startCell, cantB);
                     va = "h";
                 }
                 break;
             case "1, 0":
                 if (xi + 1 < matriz.length) {
-                    res = abajo(matriz, xi, xj, startCell,cantB);
+                    res = abajo(matriz, xi, xj, startCell, cantB);
                     va = "h";
                 }
                 break;
             case "0, -1":
                 if (xj - 1 >= 0) {
-                    res = izq(matriz, xi, xj, startCell,cantB);
+                    res = izq(matriz, xi, xj, startCell, cantB);
                     va = "v";
                     console.log("iz: " + res);
 
@@ -246,7 +258,7 @@ function camino(matriz, va, d, xi, xj, startCell,contador,cantB) {
                 break;
             case "0, 1":
                 if (xj + 1 < matriz[0].length) {
-                    res = der(matriz, xi, xj, startCell,cantB);
+                    res = der(matriz, xi, xj, startCell, cantB);
                     va = "v";
                     console.log("dec: " + res);
 
@@ -258,38 +270,38 @@ function camino(matriz, va, d, xi, xj, startCell,contador,cantB) {
             break;
         }
     }
-    console.log("contador: "+contador+"cant "+cantB);
-    if(res==null && contador%2==0){
+    console.log("contador: " + contador + "cant " + cantB);
+    if (res == null && contador % 2 == 0) {
         for (let i = 0; i < d.length; i++) {
             var str = d[i][0] + ", " + d[i][1];
             console.log("str: " + str);
             switch (str) {
                 case "-1, 0":
                     if (xi - 1 >= 0) {
-                        res = arriba1(matriz, xi, xj, startCell,cantB);
+                        res = arriba1(matriz, xi, xj, startCell, cantB);
                         va = "h";
                     }
                     break;
                 case "1, 0":
                     if (xi + 1 < matriz.length) {
-                        res = abajo1(matriz, xi, xj, startCell,cantB);
+                        res = abajo1(matriz, xi, xj, startCell, cantB);
                         va = "h";
                     }
                     break;
                 case "0, -1":
                     if (xj - 1 >= 0) {
-                        res = izq1(matriz, xi, xj, startCell,cantB);
+                        res = izq1(matriz, xi, xj, startCell, cantB);
                         va = "v";
                         console.log("iz: " + res);
-    
+
                     }
                     break;
                 case "0, 1":
                     if (xj + 1 < matriz[0].length) {
-                        res = der1(matriz, xi, xj, startCell,cantB);
+                        res = der1(matriz, xi, xj, startCell, cantB);
                         va = "v";
                         console.log("dec: " + res);
-    
+
                     }
                     break;
             }
@@ -297,26 +309,26 @@ function camino(matriz, va, d, xi, xj, startCell,contador,cantB) {
                 console.log("resL " + res);
                 break;
             }
-        }   
+        }
     }
     console.log("cam: " + res);
     console.log("canva: " + va);
     return [res, va];
 }
-function fila(i, j, ma, startCell,v) {
+function fila(i, j, ma, startCell, v) {
     var ja = j + 1;
     while (ja < ma[0].length) {
 
         if (ma[i][ja] > 0 || equals([i, ja], startCell)) {
-            if(v){
-               if(! column(i,ja,ma,startCell,false)){
-                if(ja+1<ma[0].length){
-                    ja++;
+            if (v) {
+                if (!column(i, ja, ma, startCell, false)) {
+                    if (ja + 1 < ma[0].length) {
+                        ja++;
+                    }
+                } else {
+                    return true;
                 }
-               }else{
-                return true;
-               }
-            }else{
+            } else {
                 return true;
 
             }
@@ -327,15 +339,15 @@ function fila(i, j, ma, startCell,v) {
     while (ja >= 0) {
 
         if (ma[i][ja] > 0 || equals([i, ja], startCell)) {
-            if(v){
-                if(! column(i,ja,ma,startCell,false)){
-                    if(ja-1>= 0){
+            if (v) {
+                if (!column(i, ja, ma, startCell, false)) {
+                    if (ja - 1 >= 0) {
                         ja--;
                     }
-                   }else{
+                } else {
                     return true;
-                   }
-            }else{
+                }
+            } else {
                 return true;
 
             }
@@ -344,23 +356,23 @@ function fila(i, j, ma, startCell,v) {
     }
     return false;
 }
-function column(i, j, ma, startCell,v) {
+function column(i, j, ma, startCell, v) {
     var ia = i + 1;
     while (ia < ma.length) {
 
         if (ma[ia][j] > 0 || equals([ia, j], startCell)) {
-            if(v){
+            if (v) {
 
 
-                if(!fila(ia,j,ma,startCell,false)){
-                    if(ia+1<ma.length){
+                if (!fila(ia, j, ma, startCell, false)) {
+                    if (ia + 1 < ma.length) {
                         ia++;
                     }
-                   }else{
+                } else {
                     return true;
-                   }
+                }
 
-            }else{
+            } else {
                 return true;
 
             }
@@ -371,16 +383,16 @@ function column(i, j, ma, startCell,v) {
     while (ia >= 0) {
 
         if (ma[ia][j] > 0 || equals([ia, j], startCell)) {
-            if(v){
-                if(!fila(ia,j,ma,startCell,false)){
-                    if(ia-1>= 0){
+            if (v) {
+                if (!fila(ia, j, ma, startCell, false)) {
+                    if (ia - 1 >= 0) {
                         ia--;
                     }
-                   }else{
+                } else {
                     return true;
-                   }
+                }
 
-            }else{
+            } else {
                 return true;
 
             }
@@ -391,26 +403,26 @@ function column(i, j, ma, startCell,v) {
 }
 
 
-function izq1(matriz, xi, xj, startCell,cantB) {
+function izq1(matriz, xi, xj, startCell, cantB) {
     var i = xi, j = xj - 1;
     var r = null;
     while (j >= 0) {
         if (equals([i, j], startCell)) {
             return "ok";
         }
-        
-            if (column(i, j, matriz, startCell,cantB)) {
-                r = [i, j];
-                break;
-            } else {
-                j--;
-            }
-        
+
+        if (column(i, j, matriz, startCell, cantB)) {
+            r = [i, j];
+            break;
+        } else {
+            j--;
+        }
+
 
     }
     return r;
 }
-function der1(matriz, xi, xj, startCell,cantB) {
+function der1(matriz, xi, xj, startCell, cantB) {
     var i = xi, j = xj + 1;
     var r = null;
     while (j < matriz[0].length) {
@@ -418,19 +430,19 @@ function der1(matriz, xi, xj, startCell,cantB) {
         if (equals([i, j], startCell)) {
             return "ok";
         }
-        
-            if (column(i, j, matriz, startCell,cantB)) {
-                r = [i, j];
-                break;
-            } else {
-                j++;
-            }
-        
+
+        if (column(i, j, matriz, startCell, cantB)) {
+            r = [i, j];
+            break;
+        } else {
+            j++;
+        }
+
 
     }
     return r;
 }
-function abajo1(matriz, xi, xj, startCell,cantB) {
+function abajo1(matriz, xi, xj, startCell, cantB) {
     var i = xi + 1, j = xj;
     var r = null;
     while (i < matriz.length) {
@@ -439,34 +451,34 @@ function abajo1(matriz, xi, xj, startCell,cantB) {
         if (equals([i, j], startCell)) {
             return "ok";
         }
-       
-            if (fila(i, j, matriz, startCell,cantB)) {
-                r = [i, j];
-                break;
-            } else {
-                i++;
-            }
-        
+
+        if (fila(i, j, matriz, startCell, cantB)) {
+            r = [i, j];
+            break;
+        } else {
+            i++;
+        }
+
 
     }
     console.log("dfd: " + r);
     return r;
 }
-function arriba1(matriz, xi, xj, startCell,cantB) {
+function arriba1(matriz, xi, xj, startCell, cantB) {
     var i = xi - 1, j = xj;
     var r = null;
     while (i >= 0) {
         if (equals([i, j], startCell)) {
             return "ok";
         }
-       
-            if (fila(i, j, matriz, startCell,cantB)) {
-                r = [i, j];
-                break;
-            } else {
-                i--;
-            }
-        
+
+        if (fila(i, j, matriz, startCell, cantB)) {
+            r = [i, j];
+            break;
+        } else {
+            i--;
+        }
+
 
     }
     return r;
@@ -474,7 +486,7 @@ function arriba1(matriz, xi, xj, startCell,cantB) {
 
 
 
-function izq(matriz, xi, xj, startCell,cantB) {
+function izq(matriz, xi, xj, startCell, cantB) {
     var i = xi, j = xj - 1;
     var r = null;
     while (j >= 0) {
@@ -482,7 +494,7 @@ function izq(matriz, xi, xj, startCell,cantB) {
             return "ok";
         }
         if (matriz[i][j] > 0) {
-            if (column(i, j, matriz, startCell,cantB)) {
+            if (column(i, j, matriz, startCell, cantB)) {
                 r = [i, j];
                 break;
             } else {
@@ -495,7 +507,7 @@ function izq(matriz, xi, xj, startCell,cantB) {
     }
     return r;
 }
-function der(matriz, xi, xj, startCell,cantB) {
+function der(matriz, xi, xj, startCell, cantB) {
     var i = xi, j = xj + 1;
     var r = null;
     while (j < matriz[0].length) {
@@ -504,7 +516,7 @@ function der(matriz, xi, xj, startCell,cantB) {
             return "ok";
         }
         if (matriz[i][j] > 0) {
-            if (column(i, j, matriz, startCell,cantB)) {
+            if (column(i, j, matriz, startCell, cantB)) {
                 r = [i, j];
                 break;
             } else {
@@ -517,7 +529,7 @@ function der(matriz, xi, xj, startCell,cantB) {
     }
     return r;
 }
-function abajo(matriz, xi, xj, startCell,cantB) {
+function abajo(matriz, xi, xj, startCell, cantB) {
     var i = xi + 1, j = xj;
     var r = null;
     while (i < matriz.length) {
@@ -527,7 +539,7 @@ function abajo(matriz, xi, xj, startCell,cantB) {
             return "ok";
         }
         if (matriz[i][j] > 0) {
-            if (fila(i, j, matriz, startCell,cantB)) {
+            if (fila(i, j, matriz, startCell, cantB)) {
                 r = [i, j];
                 break;
             } else {
@@ -541,7 +553,7 @@ function abajo(matriz, xi, xj, startCell,cantB) {
     console.log("dfd: " + r);
     return r;
 }
-function arriba(matriz, xi, xj, startCell,cantB) {
+function arriba(matriz, xi, xj, startCell, cantB) {
     var i = xi - 1, j = xj;
     var r = null;
     while (i >= 0) {
@@ -549,7 +561,7 @@ function arriba(matriz, xi, xj, startCell,cantB) {
             return "ok";
         }
         if (matriz[i][j] > 0) {
-            if (fila(i, j, matriz, startCell,cantB)) {
+            if (fila(i, j, matriz, startCell, cantB)) {
                 r = [i, j];
                 break;
             } else {
