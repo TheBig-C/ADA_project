@@ -35,7 +35,13 @@ function northWest() {
 
 function modiMethod(costsMatrix, assignmentMatrix) {
   let improvement = true;
+  var ccc = 0;
   while (improvement) {
+    ccc++;
+    console.log(ccc);
+    if(ccc >= 100){
+      break;
+    }
     let numRows = costsMatrix.length - 1;
     let numCols = costsMatrix[0].length - 1;
     let u = new Array(numRows).fill(null);
@@ -51,7 +57,10 @@ function modiMethod(costsMatrix, assignmentMatrix) {
 
     u[0] = 0;
     let progressMade;
+    var ddd = 0;
     do {
+      console.log(u);
+      console.log(v);
       progressMade = false;
       let remainingIndices = [];
       for (let index = 0; index < markedIndices.length; index++) {
@@ -75,6 +84,10 @@ function modiMethod(costsMatrix, assignmentMatrix) {
           v[j] = 0;
         }
         progressMade = true;
+      }
+      ddd++;
+      if(ddd >= 1000){
+        break;
       }
     } while (progressMade && markedIndices.length > 0);
 
@@ -130,6 +143,8 @@ function modiMethod(costsMatrix, assignmentMatrix) {
             );
             cycleFound = true;
             break; // Sale del bucle si se encuentra un ciclo válido
+          } else {
+            improvement = false;
           } // No es necesario un else si el ciclo es null, simplemente continúa
         } catch (error) {
           // Captura específicamente el error de propiedades de null y permite que el bucle continue
