@@ -227,31 +227,43 @@
         </div>
         <button class="modal-close is-large" aria-label="close"></button>
     </div>
-    <!-- Modal -->
-    <div class="modal" id="adjacencyMatrixModal">
-        <div class="modal-background"></div>
-        <div class="modal-content">
-            <div class="box">
-                <h4 class="title is-4">Matriz de adyacencia</h4>
-                <!-- Combobox para seleccionar entre minimizar y maximizar -->
-                <button id="generateMatrixBtn" class="button is-primary">Resolver con North
-                    West</button>
-
-                <table id="adjacencyMatrixTable" class="table">
-                    <!-- Table content will be dynamically generated here -->
-                </table>
+<!-- Modal -->
+<div class="modal" id="adjacencyMatrixModal">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <div class="box">
+            <h4 class="title is-4">Matriz de adyacencia</h4>
+            <!-- Contenedor Flexbox para alinear horizontalmente el combobox y el botón -->
+            <div class="field is-grouped">
+                <div class="control">
+                    <div class="select">
+                        <select id="minMaxSelect">
+                            <option value="minimizar">Minimizar</option>
+                            <option value="maximizar">Maximizar</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="control">
+                    <button id="generateMatrixBtn" class="button is-primary">Resolver con North West</button>
+                </div>
             </div>
-
-            <!-- Matriz de asignación -->
-            <div class="box" id="assignmentMatrixBox" style="display: none;">
-                <h4 class="title is-4">Matriz de asignación óptima</h4>
-                <table id="assignmentMatrixTable" class="table">
-                    <!-- La tabla de la matriz de asignación se generará aquí dinámicamente -->
-                </table>
-            </div>
+            
+            <table id="adjacencyMatrixTable" class="table">
+                <!-- Table content will be dynamically generated here -->
+            </table>
         </div>
-        <button class="modal-close is-large" aria-label="close"></button>
+
+        <!-- Matriz de asignación -->
+        <div class="box" id="assignmentMatrixBox" style="display: none;">
+            <h4 class="title is-4">Matriz de asignación óptima</h4>
+            <table id="assignmentMatrixTable" class="table">
+                <!-- La tabla de la matriz de asignación se generará aquí dinámicamente -->
+            </table>
+        </div>
     </div>
+    <button class="modal-close is-large" aria-label="close"></button>
+</div>
+
 
 
 

@@ -29,11 +29,21 @@ function northWest() {
     if (supply[i] === 0 && i < supply.length) i++;
     if (demand[j] === 0 && j < demand.length) j++;
   }
-  modiMethod(costsMatrix, assignmentMatrix);
+
+  // Obtener el valor seleccionado en el combobox
+  var action = document.getElementById('minMaxSelect').value;
+  
+  // Ejecutar la función correspondiente basada en la selección
+  if (action === 'minimizar') {
+    modiMethodMin(costsMatrix, assignmentMatrix);
+  } else if (action === 'maximizar') {
+    modiMethodMax(costsMatrix, assignmentMatrix);
+  }
+
   return assignmentMatrix;
 }
 
-function modiMethod(costsMatrix, assignmentMatrix) {
+function modiMethodMin(costsMatrix, assignmentMatrix) {
   let improvement = true;
   var ccc = 0;
   while (improvement) {
@@ -136,7 +146,7 @@ function modiMethod(costsMatrix, assignmentMatrix) {
         try {
           let cycle = findCycle(assignmentMatrix, cell);
           if (cycle) {
-            adjustAssignments(assignmentMatrix, cycle);
+            adjustAssignmentsMin(assignmentMatrix, cycle);
             console.log(
               "Se puede mejorar la solución, se encontró un ciclo para la celda: ",
               cell
@@ -172,6 +182,183 @@ function modiMethod(costsMatrix, assignmentMatrix) {
       }
     } else {
       improvement = false;
+    }
+  }
+}
+
+function modiMethodMax(costsMatrix, assignmentMatrix) {
+  let improvement = true;
+  var ccc = 0;
+  while (improvement) {
+    ccc++;
+    console.log(ccc);
+    if(ccc >= 100){
+      break;
+    }
+    let numRows = costsMatrix.length - 1;
+    let numCols = costsMatrix[0].length - 1;
+    let u = new Array(numRows).fill(null);
+    let v = new Array(numCols).fill(null);
+    let markedIndices = [];
+    for (let i = 0; i < numRows; i++) {
+      for (let j = 0; j < numCols; j++) {
+        if (assignmentMatrix[i][j] > 0) {
+          markedIndices.push([i, j]);
+        }
+      }
+    }
+
+    u[0] = 0;
+    let progressMade;
+    var ddd = 0;
+    do {
+      console.log(u);
+      console.log(v);
+      progressMade = false;
+      let remainingIndices = [];
+      for (let index = 0; index < markedIndices.length; index++) {
+        let [i, j] = markedIndices[index];
+        if (u[i] !== null && v[j] === null) {
+          v[j] = costsMatrix[i][j] - u[i];
+          progressMade = true;
+        } else if (u[i] === null && v[j] !== null) {
+          u[i] = costsMatrix[i][j] - v[j];
+          progressMade = true;
+        } else {
+          remainingIndices.push([i, j]);
+        }
+      }
+      markedIndices = remainingIndices;
+      if (!progressMade && markedIndices.length > 0) {
+        let [i, j] = markedIndices[0];
+        if (u[i] === null) {
+          u[i] = 0;
+        } else {
+          v[j] = 0;
+        }
+        progressMade = true;
+      }
+      ddd++;
+      if(ddd >= 1000){
+        break;
+      }
+    } while (progressMade && markedIndices.length > 0);
+
+    console.log(u);
+    console.log(v);
+
+    let d = Array.from({ length: numRows }, () => Array(numCols).fill(0));
+    let canImprove = false;
+    for (let i = 0; i < numRows; i++) {
+      for (let j = 0; j < numCols; j++) {
+        if (assignmentMatrix[i][j] === 0) {
+          d[i][j] = u[i] + v[j] - costsMatrix[i][j];
+          if (d[i][j] > 0) canImprove = true;
+        }
+      }
+    }
+    console.log("matrixd");
+    for (let i = 0; i < d.length; i++) {
+      console.log(d[i]);
+    }
+    var matrix1 = [];
+    for (var i = 0; i < assignmentMatrix.length; i++) {
+      matrix1[i] = assignmentMatrix[i].slice();
+    }
+    console.log("matrix");
+    for (let i = 0; i < matrix1.length; i++) {
+      console.log(matrix1[i]);
+    }
+    if (canImprove) {
+      let maxPositive = 0;
+      let cellsToImprove = [];
+      for (let i = 0; i < numRows; i++) {
+        for (let j = 0; j < numCols; j++) {
+          if (d[i][j] < maxPositive) {
+            maxPositive = d[i][j];
+            cellsToImprove = [[i, j]];
+          } else if (d[i][j] === maxPositive) {
+            cellsToImprove.push([i, j]);
+          }
+        }
+      }
+
+      console.log(cellsToImprove);
+      let cycleFound = false;
+      for (let cell of cellsToImprove) {
+        try {
+          let cycle = findCycle(assignmentMatrix, cell);
+          if (cycle) {
+            adjustAssignmentsMax(assignmentMatrix, cycle);
+            console.log(
+              "Se puede mejorar la solución, se encontró un ciclo para la celda: ",
+              cell
+            );
+            cycleFound = true;
+            break; // Sale del bucle si se encuentra un ciclo válido
+          } else {
+            improvement = false;
+          } // No es necesario un else si el ciclo es null, simplemente continúa
+        } catch (error) {
+          // Captura específicamente el error de propiedades de null y permite que el bucle continue
+          if (
+            error instanceof TypeError &&
+            error.message.includes("Cannot read properties of null")
+          ) {
+            console.log(
+              "Valor nulo encontrado, continuando con el siguiente elemento."
+            );
+            continue; // Continúa con el siguiente elemento del bucle
+          } else {
+            // Para cualquier otro error, podrías decidir qué hacer: imprimir el error, detener el bucle, etc.
+            console.log("Error encontrado:", error);
+            break; // Decide si quieres detener todo el proceso o solo imprimir el error y continuar
+          }
+        }
+      }
+
+      if (!cycleFound) {
+        console.log(
+          "No se puede mejorar, no se encontró un ciclo para ninguna celda candidata"
+        );
+        improvement = false;
+      }
+    } else {
+      improvement = false;
+    }
+  }
+}
+
+function adjustAssignmentsMin(assignmentMatrix, cycle) {
+  let min = Infinity;
+  for (let i = 1; i < cycle.length; i += 2) {
+    const [r, c] = cycle[i];
+    min = Math.min(min, assignmentMatrix[r][c]);
+  }
+
+  for (let i = 0; i < cycle.length; ++i) {
+    const [r, c] = cycle[i];
+    if (i % 2 === 0) {
+      assignmentMatrix[r][c] += min;
+    } else {
+      assignmentMatrix[r][c] -= min;
+    }
+  }
+}
+
+function adjustAssignmentsMax(assignmentMatrix, cycle) {
+  let min = -Infinity;
+  for (let i = 1; i < cycle.length; i += 2) {
+    const [r, c] = cycle[i];
+    min = Math.max(min, assignmentMatrix[r][c]);
+  }
+
+  for (let i = 0; i < cycle.length; ++i) {
+    const [r, c] = cycle[i];
+    if (i % 2 === 0) {
+      assignmentMatrix[r][c] += min;
+    } else {
+      assignmentMatrix[r][c] -= min;
     }
   }
 }
@@ -668,23 +855,6 @@ function equals(cell1, cell2) {
 function copiarMatriz(matriz, matrix) {
   for (var i = 0; i < matriz.length; i++) {
     matrix[i] = matriz[i].slice(); // Copia los elementos de cada fila
-  }
-}
-
-function adjustAssignments(assignmentMatrix, cycle) {
-  let min = Infinity;
-  for (let i = 1; i < cycle.length; i += 2) {
-    const [r, c] = cycle[i];
-    min = Math.min(min, assignmentMatrix[r][c]);
-  }
-
-  for (let i = 0; i < cycle.length; ++i) {
-    const [r, c] = cycle[i];
-    if (i % 2 === 0) {
-      assignmentMatrix[r][c] += min;
-    } else {
-      assignmentMatrix[r][c] -= min;
-    }
   }
 }
 
