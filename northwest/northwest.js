@@ -253,7 +253,7 @@ function modiMethodMax(costsMatrix, assignmentMatrix) {
       for (let j = 0; j < numCols; j++) {
         if (assignmentMatrix[i][j] === 0) {
           d[i][j] = u[i] + v[j] - costsMatrix[i][j];
-          if (d[i][j] > 0) canImprove = true;
+          if (d[i][j] < 0) canImprove = true;
         }
       }
     }
@@ -347,7 +347,7 @@ function adjustAssignmentsMin(assignmentMatrix, cycle) {
 }
 
 function adjustAssignmentsMax(assignmentMatrix, cycle) {
-  let min = -Infinity;
+  let min = 0;
   for (let i = 1; i < cycle.length; i += 2) {
     const [r, c] = cycle[i];
     min = Math.max(min, assignmentMatrix[r][c]);
