@@ -57,11 +57,6 @@ var comp=t1[1]+" "+t2[1];
 
 var comp2=$('#GraphData').val().split("\n");
 
-if(comp2.some(item => item.includes(comp))){
-   alert("Conexion invalida");
-    return 
-
-}
 if (isBothWays) {
     // Prompt for the weight of the first connection
     var weight1 = prompt("Enter the weight for " + startVertex.name.substring(6) + " to " + endVertex.name.substring(6) +":", "1");
@@ -101,7 +96,7 @@ if (isBothWays) {
         }
     } else {
         // Add the line and save
-        if (isDirect) {
+        if (!isDirect) {
             // Prompt for the weight
             var weight = prompt("Enter the weight for the edge:", "1");
 

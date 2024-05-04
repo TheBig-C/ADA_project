@@ -24,7 +24,7 @@ function addNewVertex(vertexAdd, needLoad) {
         if (needLoad) {
             loadVertex(vertexAdd[i]);
         } else {
-            
+
             var arg = getRandomPosition();
             canvas.addVertex(arg[0], arg[1], VertexColor, vertexAdd[i]);
             storeVertex(vertexAdd[i], arg[0], arg[1], VertexColor);
@@ -61,7 +61,7 @@ function delOldEdge(edgeDel) {
             }
         }
 
-  
+
 
         if (line !== null) {
             canvas.removeLine(line);
@@ -106,29 +106,25 @@ function addNewEdge(edgeAdd, needLoad) {
     for (var i = 0; i < edgeAdd.length; i++) {
         var obj1 = canvas.getObjectByName('vertex' + edgeAdd[i][0]);
         var obj2 = canvas.getObjectByName('vertex' + edgeAdd[i][1]);
-        
+
         var jsonString = JSON.stringify(obj1);
 
-// Buscar el texto "df" con una expresión regular
-var t1 = jsonString.match(/"text":\s*"(.*?)"/);
-var jsonString2 = JSON.stringify(obj2);
+        // Buscar el texto "df" con una expresión regular
+        var t1 = jsonString.match(/"text":\s*"(.*?)"/);
+        var jsonString2 = JSON.stringify(obj2);
 
-// Buscar el texto "df" con una expresión regular
-var t2 = jsonString2.match(/"text":\s*"(.*?)"/);
-  
-var comp=t1[1]+" "+t2[1];
-var comp2=$('#GraphData').val().split("\n");
-var c=0;
-comp2.forEach(item => {
-    if (item.includes(comp)) {
-        c++;
-    }
-});
-if(c>1){
-    alert("Conexion invalida, por favor borre la conexion del input");
-    return 
+        // Buscar el texto "df" con una expresión regular
+        var t2 = jsonString2.match(/"text":\s*"(.*?)"/);
 
-}
+        var comp = t1[1] + " " + t2[1];
+        var comp2 = $('#GraphData').val().split("\n");
+        var c = 0;
+        comp2.forEach(item => {
+            if (item.includes(comp)) {
+                c++;
+            }
+        });
+
         // Check if the source and destination nodes are the same
         if (edgeAdd[i][0] === edgeAdd[i][1]) {
             if (edgeAdd[i].length == 2)
@@ -230,7 +226,7 @@ function renewArr(newVertex, newEdge, needLoad) {
 
 // sync the data in Input with Graph Drawer
 // if needLoad == true, then get vertexs' pos from storage  
-function tranInputToDrawer(needLoad,fl) {
+function tranInputToDrawer(needLoad, fl) {
     var str = $('#GraphData').val();
     var arrStr = str.split('\n');
     var arr = [];
@@ -299,7 +295,7 @@ function tranInputToDrawer(needLoad,fl) {
     // renew the grapgh and the input
     renewArr(newVertex, newEdge, needLoad);
     canvas.refresh();
-    if(fl){
+    if (fl) {
         location.reload();
 
     }

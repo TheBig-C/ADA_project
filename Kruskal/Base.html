@@ -25,6 +25,7 @@
     <script type="text/javascript" src="./input.js"></script>
     <script type="text/javascript" src="./save.js"></script>
     <script type="text/javascript" src="./uploadImage.js"></script>
+    <script type="text/javascript" src="./kruskal.js"></script>
 
     <style>
         canvas {
@@ -144,7 +145,15 @@
                                         <br>
                                         <!--<button id="removeAll" onclick="canvas.removeAll()">Remove All</button>-->
                                         <button id="removeAll" onclick="canvas.removeAll()">Eliminar Todo</button>
-                                        <button id="showAdjacencyMatrixBtn">Mostrar matriz de adyacencia</button>
+                                        <p class="subtitle">Modo de Kruskal</p>
+                                        <div class="select">
+                                            <select id="kruskalMode">
+                                                <option value="min">Minimizar</option>
+                                                <option value="max">Maximizar</option>
+                                            </select>
+                                        </div>
+                                        <button id="kruskalButton" class="button is-info is-rounded">Ejecutar
+                                            Kruskal</button>
                                     </div>
                                 </div>
                             </div>
@@ -159,7 +168,7 @@
 
 
 
-    
+
     <!-- Upload PNG Button -->
     <button id="uploadPNGButton" class="button is-danger is-rounded"
         style="position: fixed; bottom: 80px; right: 20px;">
@@ -195,14 +204,15 @@
 
 
     <!-- Help Button -->
-    <button onclick="abrirAyuda()" class="button is-info is-rounded" style="position: fixed; bottom: 20px; right: 20px; ">
+    <button onclick="abrirAyuda()" class="button is-info is-rounded"
+        style="position: fixed; bottom: 20px; right: 20px; ">
         <span class="icon is-small">
             <i class="fas fa-question"></i>
         </span>
         <span>Ayuda</span>
     </button>
 
-  
+
 
     <!-- Help Modal -->
     <div id="helpModal" class="modal">
@@ -240,7 +250,7 @@
         <button class="modal-close is-large" aria-label="close"></button>
     </div>
 
-    
+
     <script>
 
         var VertexColor = '#ffffff';            // the color of vertexs
@@ -299,11 +309,11 @@
             lockMovementY: true,
         };
 
-  function abrirAyuda(){
-         window.open('instrucciones.pdf', '_blank');
-        } 
-       // Function to handle file selection and decode
-       function abrirAyuda() {
+        function abrirAyuda() {
+            window.open('instrucciones.pdf', '_blank');
+        }
+        // Function to handle file selection and decode
+        function abrirAyuda() {
             window.open('instrucciones.pdf', '_blank');
         }
         // Function to handle file selection and decode
@@ -342,44 +352,44 @@
 
                             reader.onload = function (e) {
                                 var contenido = e.target.result;
-                                var d=contenido.split("$$");
+                                var d = contenido.split("$$");
                                 console.log("contenido: ");
                                 console.log(contenido);
                                 // Hacer algo con el contenido, por ejemplo, mostrarlo en la consola
-                              //  $('#GraphData').val(d[0]);
-                             storeInputD(d[0]);
+                                //  $('#GraphData').val(d[0]);
+                                storeInputD(d[0]);
                                 console.log("otro:");
                                 console.log(d[1]);
                                 console.log("otro d:");
-                                var sd=d[0].split("\n");
+                                var sd = d[0].split("\n");
                                 console.log(sd);
-                                audf=[]
-                                for(let i=0;i<sd.length;i++){
-                                    if(sd[i].length>1){
-                                        audf=sd[i].split(" ");
-                                        storeEdge(audf[0],audf[1],defaultLine.stroke,audf[0]===audf[1]);    
+                                audf = []
+                                for (let i = 0; i < sd.length; i++) {
+                                    if (sd[i].length > 1) {
+                                        audf = sd[i].split(" ");
+                                        storeEdge(audf[0], audf[1], defaultLine.stroke, audf[0] === audf[1]);
                                     }
                                 }
-                                aux=d[1];
-                                aux2=[];
-                                su=aux.split("&&&");
-                                ms=[];
-                                for(let i=0;i<su.length;i++){
-                                    aux2=su[i].split("/");
-                                    ms[i]=aux2.slice();
+                                aux = d[1];
+                                aux2 = [];
+                                su = aux.split("&&&");
+                                ms = [];
+                                for (let i = 0; i < su.length; i++) {
+                                    aux2 = su[i].split("/");
+                                    ms[i] = aux2.slice();
                                 }
-                                for(let i=0;i<ms.length;i++){
+                                for (let i = 0; i < ms.length; i++) {
                                     storeVertex(ms[i][0], ms[i][1], ms[i][2], '#ffffff');
                                 }
-                                
+
 
                             };
 
                             reader.readAsText(input.files[0]);
                             saveInit(true);
-                         // location.reload();
-                         //   tranInputToDrawer(true);
-                            
+                            // location.reload();
+                            //   tranInputToDrawer(true);
+
                         }
                     } else {
                         console.error('Tipo de archivo no compatible.');
@@ -406,22 +416,22 @@
         document.getElementById('inputImage').addEventListener('change', handleFileSelect);
 
         document.getElementById('downloadTextButton').addEventListener('click', function () {
-    var nombreArchivo = prompt("Ingrese un nombre para guardar el texto:", "Graph");
+            var nombreArchivo = prompt("Ingrese un nombre para guardar el texto:", "Graph");
 
-    if (nombreArchivo) {
-        const contenido = $('#GraphData').val();
-        const blob = new Blob([contenido], { type: 'text/plain' });
+            if (nombreArchivo) {
+                const contenido = $('#GraphData').val();
+                const blob = new Blob([contenido], { type: 'text/plain' });
 
-        const enlaceDescarga = document.createElement('a');
-        enlaceDescarga.href = window.URL.createObjectURL(blob);
-        enlaceDescarga.download = nombreArchivo + '.txt';
+                const enlaceDescarga = document.createElement('a');
+                enlaceDescarga.href = window.URL.createObjectURL(blob);
+                enlaceDescarga.download = nombreArchivo + '.txt';
 
-        // Simular clic en el enlace de descarga
-        document.body.appendChild(enlaceDescarga);
-        enlaceDescarga.click();
-        document.body.removeChild(enlaceDescarga);
-    }
-});
+                // Simular clic en el enlace de descarga
+                document.body.appendChild(enlaceDescarga);
+                enlaceDescarga.click();
+                document.body.removeChild(enlaceDescarga);
+            }
+        });
 
         // Download PNG Button Click Event
         document.getElementById('downloadPNGButton').addEventListener('click', function () {
@@ -463,8 +473,8 @@
                 // Luego de descargar, ocultar texto en la imagen
             };
 
-        img.src = 'data:image/png;base64,' + canvas.toDataURL().split(',')[1];
-    });
+            img.src = 'data:image/png;base64,' + canvas.toDataURL().split(',')[1];
+        });
         // Help Modal Close Event
         document.getElementById('closeHelp').addEventListener('click', function () {
             document.getElementById('helpModal').classList.remove('is-active');
@@ -472,7 +482,7 @@
 
         // init css elements
         document.getElementById("create").checked = true;
-        document.getElementById("direct").checked = true;
+        document.getElementById("undirect").checked = true;
         $('#colorPicker').val("#ffffff");
         jscolor.install();
         $("#directChange").css({ "text-decoration": "none" })
@@ -634,6 +644,47 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
+
+        document.getElementById('kruskalButton').addEventListener('click', function () {
+            // Convertir los índices de vértices y pesos de aristas a números
+            let edges = EdgeArr.map(edge => new Edge(parseInt(edge[0]), parseInt(edge[1]), parseInt(edge[2])));
+
+            // Convertir los índices de vértices a números
+            let vertices = VertexArr.map(vertex => parseInt(vertex));
+
+            let mode = document.getElementById('kruskalMode').value;
+            let mstEdges;
+
+            if (mode === 'min') {
+                mstEdges = kruskalMST(vertices, edges);
+            } else {
+                mstEdges = kruskalMSTMax(vertices, edges);
+            }
+
+            // Puedes hacer algo con los resultados, como mostrarlos en la consola o en un modal
+            console.log('Aristas del MST:');
+            console.log(mstEdges);
+
+            // Por ejemplo, puedes mostrar las aristas en el lienzo
+            mstEdges.forEach(edge => {
+                let fromVertex = VertexArr[edge.from];
+                let toVertex = VertexArr[edge.to];
+
+                let line = new fabric.Line(
+                    [fromVertex.left + fromVertex.radius, fromVertex.top + fromVertex.radius, toVertex.left + toVertex.radius, toVertex.top + toVertex.radius],
+                    {
+                        stroke: 'red',
+                        strokeWidth: 2,
+                        selectable: false,
+                        evented: false
+                    }
+                );
+                canvas.add(line);
+            });
+        });
+
+
+
     </script>
 
 </body>
