@@ -294,7 +294,7 @@ function fabricInit() {
         } else {
             // Draw the new connection as usual
             defaultLine.weight = "" + weight;
-            defaultLine.directed = isDirect;
+            defaultLine.directed = false;
             var line = new fabric.Edge([from.x, from.y, to.x, to.y], defaultLine);
             line.name = "edge" + fromObject.name + toObject.name + "weight" + weight; // Use one of the connection IDs
             canvas.add(line);

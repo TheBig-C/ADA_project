@@ -8,19 +8,10 @@ function linkInit() {
         document.querySelector('#colorPicker').jscolor.fromString('000000');
     });
 
-    // the edge is directed or not 
-    $("#direct").click(function () {
-        isDirect = true;
-        isBothWays = false;
-    });
     $("#undirect").click(function () {
-        isDirect = false;
-        isBothWays = false;
+        undirect = true;
     });
-    $("#bothWays").click(function () {
-        isBothWays = true;
-        isDirect = true;
-    });
+
 
     // when linking two vertices, and the first one is chosen, activate the FocusLine
     canvas.on('mouse:up', function (e) {
@@ -96,15 +87,16 @@ if (isBothWays) {
         }
     } else {
         // Add the line and save
-        if (!isDirect) {
+        if (undirect) {
             // Prompt for the weight
             var weight = prompt("Enter the weight for the edge:", "1");
+            console.log("estoy aquiiiiiii");
 
             // Ensure weight is not null and convert to integer
             weight = (weight !== null && !isNaN(parseInt(weight))) ? parseInt(weight) : 1;
             EdgeArr.push([startVertex.name.substring(6), endVertex.name.substring(6), weight]);
             canvas.AddWeightedLine(startVertex, endVertex, weight);
-            storeEdge(startVertex.name.substring(6), endVertex.name.substring(6), $('#colorPicker').val(), isDirect, weight);
+            storeEdge(startVertex.name.substring(6), endVertex.name.substring(6), $('#colorPicker').val(), false, weight);
         } else {
             EdgeArr.push([startVertex.name.substring(6), e.target.name.substring(6)])
             canvas.AddLine(startVertex, e.target);

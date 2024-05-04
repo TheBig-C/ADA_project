@@ -53,7 +53,7 @@ function moveInit() {
     });
 
     // when moving a vertex, update the connected edges' position
-    canvas.on('object:moved', function (e) { //moved, provitional solution
+    canvas.on('object:moving', function (e) { //moved, provitional solution
         var object = e.target;
         var objectCenter = object.getCenterPoint();
 
@@ -174,10 +174,7 @@ function moveInit() {
                     }
                 }
             });
-        if (!canvas._isCurrentlyDrawing) {
-            // Add your additional logic or actions here
-            location.reload(); // Reload the page
-        }
+
         //updateLoop(object, canvas);
         canvas.renderAll();
         storeVertex(object.name.substring(6), objectCenter.x - VertexRadius, objectCenter.y - VertexRadius, null);

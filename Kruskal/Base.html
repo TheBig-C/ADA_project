@@ -115,17 +115,10 @@
                                         </div>
                                         <p class="subtitle"></p>
                                         <p class="subtitle">Tipo de enlace</p>
-                                        <div class="radio">
-                                            <input id="direct" name="radio2" type="radio">
-                                            <label for="direct" class="radio-label">dirigido</label>
-                                        </div>
+
                                         <div class="radio">
                                             <input id="undirect" name="radio2" type="radio">
                                             <label for="undirect" class="radio-label">No dirigido</label>
-                                        </div>
-                                        <div class="radio">
-                                            <input id="bothWays" name="radio2" type="radio">
-                                            <label for="bothWays" class="radio-label">Bidireccional</label>
                                         </div>
                                         <p class="subtitle"></p>
                                         <p class="subtitle">Color</p>
@@ -644,45 +637,32 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
-
         document.getElementById('kruskalButton').addEventListener('click', function () {
-            // Convertir los índices de vértices y pesos de aristas a números
             let edges = EdgeArr.map(edge => new Edge(parseInt(edge[0]), parseInt(edge[1]), parseInt(edge[2])));
-
-            // Convertir los índices de vértices a números
             let vertices = VertexArr.map(vertex => parseInt(vertex));
 
             let mode = document.getElementById('kruskalMode').value;
-            let mstEdges;
-
-            if (mode === 'min') {
-                mstEdges = kruskalMST(vertices, edges);
-            } else {
-                mstEdges = kruskalMSTMax(vertices, edges);
-            }
-
-            // Puedes hacer algo con los resultados, como mostrarlos en la consola o en un modal
-            console.log('Aristas del MST:');
+            let mstEdges = (mode === 'min') ? kruskalMST(vertices, edges) : kruskalMSTMax(vertices, edges);
             console.log(mstEdges);
+            edges.forEach(edge => {
+                let edgeName = "edgevertex" + edge.from + "vertex" + edge.to + "weight" + edge.weight;
+                let canvasEdge = canvas.getObjectByName(edgeName);
 
-            // Por ejemplo, puedes mostrar las aristas en el lienzo
-            mstEdges.forEach(edge => {
-                let fromVertex = VertexArr[edge.from];
-                let toVertex = VertexArr[edge.to];
-
-                let line = new fabric.Line(
-                    [fromVertex.left + fromVertex.radius, fromVertex.top + fromVertex.radius, toVertex.left + toVertex.radius, toVertex.top + toVertex.radius],
-                    {
-                        stroke: 'red',
-                        strokeWidth: 2,
-                        selectable: false,
-                        evented: false
-                    }
-                );
-                canvas.add(line);
+                if (canvasEdge) {
+                    canvasEdge.set({ stroke: 'black' });
+                }
             });
-        });
+            mstEdges.forEach(edge => {
+                let edgeName = "edgevertex" + edge.from + "vertex" + edge.to + "weight" + edge.weight;
+                let canvasEdge = canvas.getObjectByName(edgeName);
 
+                if (canvasEdge) {
+                    canvasEdge.set({ stroke: 'red' });
+                }
+            });
+
+            canvas.renderAll();
+        });
 
 
     </script>
