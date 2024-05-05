@@ -1,3 +1,4 @@
+
 function Edge(from, to, weight) {
     this.from = from;
     this.to = to;
@@ -30,13 +31,13 @@ function kruskalMST(vertices, edges) {
     let i = 0;
     let e = 0;
     edges.sort((a, b) => a.weight - b.weight);
-    let parent = [];
-    let rank = [];
+    let parent = {};
+    let rank = {};
 
-    for (let v = 0; v < vertices.length; v++) {
-        parent[v] = v;
-        rank[v] = 0;
-    }
+    vertices.forEach(vertex => {
+        parent[vertex] = vertex;
+        rank[vertex] = 0;
+    });
 
     while (e < vertices.length - 1 && i < edges.length) {
         let nextEdge = edges[i++];
@@ -58,13 +59,13 @@ function kruskalMSTMax(vertices, edges) {
     let i = 0;
     let e = 0;
     edges.sort((a, b) => b.weight - a.weight);
-    let parent = [];
-    let rank = [];
+    let parent = {};
+    let rank = {};
 
-    for (let v = 0; v < vertices.length; v++) {
-        parent[v] = v;
-        rank[v] = 0;
-    }
+    vertices.forEach(vertex => {
+        parent[vertex] = vertex;
+        rank[vertex] = 0;
+    });
 
     while (e < vertices.length - 1 && i < edges.length) {
         let nextEdge = edges[i++];
@@ -80,4 +81,3 @@ function kruskalMSTMax(vertices, edges) {
 
     return result;
 }
-

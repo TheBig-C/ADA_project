@@ -638,8 +638,8 @@
             }
         }
         document.getElementById('kruskalButton').addEventListener('click', function () {
-            let edges = EdgeArr.map(edge => new Edge(parseInt(edge[0]), parseInt(edge[1]), parseInt(edge[2])));
-            let vertices = VertexArr.map(vertex => parseInt(vertex));
+            let edges = EdgeArr.map(edge => new Edge(edge[0], edge[1], parseInt(edge[2])));
+            let vertices = VertexArr.map(vertex => vertex);
 
             let mode = document.getElementById('kruskalMode').value;
             let mstEdges = (mode === 'min') ? kruskalMST(vertices, edges) : kruskalMSTMax(vertices, edges);
