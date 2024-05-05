@@ -235,6 +235,20 @@
             </div>
         </div>
         <button class="modal-close is-large" aria-label="close"></button>
+        <!-- Opciones para Minimizar o Maximizar -->
+<div class="content">
+    <p class="subtitle">Minimizar o Maximizar Distancias</p>
+    <div class="radio">
+        <input id="minimize" name="minMaxOption" type="radio" checked>
+        <label for="minimize" class="radio-label">Minimizar</label>
+    </div>
+    <div class="radio">
+        <input id="maximize" name="minMaxOption" type="radio">
+        <label for="maximize" class="radio-label">Maximizar</label>
+    </div>
+    <button id="runDijkstraBtn" class="button is-info">Ejecutar Dijkstra</button>
+</div>
+
     </div>
 
 
@@ -387,6 +401,97 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
+        document.getElementById('runDijkstraBtn').addEventListener('click', function () {
+    var minimize = document.getElementById('minimize').checked;
+    var startVertex = prompt("Ingrese el vértice de inicio para Dijkstra:");
+    if (!startVertex || !VertexArr.includes(startVertex)) {
+        alert("Vértice de inicio no válido o no existente.");
+        return;
+    }
+
+    var distances = dijkstra(VertexArr, EdgeArr, startVertex, minimize);
+    console.log(distances);
+    for (let vertexName in distances) {
+    console.log(vertexName, distances[vertexName]);  // Verifica que los valores son correctos y no undefined
+    agregar(vertexName, distances[vertexName]);
+}
+for(let i=0;i<EdgeArr.length;i++){
+    addArrowHeadToMidpoint(EdgeArr[i],true)
+    }
+
+});
+function addArrowHeadToMidpoint(edge,d) {
+    var line = canvas.getObjectByName("edgevertex" + edge[0] + "vertex" + edge[1] + "weight" + edge[2]);
+    
+    if (line) {
+        // Calcular el punto medio de la línea
+        var midpointX = (line.x1 + line.x2) / 2;
+        var midpointY = (line.y1 + line.y2) / 2;
+
+        // Crear un polígono que represente la punta de la flecha
+        // Ajusta los puntos según el tamaño y la orientación deseados de la punta de la flecha
+        var arrowHead = new fabric.Polygon([
+            {x: -10, y: 5},
+            {x: 0, y: 0},
+            {x: -10, y: -5}
+        ], {
+            left: midpointX,
+            top: midpointY,
+            angle: calculateAngle(line.x1, line.y1, line.x2, line.y2), // Calcula el ángulo de la línea para orientar la punta de la flecha
+            fill: d==0?'green': 'black'
+        });
+
+        // Añadir la punta de la flecha al canvas
+        canvas.add(arrowHead);
+    }
+}
+function agregar(vertexName, result){
+    // Encuentra el objeto (vértice) por nombre
+    var vertex = canvas.getObjectByName("vertex" + vertexName);
+    if (!vertex) {
+        console.log('Vértice no encontrado');
+        return;
+    }
+
+    // Calcula el radio del vértice basado en el tamaño del texto y el círculo
+    var vertexRadius = Math.max(30, vertex.getBoundingRect().width / 2);
+    vertex.item(0).set({ radius: vertexRadius });
+
+    // Asegura que el resultado no es undefined antes de convertirlo a string
+    var resultText = (result !== undefined) ? result.toString() : "N/A";
+
+    // Aumenta el tamaño de la fuente para mayor visibilidad
+    var fontSize = 18; // Tamaño de la fuente más grande
+
+    // Posición ajustada para el resultado: ligeramente más abajo
+    var resultPosition = {
+        x: 0, // Centro del círculo
+        y: -vertexRadius + 10 // Desplazado hacia abajo respecto al centro del círculo
+    };
+
+    // Crea el objeto de texto para el resultado
+    var ResultText = new fabric.Text(resultText, {
+        fontSize: fontSize,
+        left: resultPosition.x,
+        top: resultPosition.y,
+        originX: 'center',
+        originY: 'center',
+        fill: '#FF0000', // Color rojo para destacar el resultado
+    });
+
+    // Asegúrate de eliminar el texto del resultado anterior si ya existe
+    if(vertex.size() > 2) { // Ajusta este índice según cómo estén organizados tus items
+        vertex.remove(vertex.item(2)); // Elimina el texto del resultado anterior
+    }
+
+    // Agrega el nuevo texto del resultado al grupo del vértice
+    vertex.add(ResultText);
+
+    // Asegúrate de volver a renderizar el canvas para ver los cambios
+    canvas.renderAll();
+}
+
+
 
         // Function to check if the file is an image
         function isImageFile(file) {
@@ -622,37 +727,62 @@
             console.log("vertexarr: "+VertexArr);
                 console.log(EdgeArr);
 
-                johnson(VertexArr,EdgeArr);
+               // dijkstra();
         });
 
         // Function to display the adjacency matrix
-        function showAdjacencyMatrix() {
-            while (true) {
-                // Assuming VertexArr contains the vertices in the graph
-                var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
-                orden = [];
-                nuevoOrden = [];
-                var aux = 0;
-                for (var i = 0; i < VertexArr.length; i++) {
-                    aux = 0;
-                    for (var j = 0; j < VertexArr.length; j++) {
-                        if (adjacencyMatrix[j][i] > 0) {
-                            aux = j + 1;
-                        }
-                    }
-                    orden[i] = aux;
-                }
+        function dijkstra(vertices, edges, startVertex, minimize) {
+    // Crear un mapa de adyacencia del grafo
+    const adjacencyList = new Map();
+    vertices.forEach(vertex => adjacencyList.set(vertex, []));
+    edges.forEach(edge => {
+        let [start, end, weight] = edge;
+        adjacencyList.get(start).push({ node: end, weight: parseInt(weight) });
+    });
 
-                VertexArr = selectionSort(orden, VertexArr);
-                // Display the adjacency matrix in the modal, pass VertexArr as nodeNames
+    // Inicializar las distancias y los nodos procesados
+    const distances = {};
+    const processed = new Set();
+    vertices.forEach(vertex => distances[vertex] = minimize ? Infinity : -Infinity);
+    distances[startVertex] = 0;
 
-                adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
-                if (isDiagonalSuperior(adjacencyMatrix)) {
-                    break;
-                }
-                
+    // Función para obtener el vértice con la menor distancia no procesada
+    function getVertexWithMinDistance() {
+        let minDistance = minimize ? Infinity : -Infinity;
+        let vertexWithMinDistance = null;
+        for (let vertex in distances) {
+            const condition = minimize ? (distances[vertex] < minDistance) : (distances[vertex] > minDistance);
+            if (!processed.has(vertex) && condition) {
+                minDistance = distances[vertex];
+                vertexWithMinDistance = vertex;
             }
+        }
+        return vertexWithMinDistance;
+    }
 
+    // Implementación del algoritmo de Dijkstra
+    let currentVertex = getVertexWithMinDistance();
+    while (currentVertex !== null) {
+        let distance = distances[currentVertex];
+        adjacencyList.get(currentVertex).forEach(neighbor => {
+            let newDistance = distance + neighbor.weight;
+            if (minimize ? (newDistance < distances[neighbor.node]) : (newDistance > distances[neighbor.node])) {
+                distances[neighbor.node] = newDistance;
+            }
+        });
+        processed.add(currentVertex);
+        currentVertex = getVertexWithMinDistance();
+    }
+
+    return distances;
+}
+
+
+
+        function showAdjacencyMatrix() {
+           
+                var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
+               
           
             // Calculate the maximum value for each column
             var maxValuesInColumns = [];
@@ -708,40 +838,6 @@
         }
 
 
-        function selectionSort(arr, arrToSort) {
-            const n = arr.length;
-            for (let i = 0; i < n - 1; i++) {
-                let minIndex = i;
-                for (let j = i + 1; j < n; j++) {
-                    if (arr[j] < arr[minIndex]) {
-                        minIndex = j;
-                    }
-                }
-                if (minIndex !== i) {
-                    // Intercambiar los elementos en el array a ordenar
-                    [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
-                    // Intercambiar los elementos correspondientes en el otro array
-                    [arrToSort[i], arrToSort[minIndex]] = [arrToSort[minIndex], arrToSort[i]];
-
-
-                }
-            }
-            return arrToSort;
-        }
-
-        function isDiagonalSuperior(matriz) {
-
-            // Iterar sobre cada elemento por debajo de la diagonal superior
-            for (let i = 0; i < matriz.length; i++) {
-                for (let j = 0; j < i; j++) {
-                    if (matriz[i][j] !== 0) {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        }
         function subirImagen() {
             var input = document.getElementById('inputImage');
             var preview = document.getElementById('imagenPreview');
