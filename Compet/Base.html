@@ -143,11 +143,14 @@
                                         </div>
                                         <br>
                                         <!--<button id="removeAll" onclick="canvas.removeAll()">Remove All</button>-->
+                                        <article class="tile is-child notification">
+                                            <p class="title">Resultados de Compet</p>
+                                            <div class="content">
+                                                <button id="calculateDistancesBtn" class="button is-info">Calcular
+                                                    Centroide</button>
+                                            </div>
+                                        </article>
                                         <button id="removeAll" onclick="canvas.removeAll()">Eliminar Todo</button>
-                                        <button id="showAdjacencyMatrixBtn">Mostrar matriz de adyacencia</button>
-                                        <button id="calculateCentroidBtn" class="button is-info">Calcular
-                                            Centroide</button>
-
                                     </div>
                                 </div>
                             </div>
@@ -158,9 +161,6 @@
             </div>
         </div>
     </section>
-
-
-
 
 
     <!-- Upload PNG Button -->
@@ -638,36 +638,50 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
-        // Agrega esto en la sección de tus scripts
-        function extractCoordinates(nodeName) {
-            var parts = nodeName.split("_");
-            return {
-                x: parseFloat(parts[0]),
-                y: parseFloat(parts[1])
-            };
+        // Función para calcular el punto medio entre dos puntos
+        function midpoint(x1, y1, x2, y2) {
+            return { x: (x1 + x2) / 2, y: (y1 + y2) / 2 };
         }
 
-        function calculateCentroid(nodes) {
-            var sumX = 0, sumY = 0;
-            nodes.forEach(node => {
-                var coords = extractCoordinates(node);
-                sumX += coords.x;
-                sumY += coords.y;
+        // Función para calcular la convergencia de puntos
+        function calculateConvergence(points) {
+            let converged = false;
+            let tolerance = 0.001;
+            let newPoints;
+
+            while (!converged) {
+                newPoints = [];
+                for (let i = 0; i < points.length; i++) {
+                    let nextIndex = (i + 1) % points.length;  // Ciclo cerrado con el primer punto
+                    let p1 = points[i];
+                    let p2 = points[nextIndex];
+                    newPoints.push(midpoint(p1.x, p1.y, p2.x, p2.y));
+                }
+
+                converged = true;
+                for (let i = 0; i < points.length; i++) {
+                    if (Math.abs(newPoints[i].x - points[i].x) > tolerance || Math.abs(newPoints[i].y - points[i].y) > tolerance) {
+                        converged = false;
+                        break;
+                    }
+                }
+
+                points = newPoints;
+            }
+
+            return points[0];  // Puede retornar cualquiera, ya que todos convergen al mismo punto
+        }
+
+        // Botón para calcular la convergencia y mostrar resultados
+        document.getElementById("calculateDistancesBtn").addEventListener("click", function () {
+            let points = VertexArr.map(vertex => {
+                let coords = vertex.split('_');
+                return { x: parseFloat(coords[0]), y: parseFloat(coords[1]) };
             });
-            var n = nodes.length;
-            return {
-                centroidX: sumX / n,
-                centroidY: sumY / n
-            };
-        }
+            let convergencePoint = calculateConvergence(points);
+            document.getElementById("calculateDistancesBtn").innerText = `Punto de Convergencia: (${convergencePoint.x.toFixed(2)}, ${convergencePoint.y.toFixed(2)})`;
+        });
 
-        function displayCentroid() {
-            var centroid = calculateCentroid(VertexArr);
-            console.log(`Centroid is at (${centroid.centroidX.toFixed(2)}, ${centroid.centroidY.toFixed(2)})`);
-            // Aquí podrías actualizar algún elemento de la interfaz con esta información
-        }
-
-        document.getElementById('calculateCentroidBtn').addEventListener('click', displayCentroid);
 
     </script>
 
