@@ -300,7 +300,7 @@ function tranInputToDrawer(needLoad,fl) {
     renewArr(newVertex, newEdge, needLoad);
     canvas.refresh();
     if(fl){
-        location.reload();
+        //location.reload();
 
     }
 

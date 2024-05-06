@@ -12,35 +12,33 @@ function getVertexArrUnusedIndex() {
     return x;
 }
 
-// Inserta el nuevo valor en el arreglo para mantenerlo en orden
-function insertArr(arr,idx) {
-    // Solicita al usuario que ingrese el valor mediante un prompt
-    var val=null;
+// Insert the new value into the array while maintaining order
+function insertArr(arr, idx) {
+    // Request user input for node value using a prompt
+    var val = null;
     while(true){
-        val = prompt("Ingrese el valor del Nodo", getVertexArrUnusedIndex())||getVertexArrUnusedIndex();
+        let x = prompt("Ingrese el valor de X para el Nodo", "");
+        let y = prompt("Ingrese el valor de Y para el Nodo", "");
+        val = x + "_" + y; // Combine x and y into the requested format
 
-        if(!arr.includes(val)){
-           break;
+        if (!arr.includes(val)) {
+            break; // Ensure the value does not already exist in the array
+        } else {
+            alert("Este valor ya existe, por favor ingrese un valor único.");
         }
     }
 
-    // Inicializa la variable 'index' en 0
     var index = 0;
-
-    // Recorre el arreglo 'arr' en busca del lugar adecuado para insertar 'val'
+    // Find the correct position to insert 'val'
     for (; index < arr.length; index++) {
-        // Compara 'val' con el elemento actual en el índice 'index'
-        
+        if (val < arr[index]) {
             arr.splice(index, 0, val);
-            break;  // Sale del bucle, ya que se ha insertado 'val' correctamente
-        
-        
-          
+            return val; // Exit after insertion
+        }
     }
 
-    // Si 'index' es igual a la longitud del arreglo, 'val' es mayor que todos los elementos existentes
+    // If 'val' is larger than all existing entries, add it at the end
     if (index === arr.length) {
-        // En este caso, simplemente agrega 'val' al final del arreglo
         arr.push(val);
     }
     return val;
