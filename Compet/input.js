@@ -285,7 +285,7 @@ function tranInputToDrawer(needLoad,fl) {
     }
 
     // make the array in increasing order
-    newVertex.sort();
+    //newVertex.sort();
 
     // if some vertexs are not declared, auto-fix it  
     for (var i = 0; i < newEdge.length; i++) {
