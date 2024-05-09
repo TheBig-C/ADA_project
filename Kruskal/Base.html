@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
- 
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -360,7 +360,7 @@
                                 for (let i = 0; i < sd.length; i++) {
                                     if (sd[i].length > 1) {
                                         audf = sd[i].split(" ");
-                                        storeEdge(audf[0], audf[1], defaultLine.stroke, audf[0] === audf[1]);
+                                        storeEdge(audf[0], audf[1], defaultLine.stroke, audf.length > 2);
                                     }
                                 }
                                 aux = d[1];
@@ -412,7 +412,19 @@
             var nombreArchivo = prompt("Ingrese un nombre para guardar el texto:", "Graph");
 
             if (nombreArchivo) {
-                const contenido = $('#GraphData').val();
+                var contenido = $('#GraphData').val();
+                var n = VertexArr.length;
+
+                contenido = contenido + "$$";
+                for (var i = 0; i < n; i++) {
+                    // Obtiene la referencia al objeto klass con name 'vertexA'
+                    var vertexAObject = canvas._objects.find(obj => obj.name === 'vertex' + VertexArr[i]);
+
+                    // Ahora vertexAObject contiene el objeto klass con name 'vertexA'
+                    var x = vertexAObject.translateX;
+                    var y = vertexAObject.translateY;
+                    contenido = contenido + "\n" + VertexArr[i] + "/" + x + "/" + y + "&&&";
+                }
                 const blob = new Blob([contenido], { type: 'text/plain' });
 
                 const enlaceDescarga = document.createElement('a');
@@ -425,6 +437,7 @@
                 document.body.removeChild(enlaceDescarga);
             }
         });
+
 
         // Download PNG Button Click Event
         document.getElementById('downloadPNGButton').addEventListener('click', function () {

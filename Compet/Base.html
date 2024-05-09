@@ -27,6 +27,16 @@
     <script type="text/javascript" src="./uploadImage.js"></script>
 
     <style>
+        #adjacencyMatrixModal .modal-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+            /* Establecer el color de fondo a blanco */
+            padding: 80px;
+            /* Añadir un relleno de 20px a todos los lados */
+        }
+
         canvas {
             border: 2px solid #ccc;
         }
@@ -163,6 +173,9 @@
     </section>
 
 
+
+
+
     <!-- Upload PNG Button -->
     <button id="uploadPNGButton" class="button is-danger is-rounded"
         style="position: fixed; bottom: 80px; right: 20px;">
@@ -257,7 +270,7 @@
         var isDirect = true;                    // Add this line to initialize the connections array
         var isBothWays = false;                 // if true, edges have arrows, representing direct edges
         var connections = [];                   //global array to save all conection without weights (it doesn't saves loops)
-
+        var adjacencyMatrix = [];
         var canvasWidth = $("#graph-drawer").outerWidth() / 1.1;                  // the width of canvas
         var canvasHeight = $("#graph-drawer").outerHeight() / 1.3;                // the height of canvas
         var canvas = new fabric.Canvas('c', {                                     // the object of canvas
@@ -303,10 +316,6 @@
             lockMovementY: true,
         };
 
-        function abrirAyuda() {
-            window.open('instrucciones.pdf', '_blank');
-        }
-        // Function to handle file selection and decode
         function abrirAyuda() {
             window.open('instrucciones.pdf', '_blank');
         }
@@ -361,7 +370,7 @@
                                 for (let i = 0; i < sd.length; i++) {
                                     if (sd[i].length > 1) {
                                         audf = sd[i].split(" ");
-                                        storeEdge(audf[0], audf[1], defaultLine.stroke, audf[0] === audf[1]);
+                                        storeEdge(audf[0], audf[1], defaultLine.stroke, audf.length > 2);
                                     }
                                 }
                                 aux = d[1];
@@ -525,19 +534,39 @@
                 codeBlock.style.display = 'none';
             }
         }
+
         function generateAdjacencyMatrix(vertices, edges) {
             var matrix = [];
             var n = vertices.length;
 
             // Create a mapping from vertex names to indices
             var vertexIndexMap = {};
+            var index = 0;
+
+            // Separate vertices into demand and supply sides
+            var demandVertices = [];
+            var supplyVertices = [];
             for (var i = 0; i < n; i++) {
-                vertexIndexMap[vertices[i]] = i;
+                var vertexName = vertices[i];
+                var vertexAObject = canvas._objects.find(obj => obj.name === 'vertex' + vertexName);
+                var x = vertexAObject.translateX;
+
+                if (x < canvasWidth / 2) {
+                    demandVertices.push(vertexName);
+                } else {
+                    supplyVertices.push(vertexName);
+                }
             }
 
             // Initialize the matrix with zeros
-            for (var i = 0; i < n; i++) {
-                matrix[i] = Array(n).fill(0);
+            for (var i = 0; i < demandVertices.length; i++) {
+                vertexIndexMap[demandVertices[i]] = index++;
+            }
+            for (var i = 0; i < supplyVertices.length; i++) {
+                vertexIndexMap[supplyVertices[i]] = index++;
+            }
+            for (var i = 0; i < demandVertices.length; i++) {
+                matrix[i] = Array(supplyVertices.length).fill(0);
             }
 
             // Fill in the matrix based on the edges
@@ -546,69 +575,148 @@
                 var toVertex = edges[i][1];
                 var weight = edges[i][2];
 
+                var fromIndex = vertexIndexMap[fromVertex];
+                var toIndex = vertexIndexMap[toVertex];
+
                 if (edges[i].length === 3) {
                     // Set the corresponding cell to the weight value for directed edges
-                    matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = parseInt(weight) || 1;
+                    matrix[fromIndex][toIndex - demandVertices.length] = parseInt(weight) || 0; // Changed to 0
                 } else {
-                    // For undirected edges, set the reverse direction as well
-                    matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = 1;
-                    matrix[vertexIndexMap[toVertex]][vertexIndexMap[fromVertex]] = 1;
+                    // For undirected edges, set both directions
+                    matrix[fromIndex][toIndex - demandVertices.length] = 0; // Changed to 0
+                    matrix[toIndex][fromIndex - demandVertices.length] = 0; // Changed to 0
                 }
             }
+            console.log(matrix);
             return matrix;
         }
 
-        // Display the adjacency matrix as a table
-        function displayMatrixAsTable(matrix, nodeNames) {
-            var tableContent = "<thead><tr><th></th>";
 
-            // Create table headers using node names
-            for (var i = 0; i < nodeNames.length; i++) {
-                tableContent += "<th>" + nodeNames[i] + "</th>";
+        function displayMatrixAsTable(matrix, vertices, vertexIndexMapD, vertexIndexMapO) {
+            var tableContent = "<div class='table-container'><div><h2>Matriz de adyacencia</h2><table id='adjacencyMatrixTable' class='matrix-table'><thead><tr><th></th>";
+
+            // Crear encabezados de tabla utilizando nombres de nodos
+            for (var i = 0; i < vertexIndexMapD.length; i++) {
+                tableContent += "<th>" + vertexIndexMapD[i] + "</th>";
             }
+            tableContent += "</tr></thead><tbody>";
 
-            // Add a column for row sums
-            tableContent += "<th>Suma Fila</th></tr></thead><tbody>";
-
-            // Create table rows
-            for (var i = 0; i < matrix.length; i++) {
-                tableContent += "<tr><th>" + nodeNames[i] + "</th>";
-
-                var rowSum = 0;
-
-                for (var j = 0; j < matrix[i].length; j++) {
-                    tableContent += "<td>" + matrix[i][j] + "</td>";
-                    rowSum += matrix[i][j];
+            // Crear filas de tabla
+            for (var i = 0; i < vertexIndexMapO.length; i++) {
+                tableContent += "<tr><th>" + vertexIndexMapO[i] + "</th>";
+                for (var j = 0; j < vertexIndexMapD.length; j++) {
+                    // Acceder a los elementos de la matriz correctamente
+                    var value = matrix[i][j] || 0;
+                    tableContent += "<td>" + value + "</td>";
                 }
-
-                // Add the row sum to the table
-                tableContent += "<td>" + rowSum + "</td>";
-
                 tableContent += "</tr>";
             }
 
-            tableContent += "<tr><th>Suma Columna</th>";
+            tableContent += "</tbody></table></div>";
 
-            for (var j = 0; j < matrix[0].length; j++) {
-                var colSum = 0;
-                for (var i = 0; i < matrix.length; i++) {
-                    colSum += matrix[i][j];
+            // Agregar la segunda tabla (resultados) oculta
+            tableContent += "<div class='table-wrapper' id='resultsTableWrapper' style='display:none;'><h2>Resultados</h2><table id='resultsTable' class='matrix-table'><tbody></tbody></table></div></div>";
+
+            // Show the modal
+            $("#adjacencyMatrixModal").addClass("is-active");
+
+            // Append the table content to the modal
+            $("#adjacencyMatrixModal .modal-content").html(tableContent);
+
+            // Close the modal when the close button or background is clicked
+            $(".modal-close, .modal-background").on("click", function () {
+                $("#adjacencyMatrixModal").removeClass("is-active");
+            });
+
+            // Agregar botón "Aplicar algoritmo de asignación"
+            $("#adjacencyMatrixTable").append('<tr><td colspan="' + (vertexIndexMapD.length + 1) + '"><button id="aplicarAlgoritmoBtn">Aplicar algoritmo de asignación</button></td></tr>');
+
+            // Agregar elemento de selección para maximizar o minimizar
+            $("#adjacencyMatrixTable").append('<tr><td colspan="' + (vertexIndexMapD.length + 1) + '"><select id="selectButton"><option value="maximizar">Maximizar</option><option value="minimizar">Minimizar</option></select></td></tr>');
+
+            // Attach the function to the button click event
+            $("#aplicarAlgoritmoBtn").click(function () {
+                // Obtener el valor seleccionado del elemento de selección
+                var seleccion = $("#selectButton").val();
+                var asign = 0;
+                console.log(seleccion == "minimizar");
+                // Realizar la asignación
+                var resultado = asignacion(matrix, seleccion == "minimizar");
+
+                // Desplegar los valores de resultado en la segunda tabla
+                // Inicializa la variable que contendrá todas las filas
+                var resultRow = '';
+
+                if (resultado[0][0] === 0) {
+                    // Si el primer elemento de resultado es 0, itera en orden ascendente
+                    for (var i = 0; i < resultado.length; i++) {
+                        var row = '<tr>'; // Comienza una nueva fila
+
+                        // Agrega una celda para cada elemento en el resultado
+                        row += '<td>' + vertexIndexMapO[i] + ' -> ' + vertexIndexMapD[resultado[i][1]] + ' = ' + adjacencyMatrix[resultado[i][0]][resultado[i][1]] + '</td>';
+
+                        asign = asign + adjacencyMatrix[resultado[i][0]][resultado[i][1]];
+                        row += '</tr>'; // Termina la fila
+
+                        // Agrega la fila actual a la variable resultRows
+                        resultRow += row;
+                    }
+                } else {
+                    // Si el primer elemento de resultado no es 0, itera en orden descendente
+                    for (var i = resultado.length - 1; i >= 0; i--) {
+                        var row = '<tr>'; // Comienza una nueva fila
+
+                        // Agrega una celda para cada elemento en el resultado
+                        row += '<td>' + vertexIndexMapO[i] + ' -> ' + vertexIndexMapD[resultado[i][1]] + ' = ' + adjacencyMatrix[resultado[i][0]][resultado[i][1]] + '</td>';
+
+                        asign = asign + adjacencyMatrix[resultado[i][0]][resultado[i][1]];
+                        row += '</tr>'; // Termina la fila
+
+                        // Agrega la fila actual a la variable resultRows
+                        resultRow += row;
+                    }
+
+
                 }
-                tableContent += "<td>" + colSum + "</td>";
-            }
 
-            tableContent += "<td></td></tr></tbody>";
 
-            $("#adjacencyMatrixTable").html(tableContent);
+                resultRow += '</tr>';
+                var row = '<tr>'; // Comienza una nueva fila
+
+                row += '<td> Asignacion:  ' + asign + '  </td>';
+                row += '</tr>'; // Termina la fila
+                resultRow += row;
+                $("#resultsTable tbody").html(resultRow);
+
+                // Show the second table
+                $("#resultsTableWrapper").show();
+            });
         }
+
+
 
         // Attach the function to the button click event
         $("#showAdjacencyMatrixBtn").on("click", function () {
-            // Assuming VertexArr contains the vertices in the graph
-            var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
+            var n = VertexArr.length;
+            var vertexIndexMapO = [];
+            var resultado = {};
+            var vertexIndexMapD = [];
+            for (var i = 0; i < VertexArr.length; i++) {
+                var vertexAObject = canvas._objects.find(obj => obj.name === 'vertex' + VertexArr[i]);
+                var x = vertexAObject.translateX;
+                if (x >= 0 && x < (canvasWidth / 2)) {
+                    vertexIndexMapO.push(VertexArr[i]);
+                } else {
+                    vertexIndexMapD.push(VertexArr[i]);
+                }
+            }
 
+            // Assuming VertexArr contains the vertices in the graph
+            adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
             // Display the adjacency matrix in the modal, pass VertexArr as nodeNames
-            displayMatrixAsTable(adjacencyMatrix, VertexArr);
+            displayMatrixAsTable(adjacencyMatrix, VertexArr, vertexIndexMapD, vertexIndexMapO);
+
+
 
             // Show the modal
             $("#adjacencyMatrixModal").addClass("is-active");
@@ -618,7 +726,6 @@
                 $("#adjacencyMatrixModal").removeClass("is-active");
             });
         });
-
 
         function subirImagen() {
             var input = document.getElementById('inputImage');
@@ -638,6 +745,7 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
+
         // Función para calcular el punto medio entre dos puntos
         function midpoint(x1, y1, x2, y2) {
             return { x: (x1 + x2) / 2, y: (y1 + y2) / 2 };
@@ -672,8 +780,24 @@
             return points[0];  // Puede retornar cualquiera, ya que todos convergen al mismo punto
         }
 
+
+
         // Botón para calcular la convergencia y mostrar resultados
         document.getElementById("calculateDistancesBtn").addEventListener("click", function () {
+            // Obtén todos los objetos del tipo 'circle' que representan los vértices
+            let vertices = canvas.getObjects().filter(obj => obj.name && obj.name.startsWith('vertex'));
+
+
+            if (vertices.length === 0) {
+                alert("No hay vértices en el canvas.");
+                return;
+            }
+
+            // Calcula el centroide
+            let centroid = calculateCentroid(vertices);
+
+            // Dibuja un punto rojo en el centroide
+            drawCentroidPoint(centroid.x, centroid.y);
             let points = VertexArr.map(vertex => {
                 let coords = vertex.split('_');
                 return { x: parseFloat(coords[0]), y: parseFloat(coords[1]) };
@@ -682,6 +806,29 @@
             document.getElementById("calculateDistancesBtn").innerText = `Centro de gravedad: (${convergencePoint.x.toFixed(2)}, ${convergencePoint.y.toFixed(2)})`;
         });
 
+        // Función para calcular el centroide de un conjunto de vértices
+        function calculateCentroid(vertices) {
+            let sumX = 0, sumY = 0;
+            vertices.forEach(vertex => {
+                sumX += vertex.left + vertex.width / 2;  // Ajustar para obtener el centro del círculo
+                sumY += vertex.top + vertex.height / 2;  // Ajustar para obtener el centro del círculo
+            });
+            return { x: sumX / vertices.length, y: sumY / vertices.length };
+        }
+
+        // Función para dibujar un punto rojo en el canvas
+        function drawCentroidPoint(x, y) {
+            var circle = new fabric.Circle({
+                radius: 5,  // Tamaño del punto
+                fill: 'red',  // Color del punto
+                left: x - 5,  // Ajustar para centrar el círculo en el punto
+                top: y - 5,  // Ajustar para centrar el círculo en el punto
+                originX: 'center',
+                originY: 'center'
+            });
+            canvas.add(circle);
+            canvas.renderAll();
+        }
 
     </script>
 
