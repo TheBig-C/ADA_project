@@ -148,6 +148,7 @@
                                         <button id="kruskalButton" class="button is-info is-rounded">Ejecutar
                                             Kruskal</button>
                                     </div>
+                                    <span id="totalWeightDisplay" style="margin-left: 10px; font-weight: bold;"></span>
                                 </div>
                             </div>
                         </div>
@@ -665,15 +666,18 @@
                     canvasEdge.set({ stroke: 'black' });
                 }
             });
+            var totalWeight = 0;
             mstEdges.forEach(edge => {
                 let edgeName = "edgevertex" + edge.from + "vertex" + edge.to + "weight" + edge.weight;
                 let canvasEdge = canvas.getObjectByName(edgeName);
 
                 if (canvasEdge) {
                     canvasEdge.set({ stroke: 'red' });
-                }
-            });
 
+                }
+                totalWeight += edge.weight;
+            });
+            document.getElementById('totalWeightDisplay').innerText = "Total: " + totalWeight;
             canvas.renderAll();
         });
 
