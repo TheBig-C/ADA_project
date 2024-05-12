@@ -254,7 +254,7 @@
         var startVertex = null;                 // when linking two vertexs, record the first one
         var VertexArr = [];                     // the vertex array, recording what indexs are used
         var EdgeArr = [];                       // the edges array, recording pairs of [fromVertex, toVertex]
-        var isDirect = true;                    // Add this line to initialize the connections array
+        var isDirect = false;                    // Add this line to initialize the connections array
         var isBothWays = false;                 // if true, edges have arrows, representing direct edges
         var connections = [];                   //global array to save all conection without weights (it doesn't saves loops)
 
