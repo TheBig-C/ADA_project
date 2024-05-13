@@ -404,32 +404,39 @@
         document.getElementById('runDijkstraBtn').addEventListener('click', function () {
     var minimize = document.getElementById('minimize').checked;
     var startVertex = prompt("Ingrese el vértice de inicio para Dijkstra:");
-    if (!startVertex || !VertexArr.includes(startVertex)) {
-        alert("Vértice de inicio no válido o no existente.");
+    var endVertex = prompt("Ingrese el vértice destino:");
+
+    if (!startVertex || !VertexArr.includes(startVertex) || !endVertex || !VertexArr.includes(endVertex)) {
+        alert("Vértice de inicio o destino no válido o no existente.");
         return;
     }
 
-    var distances = dijkstra(VertexArr, EdgeArr, startVertex, minimize);
-    console.log(distances);
-    for (let vertexName in distances) {
-    console.log(vertexName, distances[vertexName]);  // Verifica que los valores son correctos y no undefined
-    agregar(vertexName, distances[vertexName]);
-}
-for(let i=0;i<EdgeArr.length;i++){
-    addArrowHeadToMidpoint(EdgeArr[i],true)
-    }
+    var results = dijkstra(VertexArr, EdgeArr, startVertex, endVertex, minimize);
+    console.log(results.distances);
+    console.log("El camino más corto a " + endVertex + " es:");
+    console.log(results.path.join(" -> "));
+    // Primero añade flechas a todas las aristas
+addArrowsToAllEdges(EdgeArr);
 
+    highlightShortestPath(results.path, EdgeArr);  // Solo pintar las aristas del camino más corto
+    for (let vertexName in results.distances) {
+    console.log(vertexName, results.distances[vertexName]);  // Verifica que los valores son correctos y no undefined
+    agregar(vertexName, results.distances[vertexName]);
+}
 });
-function addArrowHeadToMidpoint(edge,d) {
+
+function addArrowHeadToMidpoint(edge, isShortestPath) {
     var line = canvas.getObjectByName("edgevertex" + edge[0] + "vertex" + edge[1] + "weight" + edge[2]);
-    
+
     if (line) {
-        // Calcular el punto medio de la línea
+        // Actualizar el color de la línea si es parte del camino más corto
+        line.set({ stroke: isShortestPath ? 'green' : 'black' });
+        canvas.renderAll();  // Rerenderizar el canvas para aplicar el cambio de color
+
         var midpointX = (line.x1 + line.x2) / 2;
         var midpointY = (line.y1 + line.y2) / 2;
 
-        // Crear un polígono que represente la punta de la flecha
-        // Ajusta los puntos según el tamaño y la orientación deseados de la punta de la flecha
+        // Crear una punta de flecha
         var arrowHead = new fabric.Polygon([
             {x: -10, y: 5},
             {x: 0, y: 0},
@@ -437,14 +444,40 @@ function addArrowHeadToMidpoint(edge,d) {
         ], {
             left: midpointX,
             top: midpointY,
-            angle: calculateAngle(line.x1, line.y1, line.x2, line.y2), // Calcula el ángulo de la línea para orientar la punta de la flecha
-            fill: d==0?'green': 'black'
+            angle: calculateAngle(line.x1, line.y1, line.x2, line.y2),
+            fill: 'black'  // Hacer que todas las puntas de flecha sean negras
         });
 
-        // Añadir la punta de la flecha al canvas
+        // Cambiar el color de la punta de la flecha si es parte del camino más corto
+        if (isShortestPath) {
+            arrowHead.set({ fill: 'green' });
+        }
+
         canvas.add(arrowHead);
     }
 }
+
+
+function addArrowsToAllEdges(edges) {
+    edges.forEach(edge => {
+        addArrowHeadToMidpoint(edge, false);
+    });
+}
+
+
+function highlightShortestPath(path, edges) {
+    for (let i = 0; i < path.length - 1; i++) {
+        let startVertex = path[i];
+        let endVertex = path[i + 1];
+        
+        // Encontrar la arista que conecta startVertex y endVertex
+        let edge = edges.find(edge => edge[0] === startVertex && edge[1] === endVertex);
+        if (edge) {
+            addArrowHeadToMidpoint(edge, true);
+        }
+    }
+}
+// Asumimos que 'path' y 'EdgeArr' están disponibles después de correr Dijkstra
 function agregar(vertexName, result){
     // Encuentra el objeto (vértice) por nombre
     var vertex = canvas.getObjectByName("vertex" + vertexName);
@@ -731,51 +764,68 @@ function agregar(vertexName, result){
         });
 
         // Function to display the adjacency matrix
-        function dijkstra(vertices, edges, startVertex, minimize) {
-    // Crear un mapa de adyacencia del grafo
+        function dijkstra(vertices, edges, startVertex, endVertex, minimize) {
     const adjacencyList = new Map();
-    vertices.forEach(vertex => adjacencyList.set(vertex, []));
+    const distances = {};
+    const previous = {};
+    const processed = new Set();
+
+    // Inicialización de la lista de adyacencia y distancias
+    vertices.forEach(vertex => {
+        adjacencyList.set(vertex, []);
+        distances[vertex] = minimize ? Infinity : -Infinity;
+        previous[vertex] = null;
+    });
+    distances[startVertex] = 0;
+
+    // Construcción de la lista de adyacencia
     edges.forEach(edge => {
         let [start, end, weight] = edge;
         adjacencyList.get(start).push({ node: end, weight: parseInt(weight) });
     });
 
-    // Inicializar las distancias y los nodos procesados
-    const distances = {};
-    const processed = new Set();
-    vertices.forEach(vertex => distances[vertex] = minimize ? Infinity : -Infinity);
-    distances[startVertex] = 0;
-
-    // Función para obtener el vértice con la menor distancia no procesada
     function getVertexWithMinDistance() {
-        let minDistance = minimize ? Infinity : -Infinity;
-        let vertexWithMinDistance = null;
+        let targetDistance = minimize ? Infinity : -Infinity;
+        let vertexWithTargetDistance = null;
         for (let vertex in distances) {
-            const condition = minimize ? (distances[vertex] < minDistance) : (distances[vertex] > minDistance);
-            if (!processed.has(vertex) && condition) {
-                minDistance = distances[vertex];
-                vertexWithMinDistance = vertex;
+            if (!processed.has(vertex) && ((minimize && distances[vertex] < targetDistance) || (!minimize && distances[vertex] > targetDistance))) {
+                targetDistance = distances[vertex];
+                vertexWithTargetDistance = vertex;
             }
         }
-        return vertexWithMinDistance;
+        return vertexWithTargetDistance;
     }
 
-    // Implementación del algoritmo de Dijkstra
     let currentVertex = getVertexWithMinDistance();
     while (currentVertex !== null) {
+        processed.add(currentVertex);
         let distance = distances[currentVertex];
         adjacencyList.get(currentVertex).forEach(neighbor => {
-            let newDistance = distance + neighbor.weight;
-            if (minimize ? (newDistance < distances[neighbor.node]) : (newDistance > distances[neighbor.node])) {
-                distances[neighbor.node] = newDistance;
+            if (!processed.has(neighbor.node)) {
+                let newDistance = distance + neighbor.weight;
+                if ((minimize && newDistance < distances[neighbor.node]) || (!minimize && newDistance > distances[neighbor.node])) {
+                    distances[neighbor.node] = newDistance;
+                    previous[neighbor.node] = currentVertex;
+                }
             }
         });
-        processed.add(currentVertex);
         currentVertex = getVertexWithMinDistance();
     }
 
-    return distances;
+    // Reconstrucción del camino
+    let path = [];
+    let at = endVertex;
+    while (at !== null && at !== startVertex) { // Modificado para detener si alcanzamos el inicio nuevamente
+        path.push(at);
+        at = previous[at];
+    }
+    path.push(startVertex); // Añade el inicio al final para completar el camino
+    path.reverse();
+
+    console.log("Path reconstructed:", path);
+    return { distances, path };
 }
+
 
 
 
