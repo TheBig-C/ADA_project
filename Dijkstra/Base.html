@@ -417,7 +417,7 @@
     console.log(results.path.join(" -> "));
     // Primero añade flechas a todas las aristas
 addArrowsToAllEdges(EdgeArr);
-
+ 
     highlightShortestPath(results.path, EdgeArr);  // Solo pintar las aristas del camino más corto
     for (let vertexName in results.distances) {
     console.log(vertexName, results.distances[vertexName]);  // Verifica que los valores son correctos y no undefined
