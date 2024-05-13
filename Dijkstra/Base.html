@@ -402,10 +402,18 @@
             }
         }
         document.getElementById('runDijkstraBtn').addEventListener('click', function () {
+        
     var minimize = document.getElementById('minimize').checked;
     var startVertex = prompt("Ingrese el vértice de inicio para Dijkstra:");
     var endVertex = prompt("Ingrese el vértice destino:");
-
+    var edge=[];
+    var ar=[];
+    for(let i=0;i<=EdgeArr.length;i++){
+      edge.push(EdgeArr[i]);  
+}
+for(let i=0;i<=VertexArr.length;i++){
+      ar.push(VertexArr[i]);  
+}
     if (!startVertex || !VertexArr.includes(startVertex) || !endVertex || !VertexArr.includes(endVertex)) {
         alert("Vértice de inicio o destino no válido o no existente.");
         return;
@@ -416,13 +424,21 @@
     console.log("El camino más corto a " + endVertex + " es:");
     console.log(results.path.join(" -> "));
     // Primero añade flechas a todas las aristas
-addArrowsToAllEdges(EdgeArr); 
- 
-    highlightShortestPath(results.path, EdgeArr);  // Solo pintar las aristas del camino más corto
     for (let vertexName in results.distances) {
     console.log(vertexName, results.distances[vertexName]);  // Verifica que los valores son correctos y no undefined
     agregar(vertexName, results.distances[vertexName]);
 }
+if(minimize){
+    addArrowsToAllEdges(EdgeArr); 
+ 
+ highlightShortestPath(results.path, EdgeArr);  // Solo pintar las aristas del camino más corto
+}else{
+
+    addArrowsToAllEdges(EdgeArr); 
+
+    johnson(VertexArr,EdgeArr);
+}
+
 });
 
 function addArrowHeadToMidpoint(edge, isShortestPath) {
@@ -770,7 +786,6 @@ function agregar(vertexName, result){
     const previous = {};
     const processed = new Set();
 
-    // Inicialización de la lista de adyacencia y distancias
     vertices.forEach(vertex => {
         adjacencyList.set(vertex, []);
         distances[vertex] = minimize ? Infinity : -Infinity;
@@ -778,7 +793,6 @@ function agregar(vertexName, result){
     });
     distances[startVertex] = 0;
 
-    // Construcción de la lista de adyacencia
     edges.forEach(edge => {
         let [start, end, weight] = edge;
         adjacencyList.get(start).push({ node: end, weight: parseInt(weight) });
@@ -812,20 +826,18 @@ function agregar(vertexName, result){
         currentVertex = getVertexWithMinDistance();
     }
 
-    // Reconstrucción del camino
     let path = [];
     let at = endVertex;
-    while (at !== null && at !== startVertex) { // Modificado para detener si alcanzamos el inicio nuevamente
+    while (at !== null && at !== startVertex) {
         path.push(at);
         at = previous[at];
     }
-    path.push(startVertex); // Añade el inicio al final para completar el camino
+    path.push(startVertex);
     path.reverse();
 
     console.log("Path reconstructed:", path);
     return { distances, path };
 }
-
 
 
 

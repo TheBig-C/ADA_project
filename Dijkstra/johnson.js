@@ -32,10 +32,14 @@ function johnson(verArr,edgeArr){
 function addWeightedLineWithAttributesByName(edge, additionalWeight) {
     // Obtener la línea por su nombre
     var edgen = canvas.getObjectByName("edgevertex" + edge[0] + "vertex" + edge[1] + "weight" + edge[2]);
-    
+    console.log("edge: "+edge);
+    console.log("d: "+additionalWeight);
     if (edgen) {
+        console.log("a");
         // Si el additionalWeight es 0, cambia el color de la línea a verde
         if (additionalWeight === 0) {
+            console.log("b");
+
             edgen.set({ stroke: 'green' });
             canvas.renderAll(); // Re-renderiza el canvas para aplicar el cambio de color
         }
@@ -45,13 +49,13 @@ function addWeightedLineWithAttributesByName(edge, additionalWeight) {
         var textPositionTop = edgen.top + 20; // Asumiendo que esto coloca el texto debajo de la línea
 
         // Crear el objeto de texto para el peso adicional
-        var weightText = new fabric.Text("h="+additionalWeight.toString(), {
+        var weightText = new fabric.Text("", {
             left: textPositionLeft,
             top: textPositionTop,
             fontSize: 12,
             fill: additionalWeight==0?'green':'black'
         });
-        addArrowHeadToMidpoint(edge,additionalWeight);
+        
         // Añadir el texto al canvas
         canvas.add(weightText);
     }
@@ -60,25 +64,7 @@ function addArrowHeadToMidpoint(edge,d) {
     var line = canvas.getObjectByName("edgevertex" + edge[0] + "vertex" + edge[1] + "weight" + edge[2]);
     
     if (line) {
-        // Calcular el punto medio de la línea
-        var midpointX = (line.x1 + line.x2) / 2;
-        var midpointY = (line.y1 + line.y2) / 2;
-
-        // Crear un polígono que represente la punta de la flecha
-        // Ajusta los puntos según el tamaño y la orientación deseados de la punta de la flecha
-        var arrowHead = new fabric.Polygon([
-            {x: -10, y: 5},
-            {x: 0, y: 0},
-            {x: -10, y: -5}
-        ], {
-            left: midpointX,
-            top: midpointY,
-            angle: calculateAngle(line.x1, line.y1, line.x2, line.y2), // Calcula el ángulo de la línea para orientar la punta de la flecha
-            fill: d==0?'green': 'black'
-        });
-
-        // Añadir la punta de la flecha al canvas
-        canvas.add(arrowHead);
+        
     }
 }
 
