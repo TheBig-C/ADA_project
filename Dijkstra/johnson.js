@@ -1,7 +1,36 @@
 function johnson(verArr,edgeArr){
-    var vm={},edm=[], aux={};
+    var c=0;
+    while (true) {
+        // Assuming VertexArr contains the vertices in the graph
+        var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
+        orden = [];
+        nuevoOrden = [];
+        var aux = 0;
+        for (var i = 0; i < VertexArr.length; i++) {
+            aux = 0;
+            for (var j = 0; j < VertexArr.length; j++) {
+                if (adjacencyMatrix[j][i] > 0) {
+                    aux = j + 1;
+                }
+            }
+            orden[i] = aux;
+        }
 
-    for(let i=0;i<verArr.length;i++){
+        VertexArr = selectionSort(orden, VertexArr);
+        // Display the adjacency matrix in the modal, pass VertexArr as nodeNames
+
+        adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
+        if (isDiagonalSuperior(adjacencyMatrix)) {
+            break;
+        }
+        
+    }
+
+    var vm={},edm=[], aux={};
+console.log("df: "+verArr);
+
+console.log("dfw: "+edgeArr);
+for(let i=0;i<verArr.length;i++){
         aux[verArr[i]]=i;
     }
     
@@ -21,27 +50,57 @@ function johnson(verArr,edgeArr){
     valoresVertices(vm,verArr,edgeArr);
    
     valoresHolguras(edm,vm,edgeArr);
-    for(let i=0; i<verArr.length;i++){
-        agregar(verArr[i],vm[verArr[i]][1],vm[verArr[i]][0])
-    }
+   
     for(let i=0;i<edgeArr.length;i++){
-        addWeightedLineWithAttributesByName(edgeArr[i],edm[edgeArr[i][0]+" "+edgeArr[i][1]+" "+edgeArr[i][2]])
+        console.log("fd: "+edm[edgeArr[i][0]+" "+edgeArr[i][1]+" "+edgeArr[i][2]])
+      c=c+  addWeightedLineWithAttributesByName(edgeArr[i],edm[edgeArr[i][0]+" "+edgeArr[i][1]+" "+edgeArr[i][2]])
     }
+    return c;
 }
+function isDiagonalSuperior(matriz) {
 
+    // Iterar sobre cada elemento por debajo de la diagonal superior
+    for (let i = 0; i < matriz.length; i++) {
+        for (let j = 0; j < i; j++) {
+            if (matriz[i][j] !== 0) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+function selectionSort(arr, arrToSort) {
+    const n = arr.length;
+    for (let i = 0; i < n - 1; i++) {
+        let minIndex = i;
+        for (let j = i + 1; j < n; j++) {
+            if (arr[j] < arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+        if (minIndex !== i) {
+            // Intercambiar los elementos en el array a ordenar
+            [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
+            // Intercambiar los elementos correspondientes en el otro array
+            [arrToSort[i], arrToSort[minIndex]] = [arrToSort[minIndex], arrToSort[i]];
+
+
+        }
+    }
+    return arrToSort;
+}
 function addWeightedLineWithAttributesByName(edge, additionalWeight) {
     // Obtener la línea por su nombre
+    var c=0;
     var edgen = canvas.getObjectByName("edgevertex" + edge[0] + "vertex" + edge[1] + "weight" + edge[2]);
-    console.log("edge: "+edge);
-    console.log("d: "+additionalWeight);
+    
     if (edgen) {
-        console.log("a");
         // Si el additionalWeight es 0, cambia el color de la línea a verde
         if (additionalWeight === 0) {
-            console.log("b");
-
-            edgen.set({ stroke: 'green' });
+            edgen.set({ stroke: 'red' });
             canvas.renderAll(); // Re-renderiza el canvas para aplicar el cambio de color
+            c=parseInt(edge[2]);
         }
 
         // Calcular la posición para el texto del peso adicional.
@@ -53,18 +112,37 @@ function addWeightedLineWithAttributesByName(edge, additionalWeight) {
             left: textPositionLeft,
             top: textPositionTop,
             fontSize: 12,
-            fill: additionalWeight==0?'green':'black'
+            fill: additionalWeight==0?'red':'black'
         });
-        
+     //   addArrowHeadToMidpoint(edge,additionalWeight);
         // Añadir el texto al canvas
         canvas.add(weightText);
     }
+    return c;
 }
 function addArrowHeadToMidpoint(edge,d) {
     var line = canvas.getObjectByName("edgevertex" + edge[0] + "vertex" + edge[1] + "weight" + edge[2]);
     
     if (line) {
-        
+        // Calcular el punto medio de la línea
+        var midpointX = (line.x1 + line.x2) / 2;
+        var midpointY = (line.y1 + line.y2) / 2;
+
+        // Crear un polígono que represente la punta de la flecha
+        // Ajusta los puntos según el tamaño y la orientación deseados de la punta de la flecha
+        var arrowHead = new fabric.Polygon([
+            {x: -10, y: 5},
+            {x: 0, y: 0},
+            {x: -10, y: -5}
+        ], {
+            left: midpointX,
+            top: midpointY,
+            angle: calculateAngle(line.x1, line.y1, line.x2, line.y2), // Calcula el ángulo de la línea para orientar la punta de la flecha
+            fill: d==0?'green': 'black'
+        });
+
+        // Añadir la punta de la flecha al canvas
+        canvas.add(arrowHead);
     }
 }
 
@@ -159,11 +237,12 @@ function  valoresHolguras(edm,vm,edgeArr){
   
 }
 function valoresVertices(vm,verArr,edgeArr){
-   
+    console.log("df: "+verArr);
+
+    console.log("dfw: "+edgeArr);
     for(let i=0;i<verArr.length;i++){
         vm[verArr[i]]=[0,0];
     }
-    console.log(vm);
     for(let i = 0; i < edgeArr.length; i++){
         let sourceVertex = edgeArr[i][0];
         let destinationVertex = edgeArr[i][1];
@@ -187,6 +266,7 @@ function valoresVertices(vm,verArr,edgeArr){
 
         }
     }
-   
+    console.log(vm);
+
 
 }

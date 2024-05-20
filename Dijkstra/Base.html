@@ -38,23 +38,19 @@
 
         .notification.is-warning {
             background-color: rgb(60, 57, 66);
-            /*Settings*/
         }
 
         .notification.is-info {
             background-color: rgb(60, 57, 66);
-            /*Graph Drawer*/
         }
 
         .notification.is-success {
             background-color: rgb(60, 57, 66);
-            /*Input*/
         }
 
         .tile.is-parent.png-section {
             height: min-content;
             width: min-content;
-            /* Adjust the width as needed */
         }
 
         .tile.is-parent.png-section .tile.is-child {
@@ -143,10 +139,11 @@
                                             <button id="applyChangesBtn" class="button is-info">Aplicar cambios</button>
                                         </div>
                                         <br>
-                                        <!--<button id="removeAll" onclick="canvas.removeAll()">Remove All</button>-->
                                         <button id="removeAll" onclick="canvas.removeAll()">Eliminar Todo</button>
                                         <button id="showAdjacencyMatrixBtn">Mostrar ruta critica</button>
-
+                                        <div id="totalWeightContainer">
+                                            <p class="subtitle">Total: <span id="totalWeight">0</span></p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -158,11 +155,6 @@
         </div>
     </section>
 
-
-
-
-
-    <!-- Upload PNG Button -->
     <button id="uploadPNGButton" class="button is-danger is-rounded"
         style="position: fixed; bottom: 80px; right: 20px;">
         <span class="icon is-small">
@@ -171,10 +163,8 @@
         <span>Subir</span>
     </button>
 
-    <!-- Input for File Upload -->
     <input type="file" id="inputImage" style="display: none;">
 
-    <!-- Download PNG Button -->
     <button id="downloadPNGButton" class="button is-success is-rounded"
         style="position: fixed; bottom: 140px; right: 20px;">
         <span class="icon is-small">
@@ -190,18 +180,14 @@
         <span>Descargar como archivo</span>
     </button>
 
-    <!-- Help Button -->
     <button onclick="abrirAyuda()" class="button is-info is-rounded"
-        style="position: fixed; bottom: 20px; right: 20px; ">
+        style="position: fixed; bottom: 20px; right: 20px;">
         <span class="icon is-small">
             <i class="fas fa-question"></i>
         </span>
         <span>Ayuda</span>
     </button>
 
-
-
-    <!-- Help Modal -->
     <div id="helpModal" class="modal">
         <div class="modal-background"></div>
         <div class="modal-content">
@@ -223,59 +209,52 @@
         <button class="modal-close is-large" aria-label="close"></button>
     </div>
 
-    <!-- Modal -->
     <div class="modal" id="adjacencyMatrixModal">
         <div class="modal-background"></div>
         <div class="modal-content">
             <div class="box">
                 <h4 class="title is-4">Matriz de adyacencia</h4>
                 <table id="adjacencyMatrixTable" class="table">
-                    <!-- Table content will be dynamically generated here -->
                 </table>
             </div>
         </div>
         <button class="modal-close is-large" aria-label="close"></button>
-        <!-- Opciones para Minimizar o Maximizar -->
-<div class="content">
-    <p class="subtitle">Minimizar o Maximizar Distancias</p>
-    <div class="radio">
-        <input id="minimize" name="minMaxOption" type="radio" checked>
-        <label for="minimize" class="radio-label">Minimizar</label>
+        <div class="content">
+            <p class="subtitle">Minimizar o Maximizar Distancias</p>
+            <div class="radio">
+                <input id="minimize" name="minMaxOption" type="radio" checked>
+                <label for="minimize" class="radio-label">Minimizar</label>
+            </div>
+            <div class="radio">
+                <input id="maximize" name="minMaxOption" type="radio">
+                <label for="maximize" class="radio-label">Maximizar</label>
+            </div>
+            <button id="runDijkstraBtn" class="button is-info">Ejecutar Dijkstra</button>
+        </div>
     </div>
-    <div class="radio">
-        <input id="maximize" name="minMaxOption" type="radio">
-        <label for="maximize" class="radio-label">Maximizar</label>
-    </div>
-    <button id="runDijkstraBtn" class="button is-info">Ejecutar Dijkstra</button>
-</div>
-
-    </div>
-
 
     <script>
+        var VertexColor = '#ffffff'; 
+        var VertexRadius = 16; 
+        var padding = 10; 
+        var weightPadding = 16; 
+        var startVertex = null; 
+        var VertexArr = []; 
+        var EdgeArr = []; 
+        var isDirect = true; 
+        var isBothWays = false; 
+        var connections = [];
 
-        var VertexColor = '#ffffff';            // the color of vertexs
-        var VertexRadius = 16;                  // the radius of vertexs
-        var padding = 10;                       // the padding to prevent objects to reach the edge of the canvas
-        var weightPadding = 16;                 // the padding from edge to weight label
-        var startVertex = null;                 // when linking two vertexs, record the first one
-        var VertexArr = [];                     // the vertex array, recording what indexs are used
-        var EdgeArr = [];                       // the edges array, recording pairs of [fromVertex, toVertex]
-        var isDirect = true;                    // Add this line to initialize the connections array
-        var isBothWays = false;                 // if true, edges have arrows, representing direct edges
-        var connections = [];                   //global array to save all conection without weights (it doesn't saves loops)
-
-        var canvasWidth = $("#graph-drawer").outerWidth() / 0.9;                  // the width of canvas
-        var canvasWidth = $("#graph-drawer").outerWidth() / 0.9;                  // the width of canvas
-        var canvasHeight = $("#graph-drawer").outerHeight() / 1.3;                // the height of canvas
-        var canvas = new fabric.Canvas('c', {                                     // the object of canvas
+        var canvasWidth = $("#graph-drawer").outerWidth() / 0.9; 
+        var canvasWidth = $("#graph-drawer").outerWidth() / 0.9; 
+        var canvasHeight = $("#graph-drawer").outerHeight() / 1.3; 
+        var canvas = new fabric.Canvas('c', { 
             backgroundColor: "#fff",
             selection: false,
             width: canvasWidth,
             height: canvasHeight,
         });
 
-        // the default format of a vertex
         var defaultVertex = {
             radius: VertexRadius,
             originX: 'center',
@@ -284,7 +263,6 @@
             hasControls: false,
         };
 
-        // the default format of related context on the vertex
         var defaultContext = {
             fontSize: 15,
             originX: 'center',
@@ -293,9 +271,8 @@
             fontWeight: 'bold',
         }
 
-        // the default format of an edge
         var defaultLine = {
-            strokeWidth: 2, // Ajustado a 4 para hacer la línea más gruesa
+            strokeWidth: 2, 
             fill: '#000000',
             stroke: '#000000',
             originX: 'center',
@@ -314,11 +291,7 @@
         function abrirAyuda() {
             window.open('instrucciones.pdf', '_blank');
         }
-        // Function to handle file selection and decode
-        function abrirAyuda() {
-            window.open('instrucciones.pdf', '_blank');
-        }
-        // Function to handle file selection and decode
+
         function handleFileSelect(event) {
             var input = event.target;
             var fil = input.files;
@@ -327,9 +300,7 @@
 
                 reader.onload = function (e) {
                     if (fil[0].type.startsWith('image/')) {
-                        // If it's an image file
                         const img = new Image();
-
                         img.onload = function () {
                             const tempCanvas = document.createElement('canvas');
                             tempCanvas.width = img.width;
@@ -357,8 +328,6 @@
                                 var d = contenido.split("$$");
                                 console.log("contenido: ");
                                 console.log(contenido);
-                                // Hacer algo con el contenido, por ejemplo, mostrarlo en la consola
-                                //  $('#GraphData').val(d[0]);
                                 storeInputD(d[0]);
                                 console.log("otro:");
                                 console.log(d[1]);
@@ -383,15 +352,10 @@
                                 for (let i = 0; i < ms.length; i++) {
                                     storeVertex(ms[i][0], ms[i][1], ms[i][2], '#ffffff');
                                 }
-
-
                             };
 
                             reader.readAsText(input.files[0]);
                             saveInit(true);
-                            // location.reload();
-                            //   tranInputToDrawer(true);
-
                         }
                     } else {
                         console.error('Tipo de archivo no compatible.');
@@ -401,157 +365,138 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
-        document.getElementById('runDijkstraBtn').addEventListener('click', function () {
         
-    var minimize = document.getElementById('minimize').checked;
-    var startVertex = prompt("Ingrese el vértice de inicio para Dijkstra:");
-    var endVertex = prompt("Ingrese el vértice destino:");
-    var edge=[];
-    var ar=[];
-    for(let i=0;i<=EdgeArr.length;i++){
-      edge.push(EdgeArr[i]);  
-}
-for(let i=0;i<=VertexArr.length;i++){
-      ar.push(VertexArr[i]);  
-}
-    if (!startVertex || !VertexArr.includes(startVertex) || !endVertex || !VertexArr.includes(endVertex)) {
-        alert("Vértice de inicio o destino no válido o no existente.");
-        return;
-    }
+        document.getElementById('runDijkstraBtn').addEventListener('click', function () {
+            var minimize = document.getElementById('minimize').checked;
+            var startVertex = prompt("Ingrese el vértice de inicio para Dijkstra:");
+            var endVertex = prompt("Ingrese el vértice destino:");
+            var edge=[];
+            var ar=[];
+            for(let i=0;i<=EdgeArr.length;i++){
+                edge.push(EdgeArr[i]);  
+            }
+            for(let i=0;i<=VertexArr.length;i++){
+                ar.push(VertexArr[i]);  
+            }
+            if (!startVertex || !VertexArr.includes(startVertex) || !endVertex || !VertexArr.includes(endVertex)) {
+                alert("Vértice de inicio o destino no válido o no existente.");
+                return;
+            }
 
-    var results = dijkstra(VertexArr, EdgeArr, startVertex, endVertex, minimize);
-    console.log(results.distances);
-    console.log("El camino más corto a " + endVertex + " es:");
-    console.log(results.path.join(" -> "));
-    // Primero añade flechas a todas las aristas
-    for (let vertexName in results.distances) {
-    console.log(vertexName, results.distances[vertexName]);  // Verifica que los valores son correctos y no undefined
-    agregar(vertexName, results.distances[vertexName]);
-}
-if(minimize){
-    addArrowsToAllEdges(EdgeArr); 
- 
- highlightShortestPath(results.path, EdgeArr);  // Solo pintar las aristas del camino más corto
-}else{
+            var results = dijkstra(VertexArr, EdgeArr, startVertex, endVertex, minimize);
+            console.log(results.distances);
+            console.log("El camino más corto a " + endVertex + " es:");
+            console.log(results.path.join(" -> "));
+            console.log("Peso total: "+results.totalWeight);
+            document.getElementById('totalWeight').innerText = results.totalWeight;
+            
+            for (let vertexName in results.distances) {
+                console.log(vertexName, results.distances[vertexName]);
+                agregar(vertexName, results.distances[vertexName]);
+            }
+            if(minimize){
+                addArrowsToAllEdges(EdgeArr); 
+                highlightShortestPath(results.path, EdgeArr);
+                document.getElementById('totalWeight').innerText = results.totalWeight;
 
-    addArrowsToAllEdges(EdgeArr); 
+            } else {
+                addArrowsToAllEdges(EdgeArr); 
+                val = johnson(VertexArr, EdgeArr);
+                document.getElementById('totalWeight').innerText = val;
 
-    johnson(VertexArr,EdgeArr);
-}
-
-});
-
-function addArrowHeadToMidpoint(edge, isShortestPath) {
-    var line = canvas.getObjectByName("edgevertex" + edge[0] + "vertex" + edge[1] + "weight" + edge[2]);
-
-    if (line) {
-        // Actualizar el color de la línea si es parte del camino más corto
-        line.set({ stroke: isShortestPath ? 'green' : 'black' });
-        canvas.renderAll();  // Rerenderizar el canvas para aplicar el cambio de color
-
-        var midpointX = (line.x1 + line.x2) / 2;
-        var midpointY = (line.y1 + line.y2) / 2;
-
-        // Crear una punta de flecha
-        var arrowHead = new fabric.Polygon([
-            {x: -10, y: 5},
-            {x: 0, y: 0},
-            {x: -10, y: -5}
-        ], {
-            left: midpointX,
-            top: midpointY,
-            angle: calculateAngle(line.x1, line.y1, line.x2, line.y2),
-            fill: 'black'  // Hacer que todas las puntas de flecha sean negras
+            }
         });
 
-        // Cambiar el color de la punta de la flecha si es parte del camino más corto
-        if (isShortestPath) {
-            arrowHead.set({ fill: 'green' });
+        function addArrowHeadToMidpoint(edge, isShortestPath) {
+            var line = canvas.getObjectByName("edgevertex" + edge[0] + "vertex" + edge[1] + "weight" + edge[2]);
+
+            if (line) {
+                line.set({ stroke: isShortestPath ? 'green' : 'black' });
+                canvas.renderAll();
+
+                var midpointX = (line.x1 + line.x2) / 2;
+                var midpointY = (line.y1 + line.y2) / 2;
+
+                var arrowHead = new fabric.Polygon([
+                    {x: -10, y: 5},
+                    {x: 0, y: 0},
+                    {x: -10, y: -5}
+                ], {
+                    left: midpointX,
+                    top: midpointY,
+                    angle: calculateAngle(line.x1, line.y1, line.x2, line.y2),
+                    fill: 'black'
+                });
+
+                if (isShortestPath) {
+                    arrowHead.set({ fill: 'green' });
+                }
+
+                canvas.add(arrowHead);
+            }
         }
 
-        canvas.add(arrowHead);
-    }
-}
-
-
-function addArrowsToAllEdges(edges) {
-    edges.forEach(edge => {
-        addArrowHeadToMidpoint(edge, false);
-    });
-}
-
-
-function highlightShortestPath(path, edges) {
-    for (let i = 0; i < path.length - 1; i++) {
-        let startVertex = path[i];
-        let endVertex = path[i + 1];
-        
-        // Encontrar la arista que conecta startVertex y endVertex
-        let edge = edges.find(edge => edge[0] === startVertex && edge[1] === endVertex);
-        if (edge) {
-            addArrowHeadToMidpoint(edge, true);
+        function addArrowsToAllEdges(edges) {
+            edges.forEach(edge => {
+                addArrowHeadToMidpoint(edge, false);
+            });
         }
-    }
-}
-// Asumimos que 'path' y 'EdgeArr' están disponibles después de correr Dijkstra
-function agregar(vertexName, result){
-    // Encuentra el objeto (vértice) por nombre
-    var vertex = canvas.getObjectByName("vertex" + vertexName);
-    if (!vertex) {
-        console.log('Vértice no encontrado');
-        return;
-    }
 
-    // Calcula el radio del vértice basado en el tamaño del texto y el círculo
-    var vertexRadius = Math.max(30, vertex.getBoundingRect().width / 2);
-    vertex.item(0).set({ radius: vertexRadius });
+        function highlightShortestPath(path, edges) {
+            for (let i = 0; i < path.length - 1; i++) {
+                let startVertex = path[i];
+                let endVertex = path[i + 1];
+                
+                let edge = edges.find(edge => edge[0] === startVertex && edge[1] === endVertex);
+                if (edge) {
+                    addArrowHeadToMidpoint(edge, true);
+                }
+            }
+        }
 
-    // Asegura que el resultado no es undefined antes de convertirlo a string
-    var resultText = (result !== undefined) ? result.toString() : "N/A";
+        function agregar(vertexName, result) {
+            var vertex = canvas.getObjectByName("vertex" + vertexName);
+            if (!vertex) {
+                console.log('Vértice no encontrado');
+                return;
+            }
 
-    // Aumenta el tamaño de la fuente para mayor visibilidad
-    var fontSize = 18; // Tamaño de la fuente más grande
+            var vertexRadius = Math.max(30, vertex.getBoundingRect().width / 2);
+            vertex.item(0).set({ radius: vertexRadius });
 
-    // Posición ajustada para el resultado: ligeramente más abajo
-    var resultPosition = {
-        x: 0, // Centro del círculo
-        y: -vertexRadius + 10 // Desplazado hacia abajo respecto al centro del círculo
-    };
+            var resultText = (result !== undefined) ? result.toString() : "N/A";
+            var fontSize = 18;
 
-    // Crea el objeto de texto para el resultado
-    var ResultText = new fabric.Text(resultText, {
-        fontSize: fontSize,
-        left: resultPosition.x,
-        top: resultPosition.y,
-        originX: 'center',
-        originY: 'center',
-        fill: '#FF0000', // Color rojo para destacar el resultado
-    });
+            var resultPosition = {
+                x: 0,
+                y: -vertexRadius + 10
+            };
 
-    // Asegúrate de eliminar el texto del resultado anterior si ya existe
-    if(vertex.size() > 2) { // Ajusta este índice según cómo estén organizados tus items
-        vertex.remove(vertex.item(2)); // Elimina el texto del resultado anterior
-    }
+            var ResultText = new fabric.Text(resultText, {
+                fontSize: fontSize,
+                left: resultPosition.x,
+                top: resultPosition.y,
+                originX: 'center',
+                originY: 'center',
+                fill: '#FF0000',
+            });
 
-    // Agrega el nuevo texto del resultado al grupo del vértice
-    vertex.add(ResultText);
+            if(vertex.size() > 2) {
+                vertex.remove(vertex.item(2));
+            }
 
-    // Asegúrate de volver a renderizar el canvas para ver los cambios
-    canvas.renderAll();
-}
+            vertex.add(ResultText);
+            canvas.renderAll();
+        }
 
-
-
-        // Function to check if the file is an image
         function isImageFile(file) {
             return file.type.startsWith('image/');
         }
 
-        // Function to check if the file is a text file
         function isTextFile(file) {
             return file.type.startsWith('text/');
         }
-        // Function to trigger file input click
+
         document.getElementById('uploadPNGButton').addEventListener('click', function () {
             document.getElementById('inputImage').click();
         });
@@ -568,22 +513,18 @@ function agregar(vertexName, result){
                 enlaceDescarga.href = window.URL.createObjectURL(blob);
                 enlaceDescarga.download = nombreArchivo + '.txt';
 
-                // Simular clic en el enlace de descarga
                 document.body.appendChild(enlaceDescarga);
                 enlaceDescarga.click();
                 document.body.removeChild(enlaceDescarga);
             }
         });
 
-        // Download PNG Button Click Event
         document.getElementById('downloadPNGButton').addEventListener('click', function () {
-            // Verificar si el canvas tiene un tamaño válido
             if (canvas.width === 0 || canvas.height === 0) {
                 console.error("Canvas size is invalid");
                 return;
             }
 
-            // Crear una nueva imagen para asegurar que esté completamente cargada
             const img = new Image();
             img.onload = function () {
                 const tempCanvas = document.createElement('canvas');
@@ -599,7 +540,6 @@ function agregar(vertexName, result){
                 var nombre = prompt("Ingrese un nombre para guardar la imagen: ", "image");
                 link.download = nombre + '.png';
 
-                // Verificar si el canvas tiene contenido antes de aplicar la esteganografía
                 if ($('#GraphData').val() && dataURL) {
                     const encodedDataURL = steg.encode($('#GraphData').val(), dataURL);
                     link.href = encodedDataURL;
@@ -611,18 +551,15 @@ function agregar(vertexName, result){
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-
-                // Luego de descargar, ocultar texto en la imagen
             };
 
             img.src = 'data:image/png;base64,' + canvas.toDataURL().split(',')[1];
         });
-        // Help Modal Close Event
+
         document.getElementById('closeHelp').addEventListener('click', function () {
             document.getElementById('helpModal').classList.remove('is-active');
         });
 
-        // init css elements
         document.getElementById("create").checked = true;
         document.getElementById("direct").checked = true;
         $('#colorPicker').val("#ffffff");
@@ -640,7 +577,6 @@ function agregar(vertexName, result){
         inputInit();
         saveInit();
 
-        // set color for vertexs or edges
         function updateColor() {
             if (document.getElementById("create").checked) {
                 VertexColor = $('#colorPicker').val();
@@ -651,56 +587,48 @@ function agregar(vertexName, result){
             }
         }
 
-        // change whether edges have arrows
         $("#directChange").click(function () {
             isDirect = 1 - isDirect;
             canvas.renderAll();
         });
 
-        // auto resize
         $(window).resize(function () {
             canvas.setWidth($("#graph-drawer").outerWidth() / 1.1);
             canvas.setHeight($("#graph-drawer").outerHeight() / 1.3);
         });
+        
         function toggleCodeBlock() {
             var codeBlock = document.getElementById('codeBlock');
             var selectCheckbox = document.getElementById('select');
 
             if (selectCheckbox.checked) {
-
                 codeBlock.style.display = 'block';
             } else {
                 codeBlock.style.display = 'none';
             }
         }
 
-
         function generateAdjacencyMatrix(vertices, edges) {
             var matrix = [];
             var n = vertices.length;
 
-            // Create a mapping from vertex names to indices
             var vertexIndexMap = {};
             for (var i = 0; i < n; i++) {
                 vertexIndexMap[vertices[i]] = i;
             }
 
-            // Initialize the matrix with zeros
             for (var i = 0; i < n; i++) {
                 matrix[i] = Array(n).fill(0);
             }
 
-            // Fill in the matrix based on the edges
             for (var i = 0; i < edges.length; i++) {
                 var fromVertex = edges[i][0];
                 var toVertex = edges[i][1];
                 var weight = edges[i][2];
 
                 if (edges[i].length === 3) {
-                    // Set the corresponding cell to the weight value for directed edges
                     matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = parseInt(weight) || 1;
                 } else {
-                    // For undirected edges, set the reverse direction as well
                     matrix[vertexIndexMap[fromVertex]][vertexIndexMap[toVertex]] = 1;
                     matrix[vertexIndexMap[toVertex]][vertexIndexMap[fromVertex]] = 1;
                 }
@@ -711,37 +639,30 @@ function agregar(vertexName, result){
         function displayMatrixAsTable(matrix, nodeNames) {
             var tableContent = "<thead><tr><th></th>";
 
-            // Create table headers using node names, excluding the last column
             for (var i = 0; i < nodeNames.length - 1; i++) {
                 tableContent += "<th>" + nodeNames[i] + "</th>";
             }
 
-            // Add a column for row sums
             tableContent += "</tr></thead><tbody>";
 
-            // Find maximum values in each column, excluding the last column
             var maxValuesInColumns = [];
             for (var j = 0; j < matrix[0].length - 1; j++) {
                 var maxInColumn = Math.max(...matrix.map(row => row[j]).slice(0, -1));
                 maxValuesInColumns.push(maxInColumn);
             }
 
-            // Find maximum values in each row, excluding the last row
             var maxValuesInRows = [];
             for (var i = 0; i < matrix.length - 1; i++) {
                 var maxInRow = Math.max(...matrix[i].slice(0, -1));
                 maxValuesInRows.push(maxInRow);
             }
 
-            // Create table rows, excluding the last row
             for (var i = 0; i < matrix.length - 1; i++) {
                 tableContent += "<tr><th>" + nodeNames[i] + "</th>";
 
                 for (var j = 0; j < matrix[i].length - 1; j++) {
-                    // Check if the current value is the maximum in both its row and column
                     var isMax = (matrix[i][j] === maxValuesInRows[i]) && (matrix[i][j] === maxValuesInColumns[j]);
 
-                    // Apply bold style only when maximum in both row and column
                     if (isMax) {
                         tableContent += "<td><strong>" + matrix[i][j] + "</strong></td>";
                     } else {
@@ -749,13 +670,11 @@ function agregar(vertexName, result){
                     }
                 }
 
-                // Add the last column without bold style
                 tableContent += "<td>" + matrix[i][matrix[i].length - 1] + "</td>";
 
                 tableContent += "</tr>";
             }
 
-            // Add the last row without bold style
             tableContent += "<tr><th>" + nodeNames[nodeNames.length - 1] + "</th>";
             for (var j = 0; j < matrix[matrix.length - 1].length; j++) {
                 tableContent += "<td>" + matrix[matrix.length - 1][j] + "</td>";
@@ -767,86 +686,78 @@ function agregar(vertexName, result){
             $("#adjacencyMatrixTable").html(tableContent);
         }
 
-
-
-
-        // Attach the function to the button click event
         $("#showAdjacencyMatrixBtn").on("click", function () {
             showAdjacencyMatrix();
             console.log("vertexarr: "+VertexArr);
-                console.log(EdgeArr);
-
-               // dijkstra();
+            console.log(EdgeArr);
         });
 
-        // Function to display the adjacency matrix
         function dijkstra(vertices, edges, startVertex, endVertex, minimize) {
-    const adjacencyList = new Map();
-    const distances = {};
-    const previous = {};
-    const processed = new Set();
+            const adjacencyList = new Map();
+            const distances = {};
+            const previous = {};
+            const processed = new Set();
 
-    vertices.forEach(vertex => {
-        adjacencyList.set(vertex, []);
-        distances[vertex] = minimize ? Infinity : -Infinity;
-        previous[vertex] = null;
-    });
-    distances[startVertex] = 0;
+            vertices.forEach(vertex => {
+                adjacencyList.set(vertex, []);
+                distances[vertex] = minimize ? Infinity : -Infinity;
+                previous[vertex] = null;
+            });
+            distances[startVertex] = 0;
 
-    edges.forEach(edge => {
-        let [start, end, weight] = edge;
-        adjacencyList.get(start).push({ node: end, weight: parseInt(weight) });
-    });
+            edges.forEach(edge => {
+                let [start, end, weight] = edge;
+                adjacencyList.get(start).push({ node: end, weight: parseInt(weight) });
+            });
 
-    function getVertexWithMinDistance() {
-        let targetDistance = minimize ? Infinity : -Infinity;
-        let vertexWithTargetDistance = null;
-        for (let vertex in distances) {
-            if (!processed.has(vertex) && ((minimize && distances[vertex] < targetDistance) || (!minimize && distances[vertex] > targetDistance))) {
-                targetDistance = distances[vertex];
-                vertexWithTargetDistance = vertex;
-            }
-        }
-        return vertexWithTargetDistance;
-    }
-
-    let currentVertex = getVertexWithMinDistance();
-    while (currentVertex !== null) {
-        processed.add(currentVertex);
-        let distance = distances[currentVertex];
-        adjacencyList.get(currentVertex).forEach(neighbor => {
-            if (!processed.has(neighbor.node)) {
-                let newDistance = distance + neighbor.weight;
-                if ((minimize && newDistance < distances[neighbor.node]) || (!minimize && newDistance > distances[neighbor.node])) {
-                    distances[neighbor.node] = newDistance;
-                    previous[neighbor.node] = currentVertex;
+            function getVertexWithMinDistance() {
+                let targetDistance = minimize ? Infinity : -Infinity;
+                let vertexWithTargetDistance = null;
+                for (let vertex in distances) {
+                    if (!processed.has(vertex) && ((minimize && distances[vertex] < targetDistance) || (!minimize && distances[vertex] > targetDistance))) {
+                        targetDistance = distances[vertex];
+                        vertexWithTargetDistance = vertex;
+                    }
                 }
+                return vertexWithTargetDistance;
             }
-        });
-        currentVertex = getVertexWithMinDistance();
-    }
 
-    let path = [];
-    let at = endVertex;
-    while (at !== null && at !== startVertex) {
-        path.push(at);
-        at = previous[at];
-    }
-    path.push(startVertex);
-    path.reverse();
+            let currentVertex = getVertexWithMinDistance();
+            while (currentVertex !== null) {
+                processed.add(currentVertex);
+                let distance = distances[currentVertex];
+                adjacencyList.get(currentVertex).forEach(neighbor => {
+                    if (!processed.has(neighbor.node)) {
+                        let newDistance = distance + neighbor.weight;
+                        if ((minimize && newDistance < distances[neighbor.node]) || (!minimize && newDistance > distances[neighbor.node])) {
+                            distances[neighbor.node] = newDistance;
+                            previous[neighbor.node] = currentVertex;
+                        }
+                    }
+                });
+                currentVertex = getVertexWithMinDistance();
+            }
 
-    console.log("Path reconstructed:", path);
-    return { distances, path };
-}
+            let path = [];
+            let at = endVertex;
+            let totalWeight = 0;
+            while (at !== null && at !== startVertex) {
+                path.push(at);
+                if (previous[at] !== null) {
+                    totalWeight += adjacencyList.get(previous[at]).find(neighbor => neighbor.node === at).weight;
+                }
+                at = previous[at];
+            }
+            path.push(startVertex);
+            path.reverse();
 
-
+            console.log("Path reconstructed:", path);
+            return { distances, path, totalWeight };
+        }
 
         function showAdjacencyMatrix() {
-           
-                var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
-               
-          
-            // Calculate the maximum value for each column
+            var adjacencyMatrix = generateAdjacencyMatrix(VertexArr, EdgeArr);
+            
             var maxValuesInColumns = [];
             for (var i = 0; i < adjacencyMatrix.length; i++) {
                 var maxInColumn = 0;
@@ -858,13 +769,11 @@ function agregar(vertexName, result){
                 maxValuesInColumns.push(maxInColumn);
             }
 
-            // Calculate the maximum value for each row
             var maxValuesInRows = [];
             for (var i = 0; i < adjacencyMatrix.length; i++) {
                 maxValuesInRows.push(Math.max.apply(null, adjacencyMatrix[i]));
             }
 
-            // Sum the max values of each column and row, considering the maximum value in the corresponding row or column
             var columnSum = 0;
             for (var i = 0; i < adjacencyMatrix.length; i++) {
                 for (var j = 0; j < adjacencyMatrix.length; j++) {
@@ -874,7 +783,6 @@ function agregar(vertexName, result){
                 }
             }
 
-            // Add a new row to display the sum of row maxima
             var rowMaxSumRow = [];
             for (var i = 0; i < VertexArr.length; i++) {
                 rowMaxSumRow.push(maxValuesInRows[i]);
@@ -882,41 +790,17 @@ function agregar(vertexName, result){
             rowMaxSumRow.push(columnSum);
             adjacencyMatrix.push(rowMaxSumRow);
 
-            // Add a new column to display the sum of column maxima
             for (var i = 0; i < adjacencyMatrix.length; i++) {
                 adjacencyMatrix[i].push(maxValuesInColumns[i]);
             }
 
-            // Display the adjacency matrix
             displayMatrixAsTable(adjacencyMatrix, VertexArr.concat([' ']));
 
-            // Show the modal
             $("#adjacencyMatrixModal").addClass("is-active");
 
-            // Close the modal when the close button or background is clicked
             $(".modal-close, .modal-background").on("click", function () {
                 $("#adjacencyMatrixModal").removeClass("is-active");
             });
-        }
-
-
-        function subirImagen() {
-            var input = document.getElementById('inputImage');
-            var preview = document.getElementById('imagenPreview');
-
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    // preview.src = e.target.result;
-                    //preview.style.display = 'block';
-
-                    // Llamar a la función para extraer texto de la imagen
-                    extraerTextoDeImagen(e.target.result);
-                };
-
-                reader.readAsDataURL(input.files[0]);
-            }
         }
     </script>
 

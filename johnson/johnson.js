@@ -1,6 +1,8 @@
 function johnson(verArr,edgeArr){
     var vm={},edm=[], aux={};
+    console.log("df: "+verArr);
 
+    console.log("dfw: "+edgeArr);
     for(let i=0;i<verArr.length;i++){
         aux[verArr[i]]=i;
     }
@@ -173,11 +175,12 @@ function  valoresHolguras(edm,vm,edgeArr){
   
 }
 function valoresVertices(vm,verArr,edgeArr){
-   
+    console.log("df: "+verArr);
+
+    console.log("dfw: "+edgeArr);
     for(let i=0;i<verArr.length;i++){
         vm[verArr[i]]=[0,0];
     }
-    console.log(vm);
     for(let i = 0; i < edgeArr.length; i++){
         let sourceVertex = edgeArr[i][0];
         let destinationVertex = edgeArr[i][1];
@@ -201,6 +204,7 @@ function valoresVertices(vm,verArr,edgeArr){
 
         }
     }
-   
+    console.log(vm);
+
 
 }
